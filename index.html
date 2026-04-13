@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Lyric Studio</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
@@ -10,314 +10,299 @@
       --bg: #f4f6f9;
       --surface: #ffffff;
       --surface2: #f0f2f6;
-      --surface3: #e8ebf0;
       --border: #dde1ea;
       --text: #1a1d23;
       --muted: #6b7280;
       --accent: #2563eb;
-      --accent-bg: #eff6ff;
       --purple: #7c3aed;
-      --purple-bg: #f5f3ff;
       --danger: #dc2626;
       --success: #16a34a;
-      --success-bg: #f0fdf4;
-      --check-color: #16a34a;
-      --ai-color: #f59e0b;
+      --ai: #f59e0b;
       --ai-bg: #fffbeb;
+      --ai-border: #fcd34d;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
-    #app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; -webkit-text-size-adjust: 100%; }
+
+    #app { display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
 
     /* ── HEADER ── */
     header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 20px; height: 50px; background: var(--surface);
-      border-bottom: 1px solid var(--border); flex-shrink: 0; z-index: 20;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-    }
-    .logo { font-size: 1rem; font-weight: 600; color: var(--accent); letter-spacing: -0.01em; }
-    .logo em { font-style: normal; color: var(--purple); }
-    .header-right { display: flex; gap: 8px; align-items: center; }
-
-    /* ── NAV ── */
-    nav {
-      display: flex; padding: 0 20px; background: var(--surface);
+      padding: 0 16px; height: 50px; background: var(--surface);
       border-bottom: 1px solid var(--border); flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06); z-index: 20;
     }
-    nav button {
-      font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 500;
-      border: none; border-bottom: 2px solid transparent; border-radius: 0;
-      padding: 10px 16px; color: var(--muted); background: transparent;
-      cursor: pointer; margin-bottom: -1px; transition: color 0.12s;
-    }
-    nav button:hover { color: var(--text); }
-    nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .logo { font-size: 1rem; font-weight: 700; color: var(--accent); }
+    .logo em { font-style: normal; color: var(--purple); }
+    .hdr-right { display: flex; gap: 6px; align-items: center; }
 
     /* ── BUTTONS ── */
     .btn {
       font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 500;
       cursor: pointer; border: 1px solid var(--border); background: var(--surface);
-      color: var(--text); padding: 6px 14px; border-radius: 6px;
-      transition: background 0.12s, border-color 0.12s; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;
+      color: var(--text); padding: 6px 13px; border-radius: 7px;
+      transition: background 0.1s; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;
+      -webkit-tap-highlight-color: transparent;
     }
-    .btn:hover { background: var(--surface2); }
-    .btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
-    .btn.primary:hover { background: #1d4ed8; }
+    .btn:hover, .btn:active { background: var(--surface2); }
+    .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn.primary:hover, .btn.primary:active { background: #1d4ed8; }
     .btn.ghost { border-color: transparent; background: transparent; color: var(--muted); }
-    .btn.ghost:hover { background: var(--surface2); color: var(--text); }
+    .btn.ghost:hover, .btn.ghost:active { background: var(--surface2); color: var(--text); }
     .btn.danger { border-color: transparent; color: var(--danger); background: transparent; }
-    .btn.danger:hover { background: #fef2f2; }
-    .btn.sm { padding: 3px 9px; font-size: 0.73rem; }
-    .btn.xs { padding: 2px 6px; font-size: 0.68rem; border-radius: 4px; }
+    .btn.danger:hover, .btn.danger:active { background: #fef2f2; }
+    .btn.sm { padding: 4px 10px; font-size: 0.75rem; }
+    .btn.xs { padding: 2px 7px; font-size: 0.7rem; border-radius: 5px; }
     .btn:disabled { opacity: 0.4; pointer-events: none; }
 
+    /* ── NAV ── */
+    nav {
+      display: flex; padding: 0 16px; background: var(--surface);
+      border-bottom: 1px solid var(--border); flex-shrink: 0; overflow-x: auto;
+    }
+    nav::-webkit-scrollbar { display: none; }
+    nav button {
+      font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 500;
+      border: none; border-bottom: 2px solid transparent; border-radius: 0;
+      padding: 10px 15px; color: var(--muted); background: transparent;
+      cursor: pointer; margin-bottom: -1px; white-space: nowrap; flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+
     /* ── VIEWS ── */
-    .view { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+    .view { display: none; flex: 1; overflow: hidden; flex-direction: column; min-height: 0; }
     .view.active { display: flex; }
 
-    /* ══ EDITOR VIEW ══════════════════════════════════════════════════ */
+    /* ════════════════════════════════
+       EDITOR
+    ════════════════════════════════ */
     .editor-toolbar {
-      display: flex; align-items: center; gap: 8px; padding: 7px 16px;
+      display: flex; align-items: center; gap: 6px; padding: 6px 12px;
       background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0;
+      flex-wrap: wrap;
     }
-    .editor-toolbar .spacer { flex: 1; }
+    .editor-toolbar .sp { flex: 1; min-width: 8px; }
 
-    .stack { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .stack { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
 
-    /* Each panel */
-    .song-panel { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+    /* ── PANEL ── */
+    .song-panel { flex: 1; display: flex; flex-direction: column; min-height: 0; background: var(--surface); }
 
     .panel-head {
-      display: flex; align-items: center; gap: 6px; padding: 6px 12px;
+      display: flex; align-items: center; gap: 6px; padding: 5px 10px;
       background: var(--surface2); border-bottom: 1px solid var(--border); flex-shrink: 0;
+      flex-wrap: nowrap; overflow: hidden;
     }
-    .panel-badge {
-      font-size: 0.68rem; font-weight: 700; color: white; background: var(--accent);
-      padding: 2px 8px; border-radius: 4px; letter-spacing: 0.05em; flex-shrink: 0;
+    .pbadge {
+      font-size: 0.66rem; font-weight: 700; color: #fff; background: var(--accent);
+      padding: 2px 7px; border-radius: 4px; flex-shrink: 0;
     }
-    .panel-badge.b { background: var(--purple); }
-    .panel-title-input {
-      flex: 1; font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 500;
+    .pbadge.b { background: var(--purple); }
+    .panel-title {
+      flex: 1; min-width: 0; font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 500;
       border: none; background: transparent; outline: none; color: var(--text);
+      text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
     }
-    .panel-title-input::placeholder { color: var(--muted); font-weight: 400; }
-    .panel-stats { font-size: 0.72rem; color: var(--muted); margin-left: auto; white-space: nowrap; }
-    .dirty-badge { font-size: 0.68rem; color: var(--danger); margin-left: 4px; }
-    .saved-badge { font-size: 0.68rem; color: var(--success); margin-left: 4px; }
+    .panel-title::placeholder { color: var(--muted); font-weight: 400; }
+    .pstats { font-size: 0.68rem; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
+    .pdirty { font-size: 0.68rem; flex-shrink: 0; }
+    .pdirty.unsaved { color: var(--danger); }
+    .pdirty.saved { color: var(--success); }
 
-    /* ── LINE EDITOR ── */
-    .lines-container {
-      flex: 1; overflow-y: auto; overflow-x: hidden;
-      background: var(--surface);
-      scroll-behavior: smooth;
+    /* ── AI bar (appears when text selected) ── */
+    .ai-bar {
+      display: none; align-items: center; gap: 8px; padding: 5px 12px;
+      background: var(--ai-bg); border-bottom: 1px solid var(--ai-border); flex-shrink: 0;
+      flex-wrap: wrap;
     }
-
-    .line-row {
-      display: flex; align-items: stretch;
-      min-height: 32px;
-      border-bottom: 1px solid transparent;
-      transition: background 0.08s;
-      position: relative;
+    .ai-bar.show { display: flex; }
+    .ai-bar-label { font-size: 0.78rem; color: #92400e; flex: 1; }
+    .ai-translate-btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #fff; border: 1px solid var(--ai-border); color: #92400e;
+      font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 600;
+      padding: 4px 11px; border-radius: 6px; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
     }
-    .line-row:hover { background: #fafbfc; }
-    .line-row.checked { background: var(--success-bg); }
-    .line-row.checked:hover { background: #dcfce7; }
+    .ai-translate-btn:active { background: var(--ai-bg); }
 
-    /* line number */
-    .ln {
-      width: 38px; flex-shrink: 0; padding: 7px 6px 7px 0;
-      text-align: right; font-size: 0.68rem; color: #c5ccd8;
-      background: var(--surface2); border-right: 1px solid var(--border);
-      user-select: none; align-self: stretch; display: flex; align-items: flex-start;
-      justify-content: flex-end; padding-top: 9px;
+    /* ── THE EDITOR: side-by-side number + textarea ── */
+    .editor-wrap {
+      flex: 1; display: flex; overflow: hidden; min-height: 0; position: relative;
     }
 
-    /* checkbox */
-    .line-check {
-      width: 30px; flex-shrink: 0; display: flex; align-items: flex-start;
-      justify-content: center; padding-top: 8px;
-      border-right: 1px solid var(--border);
-      background: var(--surface2);
+    /* line numbers — rendered as a div, synced via JS */
+    .lnums {
+      width: 36px; flex-shrink: 0; overflow: hidden;
+      padding: 12px 5px 12px 0; text-align: right;
+      font-family: 'Inter', monospace; font-size: 0.72rem; line-height: 1.65;
+      color: #c5ccd8; background: var(--surface2); border-right: 1px solid var(--border);
+      user-select: none; pointer-events: none; white-space: pre;
     }
-    .line-check input[type="checkbox"] { display: none; }
-    .check-btn {
-      width: 16px; height: 16px; border: 1.5px solid var(--border);
-      border-radius: 4px; cursor: pointer; flex-shrink: 0;
-      background: white; display: flex; align-items: center; justify-content: center;
-      transition: border-color 0.12s, background 0.12s;
-      font-size: 10px; color: transparent; user-select: none;
-    }
-    .line-row.checked .check-btn {
-      background: var(--check-color); border-color: var(--check-color); color: white;
-    }
-    .check-btn:hover { border-color: var(--check-color); }
 
-    /* text input */
-    .line-text {
-      flex: 1; min-width: 0; padding: 6px 8px;
-      font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 400;
-      line-height: 1.5; border: none; outline: none;
-      background: transparent; color: var(--text); resize: none;
-      overflow: hidden; min-height: 32px; height: auto;
+    .main-textarea {
+      flex: 1; width: 0;
+      padding: 12px 14px;
+      font-family: 'Inter', sans-serif; font-size: 0.92rem; line-height: 1.65;
+      border: none; resize: none; outline: none;
+      color: var(--text); background: var(--surface);
+      overflow-y: scroll; /* always show scrollbar space */
+      -webkit-overflow-scrolling: touch;
     }
-    .line-text::placeholder { color: #c0c8d4; }
-    .line-row.checked .line-text { color: var(--success); }
+    .main-textarea::placeholder { color: #bbc3cf; }
 
-    /* line actions (appear on hover) */
-    .line-actions {
-      display: flex; align-items: flex-start; gap: 2px; padding: 5px 6px 5px 0;
-      opacity: 0; transition: opacity 0.15s; flex-shrink: 0;
+    /* check sidebar */
+    .check-sidebar {
+      width: 32px; flex-shrink: 0; overflow: hidden;
+      background: var(--surface); border-left: 1px solid var(--border);
+      display: flex; flex-direction: column;
     }
-    .line-row:hover .line-actions { opacity: 1; }
+    .check-sidebar-inner {
+      overflow: hidden; pointer-events: none; /* scroll synced */
+      padding: 12px 0;
+      display: flex; flex-direction: column;
+      gap: 0;
+    }
+    .ck-row {
+      height: calc(1.65 * 0.92rem); /* must match textarea line-height * font-size */
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: all; cursor: pointer; flex-shrink: 0;
+      font-size: 11px;
+    }
+    /* We'll use a simpler approach: overlay absolute checkboxes */
 
-    /* AI translate button */
-    .ai-btn {
-      background: var(--ai-bg); border: 1px solid #fcd34d; color: #92400e;
-      font-size: 0.65rem; font-weight: 600; padding: 2px 7px; border-radius: 4px;
-      cursor: pointer; white-space: nowrap; transition: background 0.12s;
-      font-family: 'Inter', sans-serif;
+    .panel-foot {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 4px 10px; background: var(--surface2); border-top: 1px solid var(--border); flex-shrink: 0;
     }
-    .ai-btn:hover { background: #fef3c7; }
-    .ai-btn.loading { opacity: 0.6; pointer-events: none; }
+    .panel-foot span { font-size: 0.7rem; color: var(--muted); }
 
-    /* multi-select translate button */
-    .translate-selection-bar {
-      display: none; align-items: center; gap: 10px;
-      padding: 7px 16px; background: var(--ai-bg);
-      border-bottom: 1px solid #fcd34d; flex-shrink: 0;
-    }
-    .translate-selection-bar.visible { display: flex; }
-    .translate-selection-bar span { font-size: 0.8rem; color: #92400e; }
-
-    /* AI translation popup */
-    .ai-popup {
-      position: absolute; z-index: 50;
-      background: white; border: 1px solid var(--border);
-      border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-      padding: 12px 14px; max-width: 420px; min-width: 220px;
-      font-size: 0.85rem; line-height: 1.55;
-      right: 40px; top: 0;
-      animation: popIn 0.15s ease;
-    }
-    @keyframes popIn { from { opacity:0; transform: scale(0.95) translateY(-4px); } to { opacity:1; transform: scale(1) translateY(0); } }
-    .ai-popup .popup-label {
-      font-size: 0.65rem; font-weight: 600; letter-spacing: 0.06em;
-      color: var(--ai-color); text-transform: uppercase; margin-bottom: 6px;
-      display: flex; align-items: center; gap: 5px; justify-content: space-between;
-    }
-    .ai-popup .popup-text { color: var(--text); }
-    .ai-popup .popup-actions { display: flex; gap: 6px; margin-top: 10px; }
-    .ai-popup-close {
-      background: none; border: none; cursor: pointer; color: var(--muted);
-      font-size: 0.8rem; padding: 0; line-height: 1;
-    }
-    .ai-popup-close:hover { color: var(--text); }
-
-    /* Loading spinner */
-    .spinner { width: 14px; height: 14px; border: 2px solid #fcd34d; border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; display: inline-block; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Global translate results panel */
-    .translate-result-panel {
-      display: none; position: fixed; bottom: 60px; right: 20px; z-index: 80;
-      background: white; border: 1px solid var(--border); border-radius: 10px;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.13); padding: 16px;
-      width: 380px; max-width: 90vw; animation: slideUp 0.2s ease;
-    }
-    .translate-result-panel.visible { display: block; }
-    @keyframes slideUp { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
-    .trp-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-    .trp-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.07em; color: var(--ai-color); text-transform: uppercase; }
-    .trp-source { font-size: 0.8rem; color: var(--muted); margin-bottom: 8px; font-style: italic; line-height: 1.5; }
-    .trp-result { font-size: 0.88rem; color: var(--text); line-height: 1.6; background: var(--ai-bg); padding: 10px 12px; border-radius: 6px; border: 1px solid #fcd34d; }
-    .trp-actions { display: flex; gap: 8px; margin-top: 12px; }
-
-    /* Divider */
+    /* DIVIDER */
     .divider-bar {
       height: 4px; background: var(--purple); flex-shrink: 0;
-      display: flex; align-items: flex-start; justify-content: center; position: relative;
+      display: flex; justify-content: center; align-items: flex-start; position: relative;
     }
     .divider-bar span {
-      position: absolute; top: 0; background: var(--purple); color: white;
-      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em;
-      padding: 1px 10px; border-radius: 0 0 4px 4px; text-transform: uppercase;
+      position: absolute; top: 0; background: var(--purple); color: #fff;
+      font-size: 0.58rem; font-weight: 700; letter-spacing: 0.08em;
+      padding: 1px 9px; border-radius: 0 0 4px 4px; white-space: nowrap;
     }
 
-    /* ══ LIBRARY ══════════════════════════════════════════════════════ */
-    #view-library { overflow-y: auto; padding: 16px; }
-    .lib-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    /* ════════════════════════════════
+       CHECKS OVERLAY (floating panel per panel)
+       Uses absolute positioning over the textarea
+    ════════════════════════════════ */
+    .checks-overlay {
+      position: absolute; top: 0; right: 0; bottom: 0;
+      width: 30px; overflow: hidden; pointer-events: none; z-index: 5;
+    }
+    .checks-scroll {
+      position: absolute; top: 12px; right: 0; left: 0;
+      pointer-events: all;
+    }
+    .ck {
+      height: calc(1.65em); /* relative to overlay font-size */
+      font-size: 0.92rem; /* must match textarea */
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; opacity: 0.35; transition: opacity 0.1s;
+      -webkit-tap-highlight-color: transparent; user-select: none;
+    }
+    .ck:hover { opacity: 1; }
+    .ck.on { opacity: 1; color: var(--success); }
+    .ck.on::after { content: '✓'; font-size: 12px; font-weight: 700; }
+    .ck:not(.on)::after { content: '○'; font-size: 10px; color: var(--border); }
+
+    /* ════════════════════════════════
+       AI RESULT PANEL
+    ════════════════════════════════ */
+    .ai-result {
+      position: fixed; bottom: 16px; right: 16px; left: 16px; z-index: 90;
+      background: #fff; border: 1px solid var(--border); border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.14); padding: 14px 16px;
+      max-width: 480px; margin: 0 auto;
+      display: none; animation: fadeUp .2s ease;
+    }
+    .ai-result.show { display: block; }
+    @keyframes fadeUp { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+    .air-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .air-label { font-size: 0.68rem; font-weight: 700; letter-spacing: .07em; color: var(--ai); text-transform: uppercase; }
+    .air-src { font-size: 0.78rem; color: var(--muted); font-style: italic; line-height: 1.5; margin-bottom: 8px; white-space: pre-wrap; max-height: 80px; overflow: auto; }
+    .air-body { font-size: 0.9rem; line-height: 1.6; color: var(--text); background: var(--ai-bg); padding: 10px 12px; border-radius: 8px; border: 1px solid var(--ai-border); white-space: pre-wrap; max-height: 160px; overflow: auto; }
+    .air-actions { display: flex; gap: 8px; margin-top: 10px; }
+
+    /* spinner */
+    .spin { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--ai-border); border-top-color: var(--ai); border-radius: 50%; animation: rot .6s linear infinite; }
+    @keyframes rot { to { transform: rotate(360deg); } }
+
+    /* ════════════════════════════════
+       LIBRARY
+    ════════════════════════════════ */
+    #view-library { overflow-y: auto; padding: 14px; }
+    .lib-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
     .lib-search {
       flex: 1; font-family: 'Inter', sans-serif; font-size: 0.88rem;
-      border: 1px solid var(--border); border-radius: 6px; padding: 7px 12px;
+      border: 1px solid var(--border); border-radius: 7px; padding: 7px 12px;
       background: var(--surface); color: var(--text); outline: none;
     }
     .lib-search:focus { border-color: var(--accent); }
-    .library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap: 12px; }
+    .lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 10px; }
     .song-card {
       background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
-      padding: 14px 16px; cursor: pointer; position: relative;
-      transition: box-shadow 0.15s, border-color 0.15s;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      padding: 13px 14px; cursor: pointer; position: relative;
+      transition: box-shadow .15s, border-color .15s;
     }
-    .song-card:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(37,99,235,0.1); }
-    .card-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 3px; padding-right: 56px; }
-    .card-meta { font-size: 0.72rem; color: var(--muted); margin-bottom: 8px; }
-    .card-preview { font-size: 0.8rem; color: var(--muted); line-height: 1.5; max-height: 60px; overflow: hidden; -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent); mask-image: linear-gradient(to bottom, black 50%, transparent); }
-    .card-actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 2px; opacity: 0; transition: opacity 0.15s; }
-    .song-card:hover .card-actions { opacity: 1; }
-    .empty-state { grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--muted); }
-    .empty-state .big { font-size: 1.3rem; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+    .song-card:active { background: var(--surface2); }
+    .song-card:hover { border-color: var(--accent); }
+    .card-title { font-size: 0.92rem; font-weight: 600; margin-bottom: 2px; padding-right: 52px; }
+    .card-meta { font-size: 0.7rem; color: var(--muted); margin-bottom: 6px; }
+    .card-preview { font-size: 0.78rem; color: var(--muted); line-height: 1.45; max-height: 55px; overflow: hidden; -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent); mask-image: linear-gradient(to bottom, black 50%, transparent); }
+    .card-actions { position: absolute; top: 9px; right: 9px; display: flex; gap: 2px; opacity: 0; }
+    .song-card:hover .card-actions, .song-card:active .card-actions { opacity: 1; }
+    .empty-lib { grid-column: 1/-1; text-align: center; padding: 50px 20px; color: var(--muted); }
+    .empty-lib .big { font-size: 1.2rem; font-weight: 600; color: var(--text); margin-bottom: 6px; }
 
-    /* ══ COMPARE ══════════════════════════════════════════════════════ */
-    .compare-toolbar {
-      display: flex; align-items: center; gap: 12px; padding: 8px 16px;
+    /* ════════════════════════════════
+       COMPARE
+    ════════════════════════════════ */
+    .cmp-toolbar {
+      display: flex; align-items: center; gap: 10px; padding: 7px 14px;
       background: var(--surface); border-bottom: 1px solid var(--border);
       flex-shrink: 0; flex-wrap: wrap;
     }
-    .sel-group { display: flex; align-items: center; gap: 6px; }
-    .sel-group label { font-size: 0.75rem; color: var(--muted); }
-    .sel-group select {
-      font-family: 'Inter', sans-serif; font-size: 0.83rem;
-      border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px;
-      background: var(--surface); color: var(--text); outline: none;
-    }
-    .cmp-stack { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .sg { display: flex; align-items: center; gap: 5px; }
+    .sg label { font-size: 0.73rem; color: var(--muted); white-space: nowrap; }
+    .sg select { font-family: 'Inter', sans-serif; font-size: 0.82rem; border: 1px solid var(--border); border-radius: 6px; padding: 5px 9px; background: var(--surface); color: var(--text); outline: none; max-width: 150px; }
+    .cmp-stack { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
     .cmp-panel { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-    .cmp-lines { flex: 1; overflow-y: auto; background: var(--surface); }
-    .cmp-line-row {
-      display: flex; align-items: stretch; min-height: 32px;
-      border-bottom: 1px solid transparent;
-    }
-    .cmp-line-row.checked { background: var(--success-bg); }
-    .cmp-ln {
-      width: 38px; flex-shrink: 0; padding: 8px 6px 8px 0;
-      text-align: right; font-size: 0.68rem; color: #c5ccd8;
-      background: var(--surface2); border-right: 1px solid var(--border);
-      user-select: none;
-    }
-    .cmp-check-col {
-      width: 30px; flex-shrink: 0; display: flex; align-items: flex-start;
-      justify-content: center; padding-top: 8px;
-      background: var(--surface2); border-right: 1px solid var(--border);
-    }
-    .cmp-text {
-      flex: 1; padding: 7px 10px; font-size: 0.88rem; line-height: 1.5;
-      color: var(--text);
-    }
-    .cmp-line-row.checked .cmp-text { color: var(--success); }
+    .cmp-body { flex: 1; display: flex; overflow: hidden; min-height: 0; }
+    .cmp-lnums { width: 36px; flex-shrink: 0; overflow: hidden; padding: 12px 5px 12px 0; text-align: right; font-size: 0.7rem; line-height: 1.65; color: #c5ccd8; background: var(--surface2); border-right: 1px solid var(--border); user-select: none; white-space: pre; }
+    .cmp-textarea { flex: 1; width: 0; padding: 12px 14px; font-family: 'Inter', sans-serif; font-size: 0.9rem; line-height: 1.65; border: none; resize: none; outline: none; color: var(--text); background: var(--surface2); overflow-y: scroll; -webkit-overflow-scrolling: touch; }
 
-    /* ══ MODAL ══ */
-    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 100; align-items: center; justify-content: center; }
+    /* ════════════════════════════════
+       SETTINGS MODAL
+    ════════════════════════════════ */
+    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
     .modal-bg.open { display: flex; }
-    .modal { background: var(--surface); border-radius: 10px; padding: 24px; width: 90%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
-    .modal h3 { font-size: 1rem; font-weight: 600; margin-bottom: 14px; }
-    .modal input { width: 100%; font-family: 'Inter', sans-serif; font-size: 0.9rem; border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; color: var(--text); outline: none; margin-bottom: 16px; }
-    .modal input:focus { border-color: var(--accent); }
+    .modal { background: var(--surface); border-radius: 12px; padding: 22px; width: 100%; max-width: 420px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
+    .modal h3 { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
+    .modal .sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 14px; line-height: 1.5; }
+    .modal label { font-size: 0.75rem; font-weight: 600; color: var(--muted); display: block; margin-bottom: 4px; letter-spacing: .04em; }
+    .modal input, .modal textarea {
+      width: 100%; font-family: 'Inter', sans-serif; font-size: 0.88rem;
+      border: 1px solid var(--border); border-radius: 7px; padding: 8px 11px;
+      color: var(--text); outline: none; margin-bottom: 14px; background: var(--surface);
+    }
+    .modal input:focus, .modal textarea:focus { border-color: var(--accent); }
     .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+    .api-hint { font-size: 0.73rem; color: var(--muted); margin-top: -10px; margin-bottom: 14px; line-height: 1.5; }
+    .api-hint a { color: var(--accent); }
 
-    /* ══ TOAST ══ */
-    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(60px); background: #1a1d23; color: white; font-size: 0.82rem; padding: 9px 18px; border-radius: 8px; z-index: 200; transition: transform 0.25s cubic-bezier(.34,1.56,.64,1); box-shadow: 0 4px 12px rgba(0,0,0,0.2); pointer-events: none; }
+    /* ════════════════════════════════
+       TOAST
+    ════════════════════════════════ */
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(60px); background: #1a1d23; color: #fff; font-size: 0.82rem; padding: 9px 18px; border-radius: 9px; z-index: 200; transition: transform .25s cubic-bezier(.34,1.56,.64,1); box-shadow: 0 4px 14px rgba(0,0,0,.2); pointer-events: none; white-space: nowrap; }
     .toast.show { transform: translateX(-50%) translateY(0); }
   </style>
 </head>
@@ -326,8 +311,9 @@
 
   <header>
     <div class="logo">🎵 Lyric <em>Studio</em></div>
-    <div class="header-right">
-      <button class="btn ghost sm" onclick="exportAll()">↓ Esporta</button>
+    <div class="hdr-right">
+      <button class="btn ghost sm" onclick="openSettings()" title="Impostazioni (API Key)">⚙️</button>
+      <button class="btn ghost sm" onclick="exportAll()">↓</button>
       <button class="btn primary sm" onclick="openNewSong()">+ Nuova</button>
     </div>
   </header>
@@ -341,411 +327,363 @@
   <!-- ══ EDITOR ══ -->
   <div id="view-editor" class="view active">
     <div class="editor-toolbar">
-      <button class="btn ghost sm" onclick="swapPanels()">⇅ Inverti A/B</button>
-      <div class="spacer"></div>
+      <button class="btn ghost sm" onclick="swapPanels()">⇅ Inverti</button>
+      <div class="sp"></div>
       <button class="btn sm" onclick="saveSession()">💾 Salva entrambe</button>
     </div>
     <div class="stack">
 
       <!-- Panel A -->
-      <div class="song-panel" id="panel-a">
+      <div class="song-panel" id="panelA">
         <div class="panel-head">
-          <span class="panel-badge">A</span>
-          <input class="panel-title-input" type="text" id="title-a" placeholder="Titolo (es. testo originale)…" oninput="markDirty('a')" />
+          <span class="pbadge">A</span>
+          <input class="panel-title" type="text" id="title-a" placeholder="Titolo (originale)…" oninput="markDirty('a')" />
           <button class="btn ghost sm" onclick="saveSingle('a')">Salva</button>
           <button class="btn ghost sm" onclick="clearPanel('a')">✕</button>
-          <span id="count-a" class="panel-stats"></span>
-          <span id="dirty-a"></span>
+          <span id="stats-a" class="pstats"></span>
+          <span id="dirty-a" class="pdirty"></span>
         </div>
-        <!-- selection translate bar -->
-        <div class="translate-selection-bar" id="sel-bar-a">
-          <span id="sel-bar-a-label">0 righe selezionate</span>
-          <button class="ai-btn" onclick="translateSelection('a')">✨ Traduci selezione con AI</button>
-          <button class="btn ghost xs" onclick="clearSelection('a')">✕</button>
+        <div class="ai-bar" id="ai-bar-a">
+          <span class="ai-bar-label">✦ Testo selezionato</span>
+          <button class="ai-translate-btn" onclick="translateSelected('a')">✨ Traduci con AI</button>
+          <button class="btn xs ghost" onclick="clearAiBar('a')">✕</button>
         </div>
-        <div class="lines-container" id="lines-a" onscroll="onScrollEditor('a')"></div>
+        <div class="editor-wrap" id="wrap-a">
+          <div class="lnums" id="ln-a">1</div>
+          <textarea class="main-textarea" id="ta-a"
+            placeholder="Incolla o scrivi il testo originale…"
+            oninput="onTaInput('a')"
+            onscroll="onTaScroll('a')"
+            onmouseup="onTaSelect('a')"
+            onkeyup="onTaSelect('a')"
+            ontouchend="onTaSelect('a')"
+          ></textarea>
+          <!-- checks overlay -->
+          <div class="checks-overlay" id="ckover-a">
+            <div class="checks-scroll" id="ckscroll-a"></div>
+          </div>
+        </div>
+        <div class="panel-foot">
+          <span id="foot-a">0 righe · 0 parole</span>
+          <span id="ck-count-a"></span>
+        </div>
       </div>
 
       <div class="divider-bar"><span>TRADUZIONE / B</span></div>
 
       <!-- Panel B -->
-      <div class="song-panel" id="panel-b">
+      <div class="song-panel" id="panelB">
         <div class="panel-head">
-          <span class="panel-badge b">B</span>
-          <input class="panel-title-input" type="text" id="title-b" placeholder="Titolo (es. traduzione)…" oninput="markDirty('b')" />
+          <span class="pbadge b">B</span>
+          <input class="panel-title" type="text" id="title-b" placeholder="Titolo (traduzione)…" oninput="markDirty('b')" />
           <button class="btn ghost sm" onclick="saveSingle('b')">Salva</button>
           <button class="btn ghost sm" onclick="clearPanel('b')">✕</button>
-          <span id="count-b" class="panel-stats"></span>
-          <span id="dirty-b"></span>
+          <span id="stats-b" class="pstats"></span>
+          <span id="dirty-b" class="pdirty"></span>
         </div>
-        <div class="translate-selection-bar" id="sel-bar-b">
-          <span id="sel-bar-b-label">0 righe selezionate</span>
-          <button class="ai-btn" onclick="translateSelection('b')">✨ Traduci selezione con AI</button>
-          <button class="btn ghost xs" onclick="clearSelection('b')">✕</button>
+        <div class="ai-bar" id="ai-bar-b">
+          <span class="ai-bar-label">✦ Testo selezionato</span>
+          <button class="ai-translate-btn" onclick="translateSelected('b')">✨ Traduci con AI</button>
+          <button class="btn xs ghost" onclick="clearAiBar('b')">✕</button>
         </div>
-        <div class="lines-container" id="lines-b" onscroll="onScrollEditor('b')"></div>
+        <div class="editor-wrap" id="wrap-b">
+          <div class="lnums" id="ln-b">1</div>
+          <textarea class="main-textarea" id="ta-b"
+            placeholder="Incolla o scrivi la traduzione…"
+            oninput="onTaInput('b')"
+            onscroll="onTaScroll('b')"
+            onmouseup="onTaSelect('b')"
+            onkeyup="onTaSelect('b')"
+            ontouchend="onTaSelect('b')"
+          ></textarea>
+          <div class="checks-overlay" id="ckover-b">
+            <div class="checks-scroll" id="ckscroll-b"></div>
+          </div>
+        </div>
+        <div class="panel-foot">
+          <span id="foot-b">0 righe · 0 parole</span>
+          <span id="ck-count-b"></span>
+        </div>
       </div>
 
     </div>
-  </div>
+  </div><!-- /editor -->
 
   <!-- ══ LIBRARY ══ -->
-  <div id="view-library" class="view" style="overflow-y:auto;padding:16px;">
-    <div class="lib-toolbar">
-      <input class="lib-search" type="text" id="search-input" placeholder="🔍 Cerca per titolo o testo…" oninput="renderLibrary()" />
-      <span id="lib-count" style="font-size:0.78rem;color:var(--muted);white-space:nowrap;"></span>
+  <div id="view-library" class="view" style="overflow-y:auto;padding:14px;">
+    <div class="lib-bar">
+      <input class="lib-search" type="text" id="search-q" placeholder="🔍 Cerca…" oninput="renderLibrary()" />
+      <span id="lib-count" style="font-size:.75rem;color:var(--muted);white-space:nowrap;"></span>
     </div>
-    <div class="library-grid" id="library-grid"></div>
+    <div class="lib-grid" id="lib-grid"></div>
   </div>
 
   <!-- ══ COMPARE ══ -->
   <div id="view-compare" class="view">
-    <div class="compare-toolbar">
-      <div class="sel-group"><label>A:</label><select id="sel-a" onchange="loadCompare()"></select></div>
-      <div class="sel-group"><label>B:</label><select id="sel-b" onchange="loadCompare()"></select></div>
+    <div class="cmp-toolbar">
+      <div class="sg"><label>A:</label><select id="csel-a" onchange="renderCompare()"></select></div>
+      <div class="sg"><label>B:</label><select id="csel-b" onchange="renderCompare()"></select></div>
       <div style="flex:1"></div>
       <button class="btn primary sm" onclick="openBothInEditor()">Modifica →</button>
     </div>
     <div class="cmp-stack">
       <div class="cmp-panel">
         <div class="panel-head">
-          <span class="panel-badge">A</span>
-          <input class="panel-title-input" id="cmp-title-a" readonly style="pointer-events:none" />
-          <span id="cmp-count-a" class="panel-stats"></span>
+          <span class="pbadge">A</span>
+          <input class="panel-title" id="cmp-title-a" readonly style="pointer-events:none" />
+          <span id="cmp-stats-a" class="pstats"></span>
         </div>
-        <div class="cmp-lines" id="cmp-lines-a" onscroll="onScrollCmp('a')"></div>
+        <div class="cmp-body">
+          <div class="cmp-lnums" id="cmp-ln-a">1</div>
+          <textarea class="cmp-textarea" id="cmp-ta-a" readonly onscroll="onCmpScroll('a')"></textarea>
+        </div>
       </div>
       <div class="divider-bar"><span>TRADUZIONE / B</span></div>
       <div class="cmp-panel">
         <div class="panel-head">
-          <span class="panel-badge b">B</span>
-          <input class="panel-title-input" id="cmp-title-b" readonly style="pointer-events:none" />
-          <span id="cmp-count-b" class="panel-stats"></span>
+          <span class="pbadge b">B</span>
+          <input class="panel-title" id="cmp-title-b" readonly style="pointer-events:none" />
+          <span id="cmp-stats-b" class="pstats"></span>
         </div>
-        <div class="cmp-lines" id="cmp-lines-b" onscroll="onScrollCmp('b')"></div>
+        <div class="cmp-body">
+          <div class="cmp-lnums" id="cmp-ln-b">1</div>
+          <textarea class="cmp-textarea" id="cmp-ta-b" readonly onscroll="onCmpScroll('b')"></textarea>
+        </div>
       </div>
     </div>
   </div>
 
+</div><!-- #app -->
+
+<!-- ══ AI RESULT ══ -->
+<div class="ai-result" id="air">
+  <div class="air-top">
+    <div class="air-label">✨ Traduzione AI</div>
+    <button class="btn xs ghost" onclick="closeAir()">✕</button>
+  </div>
+  <div class="air-src" id="air-src"></div>
+  <div class="air-body" id="air-body"><div class="spin"></div></div>
+  <div class="air-actions" id="air-actions" style="display:none">
+    <button class="btn sm primary" onclick="applyAiResult()">→ Incolla in B</button>
+    <button class="btn sm ghost" onclick="closeAir()">Chiudi</button>
+  </div>
 </div>
 
-<!-- AI Translation result panel -->
-<div class="translate-result-panel" id="trp">
-  <div class="trp-header">
-    <div class="trp-label">✨ Traduzione AI</div>
-    <button class="btn ghost xs" onclick="closeTrp()">✕</button>
-  </div>
-  <div class="trp-source" id="trp-source"></div>
-  <div class="trp-result" id="trp-result"></div>
-  <div class="trp-actions">
-    <button class="btn sm primary" onclick="applyTranslation()">→ Copia in B</button>
-    <button class="btn sm ghost" onclick="closeTrp()">Chiudi</button>
-  </div>
-</div>
-
-<!-- MODAL -->
+<!-- ══ MODAL (settings + confirm) ══ -->
 <div class="modal-bg" id="modal-bg">
-  <div class="modal">
-    <h3 id="modal-title">Salva canzone</h3>
-    <input type="text" id="modal-input" placeholder="Titolo…" onkeydown="if(event.key==='Enter')modalConfirm()" />
-    <div class="modal-actions">
-      <button class="btn ghost" onclick="closeModal()">Annulla</button>
-      <button class="btn primary" onclick="modalConfirm()">Salva</button>
-    </div>
-  </div>
+  <div class="modal" id="modal-inner"></div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ════════════════════════════════════════════════════════════
-// STORAGE
-// ════════════════════════════════════════════════════════════
-const KEY = 'lyricstudio_v2';
+/* ════════════════════════════════════════════
+   STORAGE — localStorage only (Supabase coming)
+════════════════════════════════════════════ */
+const SONGS_KEY = 'ls_songs_v3';
+const API_KEY   = 'ls_apikey';
+
 let songs = {};
-try { songs = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e){}
-function saveSongs() { try { localStorage.setItem(KEY, JSON.stringify(songs)); } catch(e){} }
-function genId() { return 'song_' + Date.now() + '_' + Math.random().toString(36).slice(2,6); }
+try { songs = JSON.parse(localStorage.getItem(SONGS_KEY)||'{}'); } catch(e){}
+
+function saveSongs() { try { localStorage.setItem(SONGS_KEY, JSON.stringify(songs)); } catch(e){} }
+function genId()    { return 'song_'+Date.now()+'_'+Math.random().toString(36).slice(2,6); }
+
 function upsertSong(id, title, text, checks) {
   if (!id) id = genId();
-  songs[id] = { id, title: title||'Senza titolo', text, checks: checks||{}, updatedAt: new Date().toISOString() };
+  songs[id] = { id, title: title||'Senza titolo', text: text||'', checks: checks||{}, updatedAt: new Date().toISOString() };
   saveSongs(); return id;
 }
 function deleteSong(id) { delete songs[id]; saveSongs(); }
-function getSortedSongs(q='') {
+function sortedSongs(q='') {
   return Object.values(songs)
-    .filter(s => !q || s.title.toLowerCase().includes(q) || s.text.toLowerCase().includes(q))
-    .sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+    .filter(s=>!q||s.title.toLowerCase().includes(q)||s.text.toLowerCase().includes(q))
+    .sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt));
 }
 
-// ════════════════════════════════════════════════════════════
-// STATE
-// ════════════════════════════════════════════════════════════
-const state = {
-  a: { id: null, dirty: false, lines: [], checks: {}, selected: new Set() },
-  b: { id: null, dirty: false, lines: [], checks: {}, selected: new Set() }
+function getApiKey() { return localStorage.getItem(API_KEY)||''; }
+function saveApiKey(k) { localStorage.setItem(API_KEY, k); }
+
+/* ════════════════════════════════════════════
+   PANEL STATE
+════════════════════════════════════════════ */
+const ST = {
+  a: { id:null, dirty:false, checks:{} },
+  b: { id:null, dirty:false, checks:{} }
 };
-let modalCallback = null;
-let pendingTranslation = null; // { text, targetSide }
+let pendingAI = null; // { text, srcSide }
+let aiBarSel  = { a: null, b: null }; // current selection range per side
 
-// ════════════════════════════════════════════════════════════
-// LINE EDITOR — render
-// ════════════════════════════════════════════════════════════
-function renderLines(side) {
-  const container = document.getElementById('lines-' + side);
-  const st = state[side];
-  
-  container.innerHTML = '';
-  st.lines.forEach((text, i) => {
-    const row = document.createElement('div');
-    row.className = 'line-row' + (st.checks[i] ? ' checked' : '') + (st.selected.has(i) ? ' selected' : '');
-    row.dataset.idx = i;
-    if (st.selected.has(i)) row.style.background = '#eff6ff';
+/* ════════════════════════════════════════════
+   LINE NUMBERS
+════════════════════════════════════════════ */
+function updateLnums(side) {
+  const ta = document.getElementById('ta-'+side);
+  const ln = document.getElementById('ln-'+side);
+  const n  = ta.value.split('\n').length;
+  ln.textContent = Array.from({length:n},(_,i)=>i+1).join('\n');
+  // sync scroll
+  ln.scrollTop = ta.scrollTop;
+}
 
-    // line number
-    const ln = document.createElement('div');
-    ln.className = 'ln';
-    ln.textContent = i + 1;
+/* ════════════════════════════════════════════
+   CHECKS OVERLAY
+   One ✓ icon per line, positioned via line-height
+════════════════════════════════════════════ */
+const LINE_H_PX = 0.92 * 1.65 * 16; // font-size * line-height * base (approx 24.3px)
 
-    // checkbox
-    const checkCol = document.createElement('div');
-    checkCol.className = 'line-check';
-    const checkBtn = document.createElement('div');
-    checkBtn.className = 'check-btn';
-    checkBtn.textContent = st.checks[i] ? '✓' : '';
-    checkBtn.title = st.checks[i] ? 'Deseleziona' : 'Segna come OK';
-    checkBtn.onclick = () => toggleCheck(side, i);
-    checkCol.appendChild(checkBtn);
+function updateChecks(side) {
+  const ta   = document.getElementById('ta-'+side);
+  const cont = document.getElementById('ckscroll-'+side);
+  const lines = ta.value.split('\n');
+  const checks = ST[side].checks;
 
-    // textarea
-    const ta = document.createElement('textarea');
-    ta.className = 'line-text';
-    ta.value = text;
-    ta.rows = 1;
-    ta.placeholder = i === 0 ? 'Scrivi il testo…' : '';
-    ta.oninput = () => onLineInput(side, i, ta);
-    ta.onkeydown = (e) => onLineKeyDown(e, side, i, ta);
-    ta.onclick = (e) => onLineClick(e, side, i);
-    // auto-height
-    autoHeight(ta);
-
-    // actions
-    const actions = document.createElement('div');
-    actions.className = 'line-actions';
-    const aiBtn = document.createElement('button');
-    aiBtn.className = 'ai-btn';
-    aiBtn.textContent = '✨ AI';
-    aiBtn.title = 'Traduci questa riga con AI';
-    aiBtn.onclick = (e) => { e.stopPropagation(); translateLine(side, i); };
-    actions.appendChild(aiBtn);
-
-    row.appendChild(ln);
-    row.appendChild(checkCol);
-    row.appendChild(ta);
-    row.appendChild(actions);
-    container.appendChild(row);
+  cont.innerHTML = '';
+  lines.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'ck' + (checks[i] ? ' on' : '');
+    d.style.height = LINE_H_PX + 'px';
+    d.title = checks[i] ? 'Riga OK — clicca per rimuovere' : 'Segna come OK';
+    d.onclick = () => toggleCheck(side, i);
+    cont.appendChild(d);
   });
 
-  // always keep an empty trailing line
-  if (st.lines.length === 0 || st.lines[st.lines.length-1] !== '') {
-    // handled via onLineInput
-  }
-  updateStats(side);
-  updateSelectionBar(side);
+  // sync scroll offset
+  syncChecksScroll(side);
+  updateFooter(side);
 }
 
-function autoHeight(ta) {
-  ta.style.height = 'auto';
-  ta.style.height = ta.scrollHeight + 'px';
-}
-
-// ════════════════════════════════════════════════════════════
-// LINE INTERACTIONS
-// ════════════════════════════════════════════════════════════
-function onLineInput(side, idx, ta) {
-  const st = state[side];
-  // handle multi-line paste
-  const val = ta.value;
-  if (val.includes('\n')) {
-    const newLines = val.split('\n');
-    st.lines.splice(idx, 1, ...newLines);
-    renderLines(side);
-    markDirty(side);
-    // focus the last pasted line
-    setTimeout(() => {
-      const rows = document.querySelectorAll(`#lines-${side} .line-row`);
-      const target = rows[idx + newLines.length - 1];
-      if (target) target.querySelector('.line-text')?.focus();
-    }, 10);
-    return;
-  }
-  st.lines[idx] = val;
-  autoHeight(ta);
-  // ensure there's always an empty line at the end
-  if (idx === st.lines.length - 1 && val !== '') {
-    st.lines.push('');
-    renderLines(side);
-    markDirty(side);
-    setTimeout(() => {
-      const rows = document.querySelectorAll(`#lines-${side} .line-row`);
-      if (rows[idx]) rows[idx].querySelector('.line-text')?.focus();
-    }, 10);
-    return;
-  }
-  markDirty(side);
-  updateStats(side);
-}
-
-function onLineKeyDown(e, side, idx, ta) {
-  const st = state[side];
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    // insert new line after current
-    st.lines.splice(idx + 1, 0, '');
-    renderLines(side);
-    markDirty(side);
-    setTimeout(() => {
-      const rows = document.querySelectorAll(`#lines-${side} .line-row`);
-      if (rows[idx+1]) rows[idx+1].querySelector('.line-text')?.focus();
-    }, 10);
-  } else if (e.key === 'Backspace' && ta.value === '' && st.lines.length > 1) {
-    e.preventDefault();
-    st.lines.splice(idx, 1);
-    renderLines(side);
-    markDirty(side);
-    setTimeout(() => {
-      const rows = document.querySelectorAll(`#lines-${side} .line-row`);
-      const target = rows[Math.max(0, idx-1)];
-      if (target) {
-        const lineTA = target.querySelector('.line-text');
-        if (lineTA) { lineTA.focus(); lineTA.selectionStart = lineTA.selectionEnd = lineTA.value.length; }
-      }
-    }, 10);
-  } else if (e.key === 'ArrowDown') {
-    const rows = document.querySelectorAll(`#lines-${side} .line-row`);
-    if (rows[idx+1]) { e.preventDefault(); rows[idx+1].querySelector('.line-text')?.focus(); }
-  } else if (e.key === 'ArrowUp') {
-    const rows = document.querySelectorAll(`#lines-${side} .line-row`);
-    if (rows[idx-1]) { e.preventDefault(); rows[idx-1].querySelector('.line-text')?.focus(); }
-  }
-}
-
-function onLineClick(e, side, idx) {
-  if (e.shiftKey || e.ctrlKey || e.metaKey) {
-    e.preventDefault();
-    const st = state[side];
-    if (st.selected.has(idx)) st.selected.delete(idx);
-    else st.selected.add(idx);
-    renderLines(side);
-  }
+function syncChecksScroll(side) {
+  const ta   = document.getElementById('ta-'+side);
+  const cont = document.getElementById('ckscroll-'+side);
+  cont.style.top = (12 - ta.scrollTop) + 'px';
 }
 
 function toggleCheck(side, idx) {
-  const st = state[side];
-  st.checks[idx] = !st.checks[idx];
+  ST[side].checks[idx] = !ST[side].checks[idx];
   markDirty(side);
-  renderLines(side);
-  toast(st.checks[idx] ? '✓ Riga ' + (idx+1) + ' segnata come OK' : 'Riga ' + (idx+1) + ' deselezionata');
+  updateChecks(side);
+  toast(ST[side].checks[idx] ? '✓ Riga '+(idx+1)+' — OK' : 'Riga '+(idx+1)+' deselezionata');
 }
 
-function clearSelection(side) {
-  state[side].selected.clear();
-  renderLines(side);
+/* ════════════════════════════════════════════
+   TEXTAREA EVENTS
+════════════════════════════════════════════ */
+function onTaInput(side) {
+  updateLnums(side);
+  updateChecks(side);
+  markDirty(side);
+  updateFooter(side);
 }
 
-function updateSelectionBar(side) {
-  const bar = document.getElementById('sel-bar-' + side);
-  const label = document.getElementById('sel-bar-' + side + '-label');
-  const count = state[side].selected.size;
-  if (count > 0) {
-    bar.classList.add('visible');
-    label.textContent = count + (count===1 ? ' riga selezionata' : ' righe selezionate');
+let syncScrollLock = false;
+function onTaScroll(side) {
+  // sync line numbers
+  const ta = document.getElementById('ta-'+side);
+  document.getElementById('ln-'+side).scrollTop = ta.scrollTop;
+  syncChecksScroll(side);
+
+  // sync opposite panel proportionally
+  if (syncScrollLock) return;
+  syncScrollLock = true;
+  const dst  = side==='a'?'b':'a';
+  const dstTa = document.getElementById('ta-'+dst);
+  const pct  = ta.scrollTop / Math.max(1, ta.scrollHeight - ta.clientHeight);
+  dstTa.scrollTop = pct * Math.max(0, dstTa.scrollHeight - dstTa.clientHeight);
+  document.getElementById('ln-'+dst).scrollTop = dstTa.scrollTop;
+  syncChecksScroll(dst);
+  requestAnimationFrame(()=>{ syncScrollLock=false; });
+}
+
+function onTaSelect(side) {
+  const ta = document.getElementById('ta-'+side);
+  const start = ta.selectionStart;
+  const end   = ta.selectionEnd;
+  const bar   = document.getElementById('ai-bar-'+side);
+  if (start !== end) {
+    aiBarSel[side] = { start, end };
+    bar.classList.add('show');
   } else {
-    bar.classList.remove('visible');
+    bar.classList.remove('show');
+    aiBarSel[side] = null;
   }
 }
 
-// ════════════════════════════════════════════════════════════
-// STATS & DIRTY
-// ════════════════════════════════════════════════════════════
-function updateStats(side) {
-  const st = state[side];
-  const nonEmpty = st.lines.filter(l => l.trim() !== '');
-  const words = nonEmpty.join(' ').trim() ? nonEmpty.join(' ').trim().split(/\s+/).length : 0;
-  const checked = Object.values(st.checks).filter(Boolean).length;
-  document.getElementById('count-' + side).textContent =
-    `${nonEmpty.length} righe · ${words} parole` + (checked > 0 ? ` · ✓ ${checked}` : '');
+function clearAiBar(side) {
+  document.getElementById('ai-bar-'+side).classList.remove('show');
+  aiBarSel[side] = null;
+}
+
+/* ════════════════════════════════════════════
+   STATS & DIRTY
+════════════════════════════════════════════ */
+function updateFooter(side) {
+  const text  = document.getElementById('ta-'+side).value;
+  const lines = text ? text.split('\n').length : 0;
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  document.getElementById('foot-'+side).textContent = `${lines} righe · ${words} parole`;
+  const ckOn = Object.values(ST[side].checks).filter(Boolean).length;
+  document.getElementById('ck-count-'+side).textContent = ckOn>0 ? `✓ ${ckOn} OK` : '';
 }
 
 function markDirty(side) {
-  state[side].dirty = true;
-  const el = document.getElementById('dirty-' + side);
-  el.textContent = '● non salvato'; el.className = 'dirty-badge';
+  ST[side].dirty = true;
+  const el = document.getElementById('dirty-'+side);
+  el.textContent = '● non salvato'; el.className = 'pdirty unsaved';
 }
 function clearDirty(side) {
-  state[side].dirty = false;
-  const el = document.getElementById('dirty-' + side);
-  el.textContent = '✓ salvato'; el.className = 'saved-badge';
+  ST[side].dirty = false;
+  const el = document.getElementById('dirty-'+side);
+  el.textContent = '✓ salvato'; el.className = 'pdirty saved';
 }
 
-// ════════════════════════════════════════════════════════════
-// LOAD / CLEAR PANELS
-// ════════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════
+   LOAD / CLEAR
+════════════════════════════════════════════ */
 function loadPanel(side, title, text, checks) {
-  const st = state[side];
-  st.lines = text ? text.split('\n') : [''];
-  if (st.lines[st.lines.length-1] !== '') st.lines.push('');
-  st.checks = checks || {};
-  st.selected.clear();
-  document.getElementById('title-' + side).value = title || '';
-  renderLines(side);
+  document.getElementById('title-'+side).value = title||'';
+  document.getElementById('ta-'+side).value    = text||'';
+  ST[side].checks = checks ? {...checks} : {};
+  updateLnums(side);
+  updateChecks(side);
+  updateFooter(side);
   clearDirty(side);
+  document.getElementById('dirty-'+side).textContent = '';
+  document.getElementById('dirty-'+side).className   = 'pdirty';
 }
 
 function clearPanel(side) {
-  state[side].id = null;
-  state[side].dirty = false;
-  state[side].checks = {};
-  state[side].selected.clear();
-  document.getElementById('title-' + side).value = '';
-  loadPanel(side, '', '', {});
-  const el = document.getElementById('dirty-' + side);
-  el.textContent = ''; el.className = '';
+  ST[side].id = null; ST[side].dirty = false; ST[side].checks = {};
+  loadPanel(side,'','',{});
 }
 
-function getTextFromPanel(side) {
-  return state[side].lines.filter((l,i,a) => !(i === a.length-1 && l === '')).join('\n');
-}
+function getTA(side) { return document.getElementById('ta-'+side).value; }
 
 function swapPanels() {
-  const tA = document.getElementById('title-a').value;
-  const tB = document.getElementById('title-b').value;
-  const linesA = [...state.a.lines]; const checksA = {...state.a.checks};
-  const linesB = [...state.b.lines]; const checksB = {...state.b.checks};
-  const idA = state.a.id, idB = state.b.id;
-  state.a.id = idB; state.b.id = idA;
-  document.getElementById('title-a').value = tB;
-  document.getElementById('title-b').value = tA;
-  state.a.lines = linesB; state.a.checks = checksB;
-  state.b.lines = linesA; state.b.checks = checksA;
-  renderLines('a'); renderLines('b');
+  const tA=document.getElementById('title-a').value, txtA=getTA('a'), ckA={...ST.a.checks};
+  const tB=document.getElementById('title-b').value, txtB=getTA('b'), ckB={...ST.b.checks};
+  const idA=ST.a.id, idB=ST.b.id;
+  ST.a.id=idB; ST.b.id=idA;
+  loadPanel('a',tB,txtB,ckB); loadPanel('b',tA,txtA,ckA);
+  document.getElementById('title-a').value=tB;
+  document.getElementById('title-b').value=tA;
   toast('Pannelli invertiti');
 }
 
 function saveSingle(side) {
-  const title = document.getElementById('title-' + side).value.trim();
-  const text = getTextFromPanel(side);
+  const title = document.getElementById('title-'+side).value.trim();
+  const text  = getTA(side);
   if (!title && !text.trim()) { toast('Niente da salvare'); return; }
   if (!title) {
-    promptModal('Dai un titolo a questa canzone', '', name => {
+    showPromptModal('Dai un titolo a questa canzone','', name => {
       if (!name) return;
-      document.getElementById('title-' + side).value = name;
-      state[side].id = upsertSong(state[side].id, name, text, state[side].checks);
-      clearDirty(side); renderLibrary(); toast('Salvata: ' + name);
+      document.getElementById('title-'+side).value = name;
+      ST[side].id = upsertSong(ST[side].id, name, text, ST[side].checks);
+      clearDirty(side); renderLibrary(); toast('Salvata: '+name);
     }); return;
   }
-  state[side].id = upsertSong(state[side].id, title, text, state[side].checks);
-  clearDirty(side); renderLibrary(); toast('Salvata: ' + title);
+  ST[side].id = upsertSong(ST[side].id, title, text, ST[side].checks);
+  clearDirty(side); renderLibrary(); toast('Salvata: '+title);
 }
 
 function saveSession() { saveSingle('a'); saveSingle('b'); }
@@ -755,190 +693,154 @@ function openNewSong() {
   clearPanel('a'); clearPanel('b');
 }
 
-// ════════════════════════════════════════════════════════════
-// AI TRANSLATION
-// ════════════════════════════════════════════════════════════
-async function callAI(prompt) {
+/* ════════════════════════════════════════════
+   AI TRANSLATION
+════════════════════════════════════════════ */
+async function callClaude(systemPrompt, userPrompt) {
+  const key = getApiKey();
+  if (!key) {
+    openSettings(true);
+    throw new Error('API key mancante');
+  }
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1000,
-      system: `Sei un esperto traduttore di testi musicali. Quando traduci:
-- Mantieni il tono poetico, il ritmo e le immagini del testo originale
-- Adatta le metafore culturalmente quando necessario
-- Preferisci una traduzione che suoni naturale in italiano
-- Non spiegare, dai solo la traduzione
-- Se il testo è già in italiano, puoi parafrasarlo o migliorarlo
-- Rispondi SOLO con il testo tradotto, senza introduzioni o note`,
-      messages: [{ role: 'user', content: prompt }]
+      system: systemPrompt,
+      messages: [{ role:'user', content: userPrompt }]
     })
   });
-  if (!res.ok) throw new Error('API error ' + res.status);
+  if (!res.ok) {
+    const err = await res.json().catch(()=>({}));
+    throw new Error(err?.error?.message || 'Errore API '+res.status);
+  }
   const data = await res.json();
   return data.content?.[0]?.text || '';
 }
 
-async function translateLine(side, idx) {
-  const line = state[side].lines[idx];
-  if (!line.trim()) { toast('Riga vuota'); return; }
+const SYSTEM = `Sei un esperto traduttore di testi musicali. Regole:
+- Mantieni tono poetico, immagini e ritmo dell'originale
+- Adatta metafore culturalmente quando serve
+- La traduzione deve suonare naturale in italiano
+- Se il testo è già in italiano, puoi migliorarne la forma
+- Rispondi SOLO con il testo tradotto, senza note o spiegazioni`;
 
-  // get some context (surrounding lines)
-  const lines = state[side].lines;
-  const contextStart = Math.max(0, idx - 2);
-  const contextEnd = Math.min(lines.length - 1, idx + 2);
-  const context = lines.slice(contextStart, contextEnd + 1).filter(l => l.trim());
-  const targetLine = line;
+async function translateSelected(side) {
+  const sel = aiBarSel[side];
+  if (!sel) return;
+  const ta = document.getElementById('ta-'+side);
+  const selectedText = ta.value.slice(sel.start, sel.end).trim();
+  if (!selectedText) return;
 
-  // show loading in popup
-  showTrpLoading(targetLine);
+  // gather surrounding context (up to 3 lines before/after selection)
+  const fullText = ta.value;
+  const before = fullText.slice(0, sel.start).split('\n').slice(-3).join('\n');
+  const after  = fullText.slice(sel.end).split('\n').slice(0, 3).join('\n');
 
-  try {
-    const prompt = `Contesto del testo (righe vicine):\n"${context.join('\n')}"\n\nTraduzione richiesta per questa specifica riga:\n"${targetLine}"\n\nFornisci una traduzione contestualizzata di questa riga, tenendo conto del contesto.`;
-    const result = await callAI(prompt);
-    pendingTranslation = { text: result, sourceSide: side, targetSide: side === 'a' ? 'b' : 'a', sourceLineIdx: idx };
-    showTrpResult(targetLine, result);
-  } catch(e) {
-    closeTrp();
-    toast('❌ Errore AI: ' + e.message);
-  }
-}
+  let prompt = `Testo da tradurre:\n"${selectedText}"`;
+  if (before.trim()) prompt = `Contesto precedente:\n"${before}"\n\n` + prompt;
+  if (after.trim())  prompt += `\n\nContesto successivo:\n"${after}"`;
+  prompt += '\n\nFornisci la traduzione contestualizzata.';
 
-async function translateSelection(side) {
-  const st = state[side];
-  if (st.selected.size === 0) return;
-  const indices = [...st.selected].sort((a,b)=>a-b);
-  const selectedText = indices.map(i => st.lines[i]).filter(l=>l.trim()).join('\n');
-  if (!selectedText.trim()) { toast('Nessun testo selezionato'); return; }
-
-  // context: lines before and after selection
-  const allLines = st.lines;
-  const minIdx = Math.min(...indices);
-  const maxIdx = Math.max(...indices);
-  const before = allLines.slice(Math.max(0, minIdx-2), minIdx).filter(l=>l.trim());
-  const after = allLines.slice(maxIdx+1, maxIdx+3).filter(l=>l.trim());
-
-  showTrpLoading(selectedText);
+  pendingAI = { text: null, srcText: selectedText, srcSide: side, selStart: sel.start, selEnd: sel.end };
+  showAirLoading(selectedText);
+  clearAiBar(side);
 
   try {
-    let prompt = '';
-    if (before.length || after.length) {
-      prompt = `Contesto precedente:\n"${before.join('\n')}"\n\nTesto da tradurre:\n"${selectedText}"\n\nContesto successivo:\n"${after.join('\n')}"\n\nFornisci la traduzione contestualizzata del testo da tradurre.`;
-    } else {
-      prompt = `Testo da tradurre:\n"${selectedText}"\n\nFornisci la traduzione.`;
-    }
-    const result = await callAI(prompt);
-    pendingTranslation = { text: result, sourceSide: side, targetSide: side === 'a' ? 'b' : 'a', sourceLineIdx: null };
-    showTrpResult(selectedText, result);
+    const result = await callClaude(SYSTEM, prompt);
+    pendingAI.text = result;
+    showAirResult(selectedText, result);
   } catch(e) {
-    closeTrp();
-    toast('❌ Errore AI: ' + e.message);
+    closeAir();
+    if (e.message !== 'API key mancante') toast('❌ '+e.message);
   }
 }
 
-function showTrpLoading(sourceText) {
-  const trp = document.getElementById('trp');
-  document.getElementById('trp-source').textContent = sourceText.length > 120 ? sourceText.slice(0,120)+'…' : sourceText;
-  document.getElementById('trp-result').innerHTML = '<div class="spinner"></div> Traduzione in corso…';
-  trp.classList.add('visible');
-  document.querySelector('#trp .trp-actions').style.display = 'none';
+function showAirLoading(src) {
+  const el = document.getElementById('air');
+  document.getElementById('air-src').textContent = src.length>120 ? src.slice(0,120)+'…' : src;
+  document.getElementById('air-body').innerHTML = '<div class="spin"></div> Traduzione in corso…';
+  document.getElementById('air-actions').style.display = 'none';
+  el.classList.add('show');
+}
+function showAirResult(src, result) {
+  document.getElementById('air-src').textContent = src.length>120 ? src.slice(0,120)+'…' : src;
+  document.getElementById('air-body').textContent = result;
+  document.getElementById('air-actions').style.display = 'flex';
+}
+function closeAir() { document.getElementById('air').classList.remove('show'); pendingAI=null; }
+
+function applyAiResult() {
+  if (!pendingAI?.text) return;
+  const dstSide = pendingAI.srcSide === 'a' ? 'b' : 'a';
+  const ta = document.getElementById('ta-'+dstSide);
+  const cur = ta.value;
+  // append after last non-empty line
+  const sep = cur.trimEnd().length > 0 ? '\n' : '';
+  ta.value = cur.trimEnd() + sep + pendingAI.text;
+  onTaInput(dstSide);
+  markDirty(dstSide);
+  closeAir();
+  toast('✓ Traduzione incollata in '+dstSide.toUpperCase());
 }
 
-function showTrpResult(sourceText, result) {
-  document.getElementById('trp-source').textContent = sourceText.length > 120 ? sourceText.slice(0,120)+'…' : sourceText;
-  document.getElementById('trp-result').textContent = result;
-  document.querySelector('#trp .trp-actions').style.display = 'flex';
+/* ════════════════════════════════════════════
+   SCROLL SYNC — compare view
+════════════════════════════════════════════ */
+let cmpLock = false;
+function onCmpScroll(side) {
+  const src = document.getElementById('cmp-ta-'+side);
+  document.getElementById('cmp-ln-'+side).scrollTop = src.scrollTop;
+  if (cmpLock) return;
+  cmpLock = true;
+  const dst = document.getElementById('cmp-ta-'+(side==='a'?'b':'a'));
+  const pct = src.scrollTop / Math.max(1, src.scrollHeight - src.clientHeight);
+  dst.scrollTop = pct * Math.max(0, dst.scrollHeight - dst.clientHeight);
+  document.getElementById('cmp-ln-'+(side==='a'?'b':'a')).scrollTop = dst.scrollTop;
+  requestAnimationFrame(()=>{ cmpLock=false; });
 }
 
-function closeTrp() {
-  document.getElementById('trp').classList.remove('visible');
-  pendingTranslation = null;
-}
-
-function applyTranslation() {
-  if (!pendingTranslation) return;
-  const { text, targetSide, sourceLineIdx } = pendingTranslation;
-  const st = state[targetSide];
-  
-  if (sourceLineIdx !== null) {
-    // insert at same line index in target panel
-    while (st.lines.length <= sourceLineIdx) st.lines.push('');
-    st.lines[sourceLineIdx] = text;
-  } else {
-    // append to end of target panel (before trailing empty)
-    const lastEmpty = st.lines[st.lines.length-1] === '';
-    if (lastEmpty) st.lines.splice(st.lines.length-1, 0, ...text.split('\n'));
-    else st.lines.push(...text.split('\n'));
-  }
-  if (st.lines[st.lines.length-1] !== '') st.lines.push('');
-  renderLines(targetSide);
-  markDirty(targetSide);
-  closeTrp();
-  toast('✓ Traduzione copiata in pannello ' + targetSide.toUpperCase());
-}
-
-// ════════════════════════════════════════════════════════════
-// SCROLL SYNC
-// ════════════════════════════════════════════════════════════
-let syncingEditor = false;
-function onScrollEditor(src) {
-  const srcEl = document.getElementById('lines-' + src);
-  if (syncingEditor) return;
-  syncingEditor = true;
-  const dst = src === 'a' ? 'b' : 'a';
-  const dstEl = document.getElementById('lines-' + dst);
-  const pct = srcEl.scrollTop / Math.max(1, srcEl.scrollHeight - srcEl.clientHeight);
-  dstEl.scrollTop = pct * Math.max(0, dstEl.scrollHeight - dstEl.clientHeight);
-  requestAnimationFrame(() => { syncingEditor = false; });
-}
-
-let syncingCmp = false;
-function onScrollCmp(src) {
-  const srcEl = document.getElementById('cmp-lines-' + src);
-  if (syncingCmp) return;
-  syncingCmp = true;
-  const dst = src === 'a' ? 'b' : 'a';
-  const dstEl = document.getElementById('cmp-lines-' + dst);
-  const pct = srcEl.scrollTop / Math.max(1, srcEl.scrollHeight - srcEl.clientHeight);
-  dstEl.scrollTop = pct * Math.max(0, dstEl.scrollHeight - dstEl.clientHeight);
-  requestAnimationFrame(() => { syncingCmp = false; });
-}
-
-// ════════════════════════════════════════════════════════════
-// VIEW SWITCHING
-// ════════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════
+   VIEW SWITCHING
+════════════════════════════════════════════ */
 function showView(name, btn) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-  document.getElementById('view-' + name).classList.add('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
   btn.classList.add('active');
-  if (name === 'library') renderLibrary();
-  if (name === 'compare') { populateCompareSelects(); loadCompare(); }
+  if (name==='library') renderLibrary();
+  if (name==='compare') { populateCmpSelects(); renderCompare(); }
 }
 
-// ════════════════════════════════════════════════════════════
-// LIBRARY
-// ════════════════════════════════════════════════════════════
-function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+/* ════════════════════════════════════════════
+   LIBRARY
+════════════════════════════════════════════ */
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function renderLibrary() {
-  const q = document.getElementById('search-input').value.toLowerCase().trim();
-  const list = getSortedSongs(q);
-  const grid = document.getElementById('library-grid');
-  document.getElementById('lib-count').textContent = `${list.length} canzoni`;
+  const q    = document.getElementById('search-q').value.toLowerCase().trim();
+  const list = sortedSongs(q);
+  const grid = document.getElementById('lib-grid');
+  document.getElementById('lib-count').textContent = list.length+' canzoni';
   if (!list.length) {
-    grid.innerHTML = `<div class="empty-state"><div class="big">${q?'Nessun risultato':'Libreria vuota'}</div><p>${q?'Prova altri termini.':'Crea la prima canzone nell\'editor.'}</p></div>`;
+    grid.innerHTML = `<div class="empty-lib"><div class="big">${q?'Nessun risultato':'Libreria vuota'}</div><p>${q?'Prova altri termini.':'Crea la prima canzone nell\'editor.'}</p></div>`;
     return;
   }
-  grid.innerHTML = list.map(s => {
-    const date = new Date(s.updatedAt).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'});
-    const checked = Object.values(s.checks||{}).filter(Boolean).length;
+  grid.innerHTML = list.map(s=>{
+    const date  = new Date(s.updatedAt).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'});
     const lines = s.text ? s.text.split('\n').filter(l=>l.trim()).length : 0;
+    const ckOn  = Object.values(s.checks||{}).filter(Boolean).length;
     return `<div class="song-card" onclick="loadInEditor('${s.id}')">
-      <div class="card-title">${escHtml(s.title)}</div>
-      <div class="card-meta">${date} · ${lines} righe${checked>0?' · ✓ '+checked+' ok':''}</div>
-      <div class="card-preview">${escHtml(s.text.slice(0,180))}</div>
+      <div class="card-title">${esc(s.title)}</div>
+      <div class="card-meta">${date} · ${lines} righe${ckOn>0?' · ✓ '+ckOn:''}</div>
+      <div class="card-preview">${esc(s.text.slice(0,160))}</div>
       <div class="card-actions">
         <button class="btn ghost sm" onclick="event.stopPropagation();loadInEditorSide('${s.id}','a')">→A</button>
         <button class="btn ghost sm" onclick="event.stopPropagation();loadInEditorSide('${s.id}','b')">→B</button>
@@ -949,117 +851,148 @@ function renderLibrary() {
 }
 
 function loadInEditor(id) {
-  const side = !state.a.id ? 'a' : (!state.b.id ? 'b' : 'a');
+  const side = !ST.a.id ? 'a' : (!ST.b.id ? 'b' : 'a');
   loadInEditorSide(id, side);
 }
 function loadInEditorSide(id, side) {
   const s = songs[id]; if (!s) return;
-  state[side].id = id;
+  ST[side].id = id;
   loadPanel(side, s.title, s.text, s.checks||{});
   showView('editor', document.querySelector('nav button[data-view="editor"]'));
-  toast('Caricata in ' + side.toUpperCase() + ': ' + s.title);
+  toast('Caricata in '+side.toUpperCase()+': '+s.title);
 }
 function confirmDelete(id) {
   const s = songs[id]; if (!s) return;
-  promptModal(`Elimina "${s.title}"?\nScrivi il titolo per confermare`, '', input => {
-    if (input.trim() === s.title.trim()) { deleteSong(id); renderLibrary(); toast('Eliminata: ' + s.title); }
+  showPromptModal(`Elimina "${s.title}"?\nScrivi il titolo per confermare`, '', input => {
+    if (input===s.title) { deleteSong(id); renderLibrary(); toast('Eliminata: '+s.title); }
     else toast('Titolo non corrisponde — annullato');
   });
 }
 
-// ════════════════════════════════════════════════════════════
-// COMPARE
-// ════════════════════════════════════════════════════════════
-function populateCompareSelects() {
-  const list = getSortedSongs();
-  ['sel-a','sel-b'].forEach(sid => {
-    const sel = document.getElementById(sid), prev = sel.value;
-    sel.innerHTML = '<option value="">— seleziona —</option>' + list.map(s=>`<option value="${s.id}">${escHtml(s.title)}</option>`).join('');
-    if (prev) sel.value = prev;
+/* ════════════════════════════════════════════
+   COMPARE
+════════════════════════════════════════════ */
+function populateCmpSelects() {
+  const list = sortedSongs();
+  ['csel-a','csel-b'].forEach(sid=>{
+    const sel=document.getElementById(sid), prev=sel.value;
+    sel.innerHTML='<option value="">— seleziona —</option>'+list.map(s=>`<option value="${s.id}">${esc(s.title)}</option>`).join('');
+    if (prev) sel.value=prev;
   });
 }
-function loadCompare() {
-  ['a','b'].forEach(side => {
-    const id = document.getElementById('sel-' + side).value;
-    const container = document.getElementById('cmp-lines-' + side);
-    const ti = document.getElementById('cmp-title-' + side);
-    const ct = document.getElementById('cmp-count-' + side);
-    container.innerHTML = '';
+function renderCompare() {
+  ['a','b'].forEach(side=>{
+    const id  = document.getElementById('csel-'+side).value;
+    const ta  = document.getElementById('cmp-ta-'+side);
+    const ti  = document.getElementById('cmp-title-'+side);
+    const ln  = document.getElementById('cmp-ln-'+side);
+    const st  = document.getElementById('cmp-stats-'+side);
     if (id && songs[id]) {
       const s = songs[id];
-      ti.value = s.title;
-      const lines = s.text ? s.text.split('\n') : [];
-      const nonEmpty = lines.filter(l=>l.trim()).length;
+      ti.value = s.title; ta.value = s.text;
+      const lines = s.text ? s.text.split('\n').length : 0;
       const words = s.text.trim() ? s.text.trim().split(/\s+/).length : 0;
-      const checked = Object.values(s.checks||{}).filter(Boolean).length;
-      ct.textContent = `${nonEmpty} righe · ${words} parole${checked>0?' · ✓ '+checked:''}`;
-      lines.forEach((line, i) => {
-        const row = document.createElement('div');
-        row.className = 'cmp-line-row' + ((s.checks||{})[i] ? ' checked' : '');
-        row.innerHTML = `<div class="cmp-ln">${i+1}</div>
-          <div class="cmp-check-col">${(s.checks||{})[i] ? '<div class="check-btn" style="background:var(--check-color);border-color:var(--check-color);color:white">✓</div>' : '<div class="check-btn"></div>'}</div>
-          <div class="cmp-text">${escHtml(line)}</div>`;
-        container.appendChild(row);
-      });
-    } else { ti.value=''; ct.textContent=''; }
+      ln.textContent = Array.from({length:lines},(_,i)=>i+1).join('\n');
+      st.textContent = `${lines} righe · ${words} parole`;
+    } else { ti.value=''; ta.value=''; ln.textContent='1'; st.textContent=''; }
   });
 }
 function openBothInEditor() {
-  const idA = document.getElementById('sel-a').value;
-  const idB = document.getElementById('sel-b').value;
+  const idA=document.getElementById('csel-a').value;
+  const idB=document.getElementById('csel-b').value;
   if (idA) loadInEditorSide(idA,'a');
   if (idB) loadInEditorSide(idB,'b');
   if (idA||idB) showView('editor', document.querySelector('nav button[data-view="editor"]'));
 }
 
-// ════════════════════════════════════════════════════════════
-// EXPORT
-// ════════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════
+   EXPORT
+════════════════════════════════════════════ */
 function exportAll() {
-  const list = getSortedSongs();
-  if (!list.length) { toast('Nessuna canzone da esportare'); return; }
-  const txt = list.map(s => {
-    const checked = Object.entries(s.checks||{}).filter(([,v])=>v).map(([k])=>parseInt(k)+1);
-    const lines = s.text.split('\n').map((l,i) => (s.checks&&s.checks[i]?'[✓] ':'    ')+l);
+  const list = sortedSongs();
+  if (!list.length) { toast('Nessuna canzone'); return; }
+  const txt = list.map(s=>{
+    const lines = (s.text||'').split('\n').map((l,i)=>((s.checks||{})[i]?'[✓] ':'    ')+l);
     return `${'='.repeat(50)}\n${s.title}\n${new Date(s.updatedAt).toLocaleDateString('it-IT')}\n${'='.repeat(50)}\n${lines.join('\n')}`;
   }).join('\n\n');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([txt],{type:'text/plain'}));
-  a.download = 'lyricstudio_export.txt'; a.click();
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain'}));
+  a.download='lyricstudio_export.txt'; a.click();
   toast(`Esportate ${list.length} canzoni`);
 }
 
-// ════════════════════════════════════════════════════════════
-// MODAL & TOAST
-// ════════════════════════════════════════════════════════════
-function promptModal(title, def, cb) {
-  document.getElementById('modal-title').textContent = title;
-  document.getElementById('modal-input').value = def||'';
+/* ════════════════════════════════════════════
+   SETTINGS MODAL (API key)
+════════════════════════════════════════════ */
+function openSettings(forceShow) {
+  const cur = getApiKey();
+  document.getElementById('modal-inner').innerHTML = `
+    <h3>⚙️ Impostazioni</h3>
+    <p class="sub">Inserisci la tua Anthropic API key per usare la traduzione AI.<br>Viene salvata solo nel browser locale.</p>
+    <label>ANTHROPIC API KEY</label>
+    <input type="password" id="set-apikey" value="${cur}" placeholder="sk-ant-…" autocomplete="off" />
+    <p class="api-hint">Ottieni la tua key su <a href="https://console.anthropic.com/keys" target="_blank">console.anthropic.com/keys</a></p>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Annulla</button>
+      <button class="btn primary" onclick="saveSettings()">Salva</button>
+    </div>`;
   document.getElementById('modal-bg').classList.add('open');
-  setTimeout(()=>document.getElementById('modal-input').focus(),50);
-  modalCallback = cb;
+  setTimeout(()=>document.getElementById('set-apikey')?.focus(), 80);
 }
-function modalConfirm() {
-  const v = document.getElementById('modal-input').value.trim();
-  closeModal(); if (modalCallback) modalCallback(v);
+
+function saveSettings() {
+  const k = document.getElementById('set-apikey').value.trim();
+  saveApiKey(k);
+  closeModal();
+  toast(k ? '✓ API key salvata' : 'API key rimossa');
 }
-function closeModal() { document.getElementById('modal-bg').classList.remove('open'); modalCallback=null; }
+
+/* ════════════════════════════════════════════
+   GENERIC MODAL
+════════════════════════════════════════════ */
+let _modalCb = null;
+function showPromptModal(title, def, cb) {
+  _modalCb = cb;
+  document.getElementById('modal-inner').innerHTML = `
+    <h3>${esc(title)}</h3>
+    <input type="text" id="modal-input" value="${esc(def||'')}" placeholder="Titolo…" onkeydown="if(event.key==='Enter')confirmModal()" />
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Annulla</button>
+      <button class="btn primary" onclick="confirmModal()">OK</button>
+    </div>`;
+  document.getElementById('modal-bg').classList.add('open');
+  setTimeout(()=>document.getElementById('modal-input')?.focus(), 60);
+}
+function confirmModal() {
+  const v = document.getElementById('modal-input')?.value.trim()||'';
+  closeModal(); if (_modalCb) _modalCb(v);
+}
+function closeModal() { document.getElementById('modal-bg').classList.remove('open'); _modalCb=null; }
 document.getElementById('modal-bg').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeModal(); });
 
-let toastTimer;
+/* ════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════ */
+let _toastT;
 function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>el.classList.remove('show'), 2500);
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(_toastT);
+  _toastT=setTimeout(()=>el.classList.remove('show'), 2400);
 }
 
-// ════════════════════════════════════════════════════════════
-// INIT
-// ════════════════════════════════════════════════════════════
-loadPanel('a', '', '', {});
-loadPanel('b', '', '', {});
+/* ════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════ */
+updateLnums('a'); updateLnums('b');
+updateChecks('a'); updateChecks('b');
+updateFooter('a'); updateFooter('b');
 renderLibrary();
+
+// Prompt API key if missing
+if (!getApiKey()) {
+  setTimeout(()=> toast('⚙️ Imposta la API key per usare l\'AI traduttore'), 800);
+}
 </script>
 </body>
 </html>
