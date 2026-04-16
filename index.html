@@ -2,307 +2,277 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Lyric Studio</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --bg: #f4f6f9;
-      --surface: #ffffff;
-      --surface2: #f0f2f6;
-      --border: #dde1ea;
-      --text: #1a1d23;
-      --muted: #6b7280;
+      --bg:     #f2f4f7;
+      --surf:   #ffffff;
+      --surf2:  #f0f2f5;
+      --border: #e0e4eb;
+      --text:   #1a1d23;
+      --muted:  #6b7280;
       --accent: #2563eb;
       --purple: #7c3aed;
-      --danger: #dc2626;
-      --success: #16a34a;
-      --ai: #f59e0b;
-      --ai-bg: #fffbeb;
-      --ai-border: #fcd34d;
+      --green:  #16a34a;
+      --green2: #dcfce7;
+      --red:    #dc2626;
+      --red2:   #fee2e2;
+      --lh:     1.6;
+      --fs:     16px;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; -webkit-text-size-adjust: 100%; }
-
+    html, body {
+      height: 100%; font-family: 'Inter', sans-serif; font-size: 14px;
+      background: var(--bg); color: var(--text);
+      overscroll-behavior: none; -webkit-text-size-adjust: 100%;
+    }
     #app { display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
 
     /* ── HEADER ── */
     header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 16px; height: 50px; background: var(--surface);
-      border-bottom: 1px solid var(--border); flex-shrink: 0;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06); z-index: 20;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
+      height: 48px; padding: 0 14px;
+      background: var(--surf); border-bottom: 1px solid var(--border); z-index: 20;
     }
-    .logo { font-size: 1rem; font-weight: 700; color: var(--accent); }
+    .logo { font-size: .95rem; font-weight: 700; color: var(--accent); letter-spacing: -.01em; }
     .logo em { font-style: normal; color: var(--purple); }
-    .hdr-right { display: flex; gap: 6px; align-items: center; }
-
-    /* ── BUTTONS ── */
-    .btn {
-      font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 500;
-      cursor: pointer; border: 1px solid var(--border); background: var(--surface);
-      color: var(--text); padding: 6px 13px; border-radius: 7px;
-      transition: background 0.1s; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;
-      -webkit-tap-highlight-color: transparent;
+    .hdr-btns { display: flex; gap: 6px; align-items: center; }
+    .sync-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: #9ca3af;
+      transition: background .3s; flex-shrink: 0;
     }
-    .btn:hover, .btn:active { background: var(--surface2); }
-    .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .btn.primary:hover, .btn.primary:active { background: #1d4ed8; }
-    .btn.ghost { border-color: transparent; background: transparent; color: var(--muted); }
-    .btn.ghost:hover, .btn.ghost:active { background: var(--surface2); color: var(--text); }
-    .btn.danger { border-color: transparent; color: var(--danger); background: transparent; }
-    .btn.danger:hover, .btn.danger:active { background: #fef2f2; }
-    .btn.sm { padding: 4px 10px; font-size: 0.75rem; }
-    .btn.xs { padding: 2px 7px; font-size: 0.7rem; border-radius: 5px; }
-    .btn:disabled { opacity: 0.4; pointer-events: none; }
+    .sync-dot.ok     { background: var(--green); }
+    .sync-dot.saving { background: var(--accent); animation: pulse .8s infinite; }
+    .sync-dot.error  { background: var(--red); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
     /* ── NAV ── */
     nav {
-      display: flex; padding: 0 16px; background: var(--surface);
-      border-bottom: 1px solid var(--border); flex-shrink: 0; overflow-x: auto;
+      flex-shrink: 0; display: flex; background: var(--surf);
+      border-bottom: 1px solid var(--border); overflow-x: auto;
     }
     nav::-webkit-scrollbar { display: none; }
-    nav button {
-      font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 500;
-      border: none; border-bottom: 2px solid transparent; border-radius: 0;
-      padding: 10px 15px; color: var(--muted); background: transparent;
-      cursor: pointer; margin-bottom: -1px; white-space: nowrap; flex-shrink: 0;
+    .nav-btn {
+      flex-shrink: 0; font-family: 'Inter', sans-serif; font-size: .82rem; font-weight: 500;
+      padding: 10px 16px; border: none; border-bottom: 2px solid transparent;
+      background: transparent; color: var(--muted); cursor: pointer; margin-bottom: -1px;
       -webkit-tap-highlight-color: transparent;
     }
-    nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-family: 'Inter', sans-serif; font-size: .8rem; font-weight: 500;
+      padding: 6px 13px; border: 1px solid var(--border); border-radius: 7px;
+      background: var(--surf); color: var(--text); cursor: pointer; white-space: nowrap;
+      -webkit-tap-highlight-color: transparent; transition: background .1s;
+    }
+    .btn:active { background: var(--surf2); }
+    .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn.primary:active { background: #1d4ed8; }
+    .btn.ghost  { border-color: transparent; background: transparent; color: var(--muted); }
+    .btn.ghost:active { background: var(--surf2); color: var(--text); }
+    .btn.danger { border-color: transparent; background: transparent; color: var(--red); }
+    .btn.sm { padding: 4px 10px; font-size: .75rem; }
+    .btn.xs { padding: 2px 7px;  font-size: .70rem; border-radius: 5px; }
+    .btn:disabled { opacity: .4; pointer-events: none; }
 
     /* ── VIEWS ── */
-    .view { display: none; flex: 1; overflow: hidden; flex-direction: column; min-height: 0; }
+    .view { display: none; flex: 1; flex-direction: column; overflow: hidden; min-height: 0; }
     .view.active { display: flex; }
 
-    /* ════════════════════════════════
+    /* ═══════════════════════════════
        EDITOR
-    ════════════════════════════════ */
-    .editor-toolbar {
-      display: flex; align-items: center; gap: 6px; padding: 6px 12px;
-      background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0;
-      flex-wrap: wrap;
+    ═══════════════════════════════ */
+    .ed-toolbar {
+      flex-shrink: 0; display: flex; align-items: center; gap: 6px;
+      padding: 6px 12px; background: var(--surf); border-bottom: 1px solid var(--border);
     }
-    .editor-toolbar .sp { flex: 1; min-width: 8px; }
-
+    .sp { flex: 1; }
     .stack { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
 
-    /* ── PANEL ── */
-    .song-panel { flex: 1; display: flex; flex-direction: column; min-height: 0; background: var(--surface); }
-
+    .panel { flex: 1; display: flex; flex-direction: column; min-height: 0; background: var(--surf); }
     .panel-head {
-      display: flex; align-items: center; gap: 6px; padding: 5px 10px;
-      background: var(--surface2); border-bottom: 1px solid var(--border); flex-shrink: 0;
-      flex-wrap: nowrap; overflow: hidden;
+      flex-shrink: 0; display: flex; align-items: center; gap: 6px;
+      padding: 5px 10px; background: var(--surf2); border-bottom: 1px solid var(--border);
     }
-    .pbadge {
-      font-size: 0.66rem; font-weight: 700; color: #fff; background: var(--accent);
-      padding: 2px 7px; border-radius: 4px; flex-shrink: 0;
+    .badge { flex-shrink: 0; font-size: .66rem; font-weight: 700; color: #fff; background: var(--accent); padding: 2px 7px; border-radius: 4px; }
+    .badge.b { background: var(--purple); }
+    .ptitle {
+      flex: 1; min-width: 0; font-family: 'Inter', sans-serif; font-size: var(--fs);
+      font-weight: 500; border: none; background: transparent; outline: none; color: var(--text);
     }
-    .pbadge.b { background: var(--purple); }
-    .panel-title {
-      flex: 1; min-width: 0; font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 500;
-      border: none; background: transparent; outline: none; color: var(--text);
-      text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
-    }
-    .panel-title::placeholder { color: var(--muted); font-weight: 400; }
-    .pstats { font-size: 0.68rem; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
-    .pdirty { font-size: 0.68rem; flex-shrink: 0; }
-    .pdirty.unsaved { color: var(--danger); }
-    .pdirty.saved { color: var(--success); }
+    .ptitle::placeholder { color: var(--muted); font-weight: 400; }
+    .pstats  { flex-shrink: 0; font-size: .68rem; color: var(--muted); white-space: nowrap; }
+    .pdirty  { flex-shrink: 0; font-size: .68rem; white-space: nowrap; }
+    .pdirty.unsaved { color: var(--red); }
+    .pdirty.saved   { color: var(--green); }
 
-    /* ── AI bar (appears when text selected) ── */
-    .ai-bar {
-      display: none; align-items: center; gap: 8px; padding: 5px 12px;
-      background: var(--ai-bg); border-bottom: 1px solid var(--ai-border); flex-shrink: 0;
-      flex-wrap: wrap;
-    }
-    .ai-bar.show { display: flex; }
-    .ai-bar-label { font-size: 0.78rem; color: #92400e; flex: 1; }
-    .ai-translate-btn {
-      display: inline-flex; align-items: center; gap: 4px;
-      background: #fff; border: 1px solid var(--ai-border); color: #92400e;
-      font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 600;
-      padding: 4px 11px; border-radius: 6px; cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .ai-translate-btn:active { background: var(--ai-bg); }
+    /* mark legend in toolbar */
+    .legend { display: flex; gap: 10px; align-items: center; font-size: .72rem; color: var(--muted); }
+    .legend span { display: flex; align-items: center; gap: 3px; }
 
-    /* ── THE EDITOR: side-by-side number + textarea ── */
-    .editor-wrap {
-      flex: 1; display: flex; overflow: hidden; min-height: 0; position: relative;
-    }
+    /* ── EDITOR BODY ── */
+    .ed-body { flex: 1; display: flex; overflow: hidden; min-height: 0; position: relative; }
 
-    /* line numbers — rendered as a div, synced via JS */
     .lnums {
-      width: 36px; flex-shrink: 0; overflow: hidden;
-      padding: 12px 5px 12px 0; text-align: right;
-      font-family: 'Inter', monospace; font-size: 0.72rem; line-height: 1.65;
-      color: #c5ccd8; background: var(--surface2); border-right: 1px solid var(--border);
+      flex-shrink: 0; width: 36px; padding: 14px 5px 14px 0;
+      overflow: hidden; text-align: right;
+      font-family: 'Inter', monospace; font-size: var(--fs); line-height: var(--lh);
+      color: #c5ccd8; background: var(--surf2); border-right: 1px solid var(--border);
       user-select: none; pointer-events: none; white-space: pre;
     }
 
-    .main-textarea {
-      flex: 1; width: 0;
-      padding: 12px 14px;
-      font-family: 'Inter', sans-serif; font-size: 0.92rem; line-height: 1.65;
-      border: none; resize: none; outline: none;
-      color: var(--text); background: var(--surface);
-      overflow-y: scroll; /* always show scrollbar space */
-      -webkit-overflow-scrolling: touch;
+    /* mark column — LEFT of textarea */
+    .mk-col {
+      flex-shrink: 0; width: 28px; overflow: hidden;
+      background: var(--surf2); border-right: 1px solid var(--border);
+      position: relative;
     }
-    .main-textarea::placeholder { color: #bbc3cf; }
-
-    /* check sidebar */
-    .check-sidebar {
-      width: 32px; flex-shrink: 0; overflow: hidden;
-      background: var(--surface); border-left: 1px solid var(--border);
-      display: flex; flex-direction: column;
+    .mk-inner {
+      position: absolute; top: 14px; left: 0; right: 0; pointer-events: all;
     }
-    .check-sidebar-inner {
-      overflow: hidden; pointer-events: none; /* scroll synced */
-      padding: 12px 0;
-      display: flex; flex-direction: column;
-      gap: 0;
-    }
-    .ck-row {
-      height: calc(1.65 * 0.92rem); /* must match textarea line-height * font-size */
+    .mk {
       display: flex; align-items: center; justify-content: center;
-      pointer-events: all; cursor: pointer; flex-shrink: 0;
-      font-size: 11px;
+      height: calc(var(--fs) * var(--lh));
+      cursor: pointer; font-size: 13px; font-weight: 700;
+      -webkit-tap-highlight-color: transparent; user-select: none;
+      transition: background .1s;
     }
-    /* We'll use a simpler approach: overlay absolute checkboxes */
+    /* states: neutral → green → red → neutral */
+    .mk[data-s="0"] { color: #d1d5db; }
+    .mk[data-s="0"]:hover { color: var(--green); }
+    .mk[data-s="1"] { color: var(--green); background: var(--green2); }
+    .mk[data-s="2"] { color: var(--red);   background: var(--red2); }
+
+    .ta {
+      flex: 1; width: 0; padding: 14px 12px;
+      font-family: 'Inter', sans-serif; font-size: var(--fs); line-height: var(--lh);
+      border: none; resize: none; outline: none; color: var(--text); background: var(--surf);
+      overflow-y: scroll; -webkit-overflow-scrolling: touch; touch-action: manipulation;
+    }
+    .ta::placeholder { color: #bbc3cf; }
 
     .panel-foot {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 4px 10px; background: var(--surface2); border-top: 1px solid var(--border); flex-shrink: 0;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
+      padding: 3px 10px; background: var(--surf2); border-top: 1px solid var(--border);
+      font-size: .7rem; color: var(--muted);
     }
-    .panel-foot span { font-size: 0.7rem; color: var(--muted); }
+    .foot-marks { display: flex; gap: 8px; }
 
-    /* DIVIDER */
-    .divider-bar {
-      height: 4px; background: var(--purple); flex-shrink: 0;
+    .divider {
+      flex-shrink: 0; height: 4px; background: var(--purple);
       display: flex; justify-content: center; align-items: flex-start; position: relative;
     }
-    .divider-bar span {
+    .divider span {
       position: absolute; top: 0; background: var(--purple); color: #fff;
-      font-size: 0.58rem; font-weight: 700; letter-spacing: 0.08em;
-      padding: 1px 9px; border-radius: 0 0 4px 4px; white-space: nowrap;
+      font-size: .58rem; font-weight: 700; letter-spacing: .08em;
+      padding: 1px 10px; border-radius: 0 0 4px 4px; white-space: nowrap;
     }
 
-    /* ════════════════════════════════
-       CHECKS OVERLAY (floating panel per panel)
-       Uses absolute positioning over the textarea
-    ════════════════════════════════ */
-    .checks-overlay {
-      position: absolute; top: 0; right: 0; bottom: 0;
-      width: 30px; overflow: hidden; pointer-events: none; z-index: 5;
+    /* ═══════════════════════════════
+       EXPORT VIEW
+    ═══════════════════════════════ */
+    #view-export { overflow-y: auto; padding: 16px; gap: 14px; }
+    .exp-section { background: var(--surf); border: 1px solid var(--border); border-radius: 9px; overflow: hidden; }
+    .exp-head {
+      display: flex; align-items: center; gap: 8px;
+      padding: 9px 14px; background: var(--surf2); border-bottom: 1px solid var(--border);
+      font-size: .82rem; font-weight: 600;
     }
-    .checks-scroll {
-      position: absolute; top: 12px; right: 0; left: 0;
-      pointer-events: all;
+    .exp-list { padding: 10px 14px; }
+    .exp-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 5px 0; border-bottom: 1px solid var(--border); cursor: grab;
     }
-    .ck {
-      height: calc(1.65em); /* relative to overlay font-size */
-      font-size: 0.92rem; /* must match textarea */
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; opacity: 0.35; transition: opacity 0.1s;
-      -webkit-tap-highlight-color: transparent; user-select: none;
-    }
-    .ck:hover { opacity: 1; }
-    .ck.on { opacity: 1; color: var(--success); }
-    .ck.on::after { content: '✓'; font-size: 12px; font-weight: 700; }
-    .ck:not(.on)::after { content: '○'; font-size: 10px; color: var(--border); }
+    .exp-row:last-child { border-bottom: none; }
+    .exp-row.dragging { opacity: .4; }
+    .exp-row.dragover { border-top: 2px solid var(--accent); }
+    .exp-handle { color: var(--border); font-size: 14px; flex-shrink: 0; cursor: grab; }
+    .exp-tag { flex-shrink: 0; font-size: .65rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; color: #fff; }
+    .exp-tag.a { background: var(--accent); }
+    .exp-tag.b { background: var(--purple); }
+    .exp-text { flex: 1; font-size: .88rem; line-height: 1.5; color: var(--text); }
+    .exp-del { flex-shrink: 0; cursor: pointer; color: var(--muted); font-size: 13px; padding: 2px 4px; }
+    .exp-del:hover { color: var(--red); }
+    .exp-empty { padding: 20px; text-align: center; color: var(--muted); font-size: .85rem; }
+    .exp-actions { display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
 
-    /* ════════════════════════════════
-       AI RESULT PANEL
-    ════════════════════════════════ */
-    .ai-result {
-      position: fixed; bottom: 16px; right: 16px; left: 16px; z-index: 90;
-      background: #fff; border: 1px solid var(--border); border-radius: 12px;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.14); padding: 14px 16px;
-      max-width: 480px; margin: 0 auto;
-      display: none; animation: fadeUp .2s ease;
-    }
-    .ai-result.show { display: block; }
-    @keyframes fadeUp { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
-    .air-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-    .air-label { font-size: 0.68rem; font-weight: 700; letter-spacing: .07em; color: var(--ai); text-transform: uppercase; }
-    .air-src { font-size: 0.78rem; color: var(--muted); font-style: italic; line-height: 1.5; margin-bottom: 8px; white-space: pre-wrap; max-height: 80px; overflow: auto; }
-    .air-body { font-size: 0.9rem; line-height: 1.6; color: var(--text); background: var(--ai-bg); padding: 10px 12px; border-radius: 8px; border: 1px solid var(--ai-border); white-space: pre-wrap; max-height: 160px; overflow: auto; }
-    .air-actions { display: flex; gap: 8px; margin-top: 10px; }
-
-    /* spinner */
-    .spin { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--ai-border); border-top-color: var(--ai); border-radius: 50%; animation: rot .6s linear infinite; }
-    @keyframes rot { to { transform: rotate(360deg); } }
-
-    /* ════════════════════════════════
+    /* ═══════════════════════════════
        LIBRARY
-    ════════════════════════════════ */
-    #view-library { overflow-y: auto; padding: 14px; }
+    ═══════════════════════════════ */
+    #view-library { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px; }
     .lib-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
     .lib-search {
-      flex: 1; font-family: 'Inter', sans-serif; font-size: 0.88rem;
-      border: 1px solid var(--border); border-radius: 7px; padding: 7px 12px;
-      background: var(--surface); color: var(--text); outline: none;
+      flex: 1; font-family: 'Inter', sans-serif; font-size: var(--fs);
+      border: 1px solid var(--border); border-radius: 7px; padding: 8px 12px;
+      background: var(--surf); color: var(--text); outline: none; -webkit-appearance: none;
     }
     .lib-search:focus { border-color: var(--accent); }
     .lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 10px; }
-    .song-card {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    .card {
+      background: var(--surf); border: 1px solid var(--border); border-radius: 9px;
       padding: 13px 14px; cursor: pointer; position: relative;
-      transition: box-shadow .15s, border-color .15s;
+      -webkit-tap-highlight-color: transparent;
     }
-    .song-card:active { background: var(--surface2); }
-    .song-card:hover { border-color: var(--accent); }
-    .card-title { font-size: 0.92rem; font-weight: 600; margin-bottom: 2px; padding-right: 52px; }
-    .card-meta { font-size: 0.7rem; color: var(--muted); margin-bottom: 6px; }
-    .card-preview { font-size: 0.78rem; color: var(--muted); line-height: 1.45; max-height: 55px; overflow: hidden; -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent); mask-image: linear-gradient(to bottom, black 50%, transparent); }
-    .card-actions { position: absolute; top: 9px; right: 9px; display: flex; gap: 2px; opacity: 0; }
-    .song-card:hover .card-actions, .song-card:active .card-actions { opacity: 1; }
-    .empty-lib { grid-column: 1/-1; text-align: center; padding: 50px 20px; color: var(--muted); }
-    .empty-lib .big { font-size: 1.2rem; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .card:active { background: var(--surf2); }
+    .card-title { font-size: .92rem; font-weight: 600; margin-bottom: 2px; padding-right: 52px; }
+    .card-meta  { font-size: .7rem; color: var(--muted); margin-bottom: 6px; }
+    .card-prev  { font-size: .78rem; color: var(--muted); line-height: 1.45; max-height: 55px; overflow: hidden; -webkit-mask-image: linear-gradient(to bottom,black 50%,transparent); mask-image: linear-gradient(to bottom,black 50%,transparent); }
+    .card-acts  { position: absolute; top: 9px; right: 9px; display: flex; gap: 2px; opacity: 0; }
+    .card:hover .card-acts { opacity: 1; }
+    @media (hover:none) { .card-acts { opacity: 1; } }
+    .empty { grid-column:1/-1; text-align:center; padding:50px 20px; color:var(--muted); }
+    .empty .big { font-size:1.1rem; font-weight:600; color:var(--text); margin-bottom:5px; }
 
-    /* ════════════════════════════════
+    /* ═══════════════════════════════
        COMPARE
-    ════════════════════════════════ */
-    .cmp-toolbar {
-      display: flex; align-items: center; gap: 10px; padding: 7px 14px;
-      background: var(--surface); border-bottom: 1px solid var(--border);
-      flex-shrink: 0; flex-wrap: wrap;
+    ═══════════════════════════════ */
+    .cmp-bar {
+      flex-shrink: 0; display: flex; align-items: center; gap: 10px;
+      padding: 7px 13px; background: var(--surf); border-bottom: 1px solid var(--border); flex-wrap: wrap;
     }
     .sg { display: flex; align-items: center; gap: 5px; }
-    .sg label { font-size: 0.73rem; color: var(--muted); white-space: nowrap; }
-    .sg select { font-family: 'Inter', sans-serif; font-size: 0.82rem; border: 1px solid var(--border); border-radius: 6px; padding: 5px 9px; background: var(--surface); color: var(--text); outline: none; max-width: 150px; }
+    .sg label { font-size: .73rem; color: var(--muted); white-space: nowrap; }
+    .sg select {
+      font-family: 'Inter', sans-serif; font-size: var(--fs);
+      border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px;
+      background: var(--surf); color: var(--text); outline: none; max-width: 140px; -webkit-appearance: none;
+    }
     .cmp-stack { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
     .cmp-panel { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-    .cmp-body { flex: 1; display: flex; overflow: hidden; min-height: 0; }
-    .cmp-lnums { width: 36px; flex-shrink: 0; overflow: hidden; padding: 12px 5px 12px 0; text-align: right; font-size: 0.7rem; line-height: 1.65; color: #c5ccd8; background: var(--surface2); border-right: 1px solid var(--border); user-select: none; white-space: pre; }
-    .cmp-textarea { flex: 1; width: 0; padding: 12px 14px; font-family: 'Inter', sans-serif; font-size: 0.9rem; line-height: 1.65; border: none; resize: none; outline: none; color: var(--text); background: var(--surface2); overflow-y: scroll; -webkit-overflow-scrolling: touch; }
-
-    /* ════════════════════════════════
-       SETTINGS MODAL
-    ════════════════════════════════ */
-    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
-    .modal-bg.open { display: flex; }
-    .modal { background: var(--surface); border-radius: 12px; padding: 22px; width: 100%; max-width: 420px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
-    .modal h3 { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
-    .modal .sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 14px; line-height: 1.5; }
-    .modal label { font-size: 0.75rem; font-weight: 600; color: var(--muted); display: block; margin-bottom: 4px; letter-spacing: .04em; }
-    .modal input, .modal textarea {
-      width: 100%; font-family: 'Inter', sans-serif; font-size: 0.88rem;
-      border: 1px solid var(--border); border-radius: 7px; padding: 8px 11px;
-      color: var(--text); outline: none; margin-bottom: 14px; background: var(--surface);
+    .cmp-body  { flex: 1; display: flex; overflow: hidden; min-height: 0; }
+    .cmp-lnums {
+      flex-shrink: 0; width: 36px; padding: 14px 5px 14px 0;
+      overflow: hidden; text-align: right;
+      font-family: 'Inter', monospace; font-size: var(--fs); line-height: var(--lh);
+      color: #c5ccd8; background: var(--surf2); border-right: 1px solid var(--border);
+      user-select: none; white-space: pre;
     }
-    .modal input:focus, .modal textarea:focus { border-color: var(--accent); }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
-    .api-hint { font-size: 0.73rem; color: var(--muted); margin-top: -10px; margin-bottom: 14px; line-height: 1.5; }
-    .api-hint a { color: var(--accent); }
+    .cmp-ta {
+      flex: 1; width: 0; padding: 14px 12px;
+      font-family: 'Inter', sans-serif; font-size: var(--fs); line-height: var(--lh);
+      border: none; resize: none; outline: none; color: var(--text); background: var(--surf2);
+      overflow-y: scroll; -webkit-overflow-scrolling: touch;
+    }
 
-    /* ════════════════════════════════
-       TOAST
-    ════════════════════════════════ */
-    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(60px); background: #1a1d23; color: #fff; font-size: 0.82rem; padding: 9px 18px; border-radius: 9px; z-index: 200; transition: transform .25s cubic-bezier(.34,1.56,.64,1); box-shadow: 0 4px 14px rgba(0,0,0,.2); pointer-events: none; white-space: nowrap; }
+    /* ═══════════════════════════════
+       MODAL
+    ═══════════════════════════════ */
+    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
+    .modal-bg.open { display: flex; }
+    .modal { background: var(--surf); border-radius: 12px; padding: 22px; width: 100%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,.15); }
+    .modal h3 { font-size: 1rem; font-weight: 600; margin-bottom: 14px; }
+    .modal input { width: 100%; font-family: 'Inter', sans-serif; font-size: var(--fs); border: 1px solid var(--border); border-radius: 7px; padding: 9px 11px; color: var(--text); outline: none; margin-bottom: 14px; -webkit-appearance: none; }
+    .modal input:focus { border-color: var(--accent); }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+    /* ── TOAST ── */
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(70px); background: #1a1d23; color: #fff; font-size: .82rem; padding: 9px 18px; border-radius: 9px; z-index: 200; transition: transform .25s cubic-bezier(.34,1.56,.64,1); box-shadow: 0 4px 14px rgba(0,0,0,.2); pointer-events: none; white-space: nowrap; }
     .toast.show { transform: translateX(-50%) translateY(0); }
   </style>
 </head>
@@ -311,688 +281,665 @@
 
   <header>
     <div class="logo">🎵 Lyric <em>Studio</em></div>
-    <div class="hdr-right">
-      <button class="btn ghost sm" onclick="openSettings()" title="Impostazioni (API Key)">⚙️</button>
-      <button class="btn ghost sm" onclick="exportAll()">↓</button>
-      <button class="btn primary sm" onclick="openNewSong()">+ Nuova</button>
+    <div class="hdr-btns">
+      <div class="sync-dot" id="sync-dot" title="Stato sync"></div>
+      <button class="btn ghost sm" onclick="exportAll()">↓ Esporta</button>
+      <button class="btn primary sm" onclick="openNew()">+ Nuova</button>
     </div>
   </header>
 
   <nav>
-    <button class="active" data-view="editor" onclick="showView('editor',this)">Editor</button>
-    <button data-view="library" onclick="showView('library',this)">Libreria</button>
-    <button data-view="compare" onclick="showView('compare',this)">Confronto</button>
+    <button class="nav-btn active" data-v="editor"  onclick="showView('editor',this)">Editor</button>
+    <button class="nav-btn"        data-v="export"  onclick="showView('export',this)">🎯 Componi</button>
+    <button class="nav-btn"        data-v="library" onclick="showView('library',this)">Libreria</button>
+    <button class="nav-btn"        data-v="compare" onclick="showView('compare',this)">Confronto</button>
   </nav>
 
   <!-- ══ EDITOR ══ -->
   <div id="view-editor" class="view active">
-    <div class="editor-toolbar">
-      <button class="btn ghost sm" onclick="swapPanels()">⇅ Inverti</button>
+    <div class="ed-toolbar">
+      <div class="legend">
+        <span><span style="color:var(--green);font-weight:700">✓</span> includi</span>
+        <span><span style="color:var(--red);font-weight:700">✕</span> escludi</span>
+        <span style="color:#d1d5db">· neutro</span>
+      </div>
       <div class="sp"></div>
-      <button class="btn sm" onclick="saveSession()">💾 Salva entrambe</button>
+      <button class="btn ghost sm" onclick="swapPanels()">⇅</button>
+      <button class="btn sm" onclick="saveSession()">💾 Salva</button>
     </div>
     <div class="stack">
 
-      <!-- Panel A -->
-      <div class="song-panel" id="panelA">
+      <!-- PANEL A -->
+      <div class="panel">
         <div class="panel-head">
-          <span class="pbadge">A</span>
-          <input class="panel-title" type="text" id="title-a" placeholder="Titolo (originale)…" oninput="markDirty('a')" />
-          <button class="btn ghost sm" onclick="saveSingle('a')">Salva</button>
+          <span class="badge">A</span>
+          <input class="ptitle" id="title-a" type="text" placeholder="Titolo (originale)…" oninput="dirty('a')" />
+          <button class="btn ghost sm" onclick="save1('a')">Salva</button>
           <button class="btn ghost sm" onclick="clearPanel('a')">✕</button>
           <span id="stats-a" class="pstats"></span>
           <span id="dirty-a" class="pdirty"></span>
         </div>
-        <div class="ai-bar" id="ai-bar-a">
-          <span class="ai-bar-label">✦ Testo selezionato</span>
-          <button class="ai-translate-btn" onclick="translateSelected('a')">✨ Traduci con AI</button>
-          <button class="btn xs ghost" onclick="clearAiBar('a')">✕</button>
-        </div>
-        <div class="editor-wrap" id="wrap-a">
+        <div class="ed-body">
           <div class="lnums" id="ln-a">1</div>
-          <textarea class="main-textarea" id="ta-a"
+          <div class="mk-col" id="mkcol-a"><div class="mk-inner" id="mk-a"></div></div>
+          <textarea class="ta" id="ta-a"
             placeholder="Incolla o scrivi il testo originale…"
-            oninput="onTaInput('a')"
-            onscroll="onTaScroll('a')"
-            onmouseup="onTaSelect('a')"
-            onkeyup="onTaSelect('a')"
-            ontouchend="onTaSelect('a')"
-          ></textarea>
-          <!-- checks overlay -->
-          <div class="checks-overlay" id="ckover-a">
-            <div class="checks-scroll" id="ckscroll-a"></div>
-          </div>
+            oninput="onInput('a')" onscroll="onScroll('a')"></textarea>
         </div>
         <div class="panel-foot">
           <span id="foot-a">0 righe · 0 parole</span>
-          <span id="ck-count-a"></span>
+          <div class="foot-marks">
+            <span id="fm-a-1" style="color:var(--green)"></span>
+            <span id="fm-a-2" style="color:var(--red)"></span>
+          </div>
         </div>
       </div>
 
-      <div class="divider-bar"><span>TRADUZIONE / B</span></div>
+      <div class="divider"><span>TRADUZIONE / B</span></div>
 
-      <!-- Panel B -->
-      <div class="song-panel" id="panelB">
+      <!-- PANEL B -->
+      <div class="panel">
         <div class="panel-head">
-          <span class="pbadge b">B</span>
-          <input class="panel-title" type="text" id="title-b" placeholder="Titolo (traduzione)…" oninput="markDirty('b')" />
-          <button class="btn ghost sm" onclick="saveSingle('b')">Salva</button>
+          <span class="badge b">B</span>
+          <input class="ptitle" id="title-b" type="text" placeholder="Titolo (traduzione)…" oninput="dirty('b')" />
+          <button class="btn ghost sm" onclick="save1('b')">Salva</button>
           <button class="btn ghost sm" onclick="clearPanel('b')">✕</button>
           <span id="stats-b" class="pstats"></span>
           <span id="dirty-b" class="pdirty"></span>
         </div>
-        <div class="ai-bar" id="ai-bar-b">
-          <span class="ai-bar-label">✦ Testo selezionato</span>
-          <button class="ai-translate-btn" onclick="translateSelected('b')">✨ Traduci con AI</button>
-          <button class="btn xs ghost" onclick="clearAiBar('b')">✕</button>
-        </div>
-        <div class="editor-wrap" id="wrap-b">
+        <div class="ed-body">
           <div class="lnums" id="ln-b">1</div>
-          <textarea class="main-textarea" id="ta-b"
+          <div class="mk-col" id="mkcol-b"><div class="mk-inner" id="mk-b"></div></div>
+          <textarea class="ta" id="ta-b"
             placeholder="Incolla o scrivi la traduzione…"
-            oninput="onTaInput('b')"
-            onscroll="onTaScroll('b')"
-            onmouseup="onTaSelect('b')"
-            onkeyup="onTaSelect('b')"
-            ontouchend="onTaSelect('b')"
-          ></textarea>
-          <div class="checks-overlay" id="ckover-b">
-            <div class="checks-scroll" id="ckscroll-b"></div>
-          </div>
+            oninput="onInput('b')" onscroll="onScroll('b')"></textarea>
         </div>
         <div class="panel-foot">
           <span id="foot-b">0 righe · 0 parole</span>
-          <span id="ck-count-b"></span>
+          <div class="foot-marks">
+            <span id="fm-b-1" style="color:var(--green)"></span>
+            <span id="fm-b-2" style="color:var(--red)"></span>
+          </div>
         </div>
       </div>
 
     </div>
-  </div><!-- /editor -->
+  </div>
+
+  <!-- ══ COMPONI (export builder) ══ -->
+  <div id="view-export" class="view">
+    <div class="exp-section">
+      <div class="exp-head">
+        🎯 Testo composto — righe marcate ✓ da A e B
+        <div class="sp"></div>
+        <button class="btn ghost sm" onclick="buildExport()">↺ Aggiorna</button>
+      </div>
+      <div class="exp-list" id="exp-list">
+        <div class="exp-empty">Marca delle righe con ✓ nell'editor, poi premi Aggiorna.</div>
+      </div>
+    </div>
+    <div class="exp-actions">
+      <button class="btn primary" onclick="downloadComposed()">↓ Scarica testo composto</button>
+      <button class="btn ghost"   onclick="copyComposed()">⎘ Copia testo</button>
+    </div>
+  </div>
 
   <!-- ══ LIBRARY ══ -->
-  <div id="view-library" class="view" style="overflow-y:auto;padding:14px;">
+  <div id="view-library" class="view">
     <div class="lib-bar">
-      <input class="lib-search" type="text" id="search-q" placeholder="🔍 Cerca…" oninput="renderLibrary()" />
-      <span id="lib-count" style="font-size:.75rem;color:var(--muted);white-space:nowrap;"></span>
+      <input class="lib-search" id="lib-q" type="text" placeholder="🔍 Cerca…" oninput="renderLib()" />
+      <span id="lib-n" style="font-size:.75rem;color:var(--muted);white-space:nowrap;"></span>
     </div>
     <div class="lib-grid" id="lib-grid"></div>
   </div>
 
   <!-- ══ COMPARE ══ -->
   <div id="view-compare" class="view">
-    <div class="cmp-toolbar">
-      <div class="sg"><label>A:</label><select id="csel-a" onchange="renderCompare()"></select></div>
-      <div class="sg"><label>B:</label><select id="csel-b" onchange="renderCompare()"></select></div>
-      <div style="flex:1"></div>
-      <button class="btn primary sm" onclick="openBothInEditor()">Modifica →</button>
+    <div class="cmp-bar">
+      <div class="sg"><label>A:</label><select id="csel-a" onchange="renderCmp()"></select></div>
+      <div class="sg"><label>B:</label><select id="csel-b" onchange="renderCmp()"></select></div>
+      <div class="sp"></div>
+      <button class="btn primary sm" onclick="cmpEdit()">Modifica →</button>
     </div>
     <div class="cmp-stack">
       <div class="cmp-panel">
         <div class="panel-head">
-          <span class="pbadge">A</span>
-          <input class="panel-title" id="cmp-title-a" readonly style="pointer-events:none" />
+          <span class="badge">A</span>
+          <input class="ptitle" id="cmp-title-a" readonly style="pointer-events:none" />
           <span id="cmp-stats-a" class="pstats"></span>
         </div>
         <div class="cmp-body">
           <div class="cmp-lnums" id="cmp-ln-a">1</div>
-          <textarea class="cmp-textarea" id="cmp-ta-a" readonly onscroll="onCmpScroll('a')"></textarea>
+          <textarea class="cmp-ta" id="cmp-ta-a" readonly onscroll="cmpScroll('a')"></textarea>
         </div>
       </div>
-      <div class="divider-bar"><span>TRADUZIONE / B</span></div>
+      <div class="divider"><span>TRADUZIONE / B</span></div>
       <div class="cmp-panel">
         <div class="panel-head">
-          <span class="pbadge b">B</span>
-          <input class="panel-title" id="cmp-title-b" readonly style="pointer-events:none" />
+          <span class="badge b">B</span>
+          <input class="ptitle" id="cmp-title-b" readonly style="pointer-events:none" />
           <span id="cmp-stats-b" class="pstats"></span>
         </div>
         <div class="cmp-body">
           <div class="cmp-lnums" id="cmp-ln-b">1</div>
-          <textarea class="cmp-textarea" id="cmp-ta-b" readonly onscroll="onCmpScroll('b')"></textarea>
+          <textarea class="cmp-ta" id="cmp-ta-b" readonly onscroll="cmpScroll('b')"></textarea>
         </div>
       </div>
     </div>
   </div>
 
-</div><!-- #app -->
-
-<!-- ══ AI RESULT ══ -->
-<div class="ai-result" id="air">
-  <div class="air-top">
-    <div class="air-label">✨ Traduzione AI</div>
-    <button class="btn xs ghost" onclick="closeAir()">✕</button>
-  </div>
-  <div class="air-src" id="air-src"></div>
-  <div class="air-body" id="air-body"><div class="spin"></div></div>
-  <div class="air-actions" id="air-actions" style="display:none">
-    <button class="btn sm primary" onclick="applyAiResult()">→ Incolla in B</button>
-    <button class="btn sm ghost" onclick="closeAir()">Chiudi</button>
-  </div>
 </div>
 
-<!-- ══ MODAL (settings + confirm) ══ -->
+<!-- MODAL -->
 <div class="modal-bg" id="modal-bg">
-  <div class="modal" id="modal-inner"></div>
+  <div class="modal">
+    <h3 id="modal-title">Salva</h3>
+    <input type="text" id="modal-inp" onkeydown="if(event.key==='Enter')modalOk()" />
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="modalClose()">Annulla</button>
+      <button class="btn primary" onclick="modalOk()">OK</button>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-/* ════════════════════════════════════════════
-   STORAGE — localStorage only (Supabase coming)
-════════════════════════════════════════════ */
-const SONGS_KEY = 'ls_songs_v3';
-const API_KEY   = 'ls_apikey';
+/* ═══════════════════════════════════════════════════
+   SUPABASE
+═══════════════════════════════════════════════════ */
+const SB_URL = 'https://egffyuvtmvcgwuzhvsdx.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVnZmZ5dXZ0bXZjZ3d1emh2c2R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNDgyOTMsImV4cCI6MjA5MTkyNDI5M30.3O64a0fjLzYMq7nSEIPYI685alVZyAB07Qp7RM-np7Q';
+const sb = supabase.createClient(SB_URL, SB_KEY);
 
-let songs = {};
-try { songs = JSON.parse(localStorage.getItem(SONGS_KEY)||'{}'); } catch(e){}
-
-function saveSongs() { try { localStorage.setItem(SONGS_KEY, JSON.stringify(songs)); } catch(e){} }
-function genId()    { return 'song_'+Date.now()+'_'+Math.random().toString(36).slice(2,6); }
-
-function upsertSong(id, title, text, checks) {
-  if (!id) id = genId();
-  songs[id] = { id, title: title||'Senza titolo', text: text||'', checks: checks||{}, updatedAt: new Date().toISOString() };
-  saveSongs(); return id;
-}
-function deleteSong(id) { delete songs[id]; saveSongs(); }
-function sortedSongs(q='') {
-  return Object.values(songs)
-    .filter(s=>!q||s.title.toLowerCase().includes(q)||s.text.toLowerCase().includes(q))
-    .sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt));
+function setSyncDot(state) { // 'ok' | 'saving' | 'error' | 'idle'
+  const d = document.getElementById('sync-dot');
+  d.className = 'sync-dot' + (state !== 'idle' ? ' ' + state : '');
+  d.title = { ok:'Sincronizzato', saving:'Salvataggio…', error:'Errore sync', idle:'In attesa' }[state] || '';
 }
 
-function getApiKey() { return localStorage.getItem(API_KEY)||''; }
-function saveApiKey(k) { localStorage.setItem(API_KEY, k); }
+/* ═══════════════════════════════════════════════════
+   LOCAL CACHE + SUPABASE SYNC
+═══════════════════════════════════════════════════ */
+const LKEY = 'ls5_songs';
+let DB = {};
+try { DB = JSON.parse(localStorage.getItem(LKEY) || '{}'); } catch(_) {}
 
-/* ════════════════════════════════════════════
-   PANEL STATE
-════════════════════════════════════════════ */
-const ST = {
-  a: { id:null, dirty:false, checks:{} },
-  b: { id:null, dirty:false, checks:{} }
-};
-let pendingAI = null; // { text, srcSide }
-let aiBarSel  = { a: null, b: null }; // current selection range per side
-
-/* ════════════════════════════════════════════
-   LINE NUMBERS
-════════════════════════════════════════════ */
-function updateLnums(side) {
-  const ta = document.getElementById('ta-'+side);
-  const ln = document.getElementById('ln-'+side);
-  const n  = ta.value.split('\n').length;
-  ln.textContent = Array.from({length:n},(_,i)=>i+1).join('\n');
-  // sync scroll
-  ln.scrollTop = ta.scrollTop;
+function localSave() {
+  try { localStorage.setItem(LKEY, JSON.stringify(DB)); } catch(_) {}
 }
 
-/* ════════════════════════════════════════════
-   CHECKS OVERLAY
-   One ✓ icon per line, positioned via line-height
-════════════════════════════════════════════ */
-const LINE_H_PX = 0.92 * 1.65 * 16; // font-size * line-height * base (approx 24.3px)
+function uid() { return 'S' + Date.now() + Math.random().toString(36).slice(2,6); }
 
-function updateChecks(side) {
-  const ta   = document.getElementById('ta-'+side);
-  const cont = document.getElementById('ckscroll-'+side);
-  const lines = ta.value.split('\n');
-  const checks = ST[side].checks;
-
-  cont.innerHTML = '';
-  lines.forEach((_, i) => {
-    const d = document.createElement('div');
-    d.className = 'ck' + (checks[i] ? ' on' : '');
-    d.style.height = LINE_H_PX + 'px';
-    d.title = checks[i] ? 'Riga OK — clicca per rimuovere' : 'Segna come OK';
-    d.onclick = () => toggleCheck(side, i);
-    cont.appendChild(d);
-  });
-
-  // sync scroll offset
-  syncChecksScroll(side);
-  updateFooter(side);
+/* upsert locally + push to Supabase */
+let saveTimer = null;
+async function dbSave(id, title, text, marks) {
+  if (!id) id = uid();
+  DB[id] = { id, title: (title||'').trim()||'Senza titolo', text: text||'', marks: marks||{}, ts: Date.now() };
+  localSave();
+  // debounce remote save 800ms
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => pushToSupabase(id), 800);
+  return id;
 }
 
-function syncChecksScroll(side) {
-  const ta   = document.getElementById('ta-'+side);
-  const cont = document.getElementById('ckscroll-'+side);
-  cont.style.top = (12 - ta.scrollTop) + 'px';
-}
-
-function toggleCheck(side, idx) {
-  ST[side].checks[idx] = !ST[side].checks[idx];
-  markDirty(side);
-  updateChecks(side);
-  toast(ST[side].checks[idx] ? '✓ Riga '+(idx+1)+' — OK' : 'Riga '+(idx+1)+' deselezionata');
-}
-
-/* ════════════════════════════════════════════
-   TEXTAREA EVENTS
-════════════════════════════════════════════ */
-function onTaInput(side) {
-  updateLnums(side);
-  updateChecks(side);
-  markDirty(side);
-  updateFooter(side);
-}
-
-let syncScrollLock = false;
-function onTaScroll(side) {
-  // sync line numbers
-  const ta = document.getElementById('ta-'+side);
-  document.getElementById('ln-'+side).scrollTop = ta.scrollTop;
-  syncChecksScroll(side);
-
-  // sync opposite panel proportionally
-  if (syncScrollLock) return;
-  syncScrollLock = true;
-  const dst  = side==='a'?'b':'a';
-  const dstTa = document.getElementById('ta-'+dst);
-  const pct  = ta.scrollTop / Math.max(1, ta.scrollHeight - ta.clientHeight);
-  dstTa.scrollTop = pct * Math.max(0, dstTa.scrollHeight - dstTa.clientHeight);
-  document.getElementById('ln-'+dst).scrollTop = dstTa.scrollTop;
-  syncChecksScroll(dst);
-  requestAnimationFrame(()=>{ syncScrollLock=false; });
-}
-
-function onTaSelect(side) {
-  const ta = document.getElementById('ta-'+side);
-  const start = ta.selectionStart;
-  const end   = ta.selectionEnd;
-  const bar   = document.getElementById('ai-bar-'+side);
-  if (start !== end) {
-    aiBarSel[side] = { start, end };
-    bar.classList.add('show');
-  } else {
-    bar.classList.remove('show');
-    aiBarSel[side] = null;
+async function pushToSupabase(id) {
+  const s = DB[id]; if (!s) return;
+  setSyncDot('saving');
+  try {
+    const { error } = await sb.from('songs').upsert({
+      id: s.id, title: s.title, text: s.text,
+      marks: s.marks, ts: s.ts
+    });
+    if (error) throw error;
+    setSyncDot('ok');
+  } catch(e) {
+    console.error('Supabase save error:', e);
+    setSyncDot('error');
+    toast('⚠️ Sync fallita — dati salvati in locale');
   }
 }
 
-function clearAiBar(side) {
-  document.getElementById('ai-bar-'+side).classList.remove('show');
-  aiBarSel[side] = null;
+async function dbDel(id) {
+  delete DB[id]; localSave();
+  try { await sb.from('songs').delete().eq('id', id); } catch(_) {}
 }
 
-/* ════════════════════════════════════════════
-   STATS & DIRTY
-════════════════════════════════════════════ */
-function updateFooter(side) {
-  const text  = document.getElementById('ta-'+side).value;
-  const lines = text ? text.split('\n').length : 0;
-  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-  document.getElementById('foot-'+side).textContent = `${lines} righe · ${words} parole`;
-  const ckOn = Object.values(ST[side].checks).filter(Boolean).length;
-  document.getElementById('ck-count-'+side).textContent = ckOn>0 ? `✓ ${ckOn} OK` : '';
+function dbList(q) {
+  let arr = Object.values(DB);
+  if (q) { const lq=q.toLowerCase(); arr=arr.filter(s=>s.title.toLowerCase().includes(lq)||s.text.toLowerCase().includes(lq)); }
+  return arr.sort((a,b)=>b.ts-a.ts);
 }
 
-function markDirty(side) {
-  ST[side].dirty = true;
-  const el = document.getElementById('dirty-'+side);
+/* pull all songs from Supabase on load */
+async function pullFromSupabase() {
+  setSyncDot('saving');
+  try {
+    const { data, error } = await sb.from('songs').select('*').order('ts', { ascending: false });
+    if (error) throw error;
+    // merge: remote wins on conflict (higher ts)
+    (data||[]).forEach(s => {
+      if (!DB[s.id] || DB[s.id].ts < s.ts) {
+        DB[s.id] = { id: s.id, title: s.title, text: s.text, marks: s.marks||{}, ts: s.ts };
+      }
+    });
+    localSave();
+    setSyncDot('ok');
+    renderLib();
+    toast('✓ Dati sincronizzati (' + (data||[]).length + ' canzoni)');
+  } catch(e) {
+    console.error('Supabase pull error:', e);
+    setSyncDot('error');
+    toast('⚠️ Impossibile connettersi a Supabase — uso dati locali');
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════ */
+// marks[i] = 0 (neutral) | 1 (include ✓) | 2 (exclude ✕)
+const S = {
+  a: { id: null, dirty: false, marks: {} },
+  b: { id: null, dirty: false, marks: {} }
+};
+let modalCb = null;
+
+// export order list: [{side:'a'|'b', idx:Number, text:String}]
+let expRows = [];
+
+/* ═══════════════════════════════════════════════════
+   LINE NUMBERS
+═══════════════════════════════════════════════════ */
+function rebuildLn(side) {
+  const ta = document.getElementById('ta-' + side);
+  const ln = document.getElementById('ln-' + side);
+  const n  = ta.value ? ta.value.split('\n').length : 1;
+  ln.textContent = Array.from({length:n},(_,i)=>i+1).join('\n');
+}
+function syncLn(side) {
+  const ta = document.getElementById('ta-' + side);
+  document.getElementById('ln-' + side).scrollTop = ta.scrollTop;
+}
+
+/* ═══════════════════════════════════════════════════
+   MARKS COLUMN
+═══════════════════════════════════════════════════ */
+const LH_PX = 16 * 1.6; // 25.6px
+
+function rebuildMk(side) {
+  const ta     = document.getElementById('ta-' + side);
+  const inner  = document.getElementById('mk-' + side);
+  const marks  = S[side].marks;
+  const n      = ta.value ? ta.value.split('\n').length : 1;
+
+  let html = '';
+  for (let i = 0; i < n; i++) {
+    const s = marks[i] || 0;
+    const icon = s === 1 ? '✓' : s === 2 ? '✕' : '·';
+    html += `<div class="mk" data-i="${i}" data-s="${s}" title="Clicca per cambiare stato">${icon}</div>`;
+  }
+  inner.innerHTML = html;
+
+  inner.querySelectorAll('.mk').forEach(el => {
+    el.addEventListener('click', () => {
+      const i = parseInt(el.dataset.i);
+      const cur = S[side].marks[i] || 0;
+      S[side].marks[i] = (cur + 1) % 3; // cycle 0→1→2→0
+      dirty(side);
+      rebuildMk(side);
+      updateFoot(side);
+    });
+  });
+
+  syncMk(side);
+  updateFoot(side);
+}
+
+function syncMk(side) {
+  const ta    = document.getElementById('ta-' + side);
+  const inner = document.getElementById('mk-' + side);
+  inner.style.transform = `translateY(${-ta.scrollTop}px)`;
+}
+
+/* ═══════════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════════ */
+function updateFoot(side) {
+  const val   = document.getElementById('ta-' + side).value;
+  const lines = val ? val.split('\n').length : 0;
+  const words = val.trim() ? val.trim().split(/\s+/).length : 0;
+  document.getElementById('foot-' + side).textContent = `${lines} righe · ${words} parole`;
+  const m = S[side].marks;
+  const n1 = Object.values(m).filter(v=>v===1).length;
+  const n2 = Object.values(m).filter(v=>v===2).length;
+  document.getElementById('fm-' + side + '-1').textContent = n1 > 0 ? `✓ ${n1}` : '';
+  document.getElementById('fm-' + side + '-2').textContent = n2 > 0 ? `✕ ${n2}` : '';
+}
+
+/* ═══════════════════════════════════════════════════
+   DIRTY / CLEAN
+═══════════════════════════════════════════════════ */
+function dirty(side) {
+  S[side].dirty = true;
+  const el = document.getElementById('dirty-' + side);
   el.textContent = '● non salvato'; el.className = 'pdirty unsaved';
 }
-function clearDirty(side) {
-  ST[side].dirty = false;
-  const el = document.getElementById('dirty-'+side);
+function clean(side) {
+  S[side].dirty = false;
+  const el = document.getElementById('dirty-' + side);
   el.textContent = '✓ salvato'; el.className = 'pdirty saved';
 }
 
-/* ════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
+   TEXTAREA EVENTS
+═══════════════════════════════════════════════════ */
+function onInput(side) { rebuildLn(side); rebuildMk(side); dirty(side); }
+
+let scrollLock = false;
+function onScroll(side) {
+  syncLn(side); syncMk(side);
+  if (scrollLock) return;
+  scrollLock = true;
+  const src = document.getElementById('ta-' + side);
+  const dst = document.getElementById('ta-' + (side==='a'?'b':'a'));
+  const maxS = src.scrollHeight - src.clientHeight;
+  const maxD = dst.scrollHeight - dst.clientHeight;
+  if (maxS > 0) {
+    dst.scrollTop = (src.scrollTop / maxS) * maxD;
+    syncLn(side==='a'?'b':'a');
+    syncMk(side==='a'?'b':'a');
+  }
+  requestAnimationFrame(() => { scrollLock = false; });
+}
+
+/* ═══════════════════════════════════════════════════
    LOAD / CLEAR
-════════════════════════════════════════════ */
-function loadPanel(side, title, text, checks) {
-  document.getElementById('title-'+side).value = title||'';
-  document.getElementById('ta-'+side).value    = text||'';
-  ST[side].checks = checks ? {...checks} : {};
-  updateLnums(side);
-  updateChecks(side);
-  updateFooter(side);
-  clearDirty(side);
-  document.getElementById('dirty-'+side).textContent = '';
-  document.getElementById('dirty-'+side).className   = 'pdirty';
+═══════════════════════════════════════════════════ */
+function loadPanel(side, title, text, marks) {
+  document.getElementById('title-' + side).value = title || '';
+  document.getElementById('ta-' + side).value    = text  || '';
+  S[side].marks = marks ? JSON.parse(JSON.stringify(marks)) : {};
+  rebuildLn(side); rebuildMk(side); updateFoot(side); clean(side);
+  document.getElementById('ta-' + side).scrollTop = 0;
+  syncLn(side); syncMk(side);
+  document.getElementById('dirty-' + side).textContent = '';
+  document.getElementById('dirty-' + side).className   = 'pdirty';
 }
 
 function clearPanel(side) {
-  ST[side].id = null; ST[side].dirty = false; ST[side].checks = {};
-  loadPanel(side,'','',{});
+  S[side].id = null;
+  loadPanel(side, '', '', {});
 }
 
-function getTA(side) { return document.getElementById('ta-'+side).value; }
+function getVal(side) { return document.getElementById('ta-' + side).value; }
 
 function swapPanels() {
-  const tA=document.getElementById('title-a').value, txtA=getTA('a'), ckA={...ST.a.checks};
-  const tB=document.getElementById('title-b').value, txtB=getTA('b'), ckB={...ST.b.checks};
-  const idA=ST.a.id, idB=ST.b.id;
-  ST.a.id=idB; ST.b.id=idA;
-  loadPanel('a',tB,txtB,ckB); loadPanel('b',tA,txtA,ckA);
-  document.getElementById('title-a').value=tB;
-  document.getElementById('title-b').value=tA;
+  const tA=document.getElementById('title-a').value, vA=getVal('a'), mA=JSON.parse(JSON.stringify(S.a.marks)), idA=S.a.id;
+  const tB=document.getElementById('title-b').value, vB=getVal('b'), mB=JSON.parse(JSON.stringify(S.b.marks)), idB=S.b.id;
+  S.a.id=idB; S.b.id=idA;
+  loadPanel('a',tB,vB,mB); loadPanel('b',tA,vA,mA);
   toast('Pannelli invertiti');
 }
 
-function saveSingle(side) {
-  const title = document.getElementById('title-'+side).value.trim();
-  const text  = getTA(side);
+/* ═══════════════════════════════════════════════════
+   SAVE
+═══════════════════════════════════════════════════ */
+async function save1(side) {
+  const title = document.getElementById('title-' + side).value.trim();
+  const text  = getVal(side);
   if (!title && !text.trim()) { toast('Niente da salvare'); return; }
   if (!title) {
-    showPromptModal('Dai un titolo a questa canzone','', name => {
+    showModal('Dai un titolo alla canzone', '', async name => {
       if (!name) return;
-      document.getElementById('title-'+side).value = name;
-      ST[side].id = upsertSong(ST[side].id, name, text, ST[side].checks);
-      clearDirty(side); renderLibrary(); toast('Salvata: '+name);
-    }); return;
+      document.getElementById('title-' + side).value = name;
+      S[side].id = await dbSave(S[side].id, name, text, S[side].marks);
+      clean(side); renderLib(); toast('Salvata: ' + name);
+    });
+    return;
   }
-  ST[side].id = upsertSong(ST[side].id, title, text, ST[side].checks);
-  clearDirty(side); renderLibrary(); toast('Salvata: '+title);
+  S[side].id = await dbSave(S[side].id, title, text, S[side].marks);
+  clean(side); renderLib(); toast('Salvata: ' + title);
 }
 
-function saveSession() { saveSingle('a'); saveSingle('b'); }
+function saveSession() { save1('a'); save1('b'); }
 
-function openNewSong() {
-  showView('editor', document.querySelector('nav button[data-view="editor"]'));
+function openNew() {
+  showView('editor', document.querySelector('.nav-btn[data-v="editor"]'));
   clearPanel('a'); clearPanel('b');
 }
 
-/* ════════════════════════════════════════════
-   AI TRANSLATION
-════════════════════════════════════════════ */
-async function callClaude(systemPrompt, userPrompt) {
-  const key = getApiKey();
-  if (!key) {
-    openSettings(true);
-    throw new Error('API key mancante');
-  }
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': key,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
-      system: systemPrompt,
-      messages: [{ role:'user', content: userPrompt }]
-    })
+/* ═══════════════════════════════════════════════════
+   EXPORT / COMPONI
+═══════════════════════════════════════════════════ */
+function buildExport() {
+  const rows = [];
+  ['a','b'].forEach(side => {
+    const lines  = getVal(side).split('\n');
+    const marks  = S[side].marks;
+    lines.forEach((txt, i) => {
+      if ((marks[i]||0) === 1 && txt.trim()) {
+        rows.push({ side, idx: i, text: txt });
+      }
+    });
   });
-  if (!res.ok) {
-    const err = await res.json().catch(()=>({}));
-    throw new Error(err?.error?.message || 'Errore API '+res.status);
-  }
-  const data = await res.json();
-  return data.content?.[0]?.text || '';
+  // sort by original line index to keep natural order,
+  // interleaving A and B lines by their position
+  rows.sort((a,b) => a.idx - b.idx || (a.side==='a'?-1:1));
+  expRows = rows;
+  renderExpList();
 }
 
-const SYSTEM = `Sei un esperto traduttore di testi musicali. Regole:
-- Mantieni tono poetico, immagini e ritmo dell'originale
-- Adatta metafore culturalmente quando serve
-- La traduzione deve suonare naturale in italiano
-- Se il testo è già in italiano, puoi migliorarne la forma
-- Rispondi SOLO con il testo tradotto, senza note o spiegazioni`;
-
-async function translateSelected(side) {
-  const sel = aiBarSel[side];
-  if (!sel) return;
-  const ta = document.getElementById('ta-'+side);
-  const selectedText = ta.value.slice(sel.start, sel.end).trim();
-  if (!selectedText) return;
-
-  // gather surrounding context (up to 3 lines before/after selection)
-  const fullText = ta.value;
-  const before = fullText.slice(0, sel.start).split('\n').slice(-3).join('\n');
-  const after  = fullText.slice(sel.end).split('\n').slice(0, 3).join('\n');
-
-  let prompt = `Testo da tradurre:\n"${selectedText}"`;
-  if (before.trim()) prompt = `Contesto precedente:\n"${before}"\n\n` + prompt;
-  if (after.trim())  prompt += `\n\nContesto successivo:\n"${after}"`;
-  prompt += '\n\nFornisci la traduzione contestualizzata.';
-
-  pendingAI = { text: null, srcText: selectedText, srcSide: side, selStart: sel.start, selEnd: sel.end };
-  showAirLoading(selectedText);
-  clearAiBar(side);
-
-  try {
-    const result = await callClaude(SYSTEM, prompt);
-    pendingAI.text = result;
-    showAirResult(selectedText, result);
-  } catch(e) {
-    closeAir();
-    if (e.message !== 'API key mancante') toast('❌ '+e.message);
-  }
-}
-
-function showAirLoading(src) {
-  const el = document.getElementById('air');
-  document.getElementById('air-src').textContent = src.length>120 ? src.slice(0,120)+'…' : src;
-  document.getElementById('air-body').innerHTML = '<div class="spin"></div> Traduzione in corso…';
-  document.getElementById('air-actions').style.display = 'none';
-  el.classList.add('show');
-}
-function showAirResult(src, result) {
-  document.getElementById('air-src').textContent = src.length>120 ? src.slice(0,120)+'…' : src;
-  document.getElementById('air-body').textContent = result;
-  document.getElementById('air-actions').style.display = 'flex';
-}
-function closeAir() { document.getElementById('air').classList.remove('show'); pendingAI=null; }
-
-function applyAiResult() {
-  if (!pendingAI?.text) return;
-  const dstSide = pendingAI.srcSide === 'a' ? 'b' : 'a';
-  const ta = document.getElementById('ta-'+dstSide);
-  const cur = ta.value;
-  // append after last non-empty line
-  const sep = cur.trimEnd().length > 0 ? '\n' : '';
-  ta.value = cur.trimEnd() + sep + pendingAI.text;
-  onTaInput(dstSide);
-  markDirty(dstSide);
-  closeAir();
-  toast('✓ Traduzione incollata in '+dstSide.toUpperCase());
-}
-
-/* ════════════════════════════════════════════
-   SCROLL SYNC — compare view
-════════════════════════════════════════════ */
-let cmpLock = false;
-function onCmpScroll(side) {
-  const src = document.getElementById('cmp-ta-'+side);
-  document.getElementById('cmp-ln-'+side).scrollTop = src.scrollTop;
-  if (cmpLock) return;
-  cmpLock = true;
-  const dst = document.getElementById('cmp-ta-'+(side==='a'?'b':'a'));
-  const pct = src.scrollTop / Math.max(1, src.scrollHeight - src.clientHeight);
-  dst.scrollTop = pct * Math.max(0, dst.scrollHeight - dst.clientHeight);
-  document.getElementById('cmp-ln-'+(side==='a'?'b':'a')).scrollTop = dst.scrollTop;
-  requestAnimationFrame(()=>{ cmpLock=false; });
-}
-
-/* ════════════════════════════════════════════
-   VIEW SWITCHING
-════════════════════════════════════════════ */
-function showView(name, btn) {
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
-  document.getElementById('view-'+name).classList.add('active');
-  btn.classList.add('active');
-  if (name==='library') renderLibrary();
-  if (name==='compare') { populateCmpSelects(); renderCompare(); }
-}
-
-/* ════════════════════════════════════════════
-   LIBRARY
-════════════════════════════════════════════ */
-function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-function renderLibrary() {
-  const q    = document.getElementById('search-q').value.toLowerCase().trim();
-  const list = sortedSongs(q);
-  const grid = document.getElementById('lib-grid');
-  document.getElementById('lib-count').textContent = list.length+' canzoni';
-  if (!list.length) {
-    grid.innerHTML = `<div class="empty-lib"><div class="big">${q?'Nessun risultato':'Libreria vuota'}</div><p>${q?'Prova altri termini.':'Crea la prima canzone nell\'editor.'}</p></div>`;
+function renderExpList() {
+  const list = document.getElementById('exp-list');
+  if (!expRows.length) {
+    list.innerHTML = '<div class="exp-empty">Nessuna riga marcata con ✓. Torna nell\'editor e marca le righe da includere.</div>';
     return;
   }
-  grid.innerHTML = list.map(s=>{
-    const date  = new Date(s.updatedAt).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'});
-    const lines = s.text ? s.text.split('\n').filter(l=>l.trim()).length : 0;
-    const ckOn  = Object.values(s.checks||{}).filter(Boolean).length;
-    return `<div class="song-card" onclick="loadInEditor('${s.id}')">
+  list.innerHTML = expRows.map((r, i) => `
+    <div class="exp-row" draggable="true"
+      ondragstart="dStart(event,${i})" ondragover="dOver(event,${i})"
+      ondrop="dDrop(event,${i})" ondragleave="dLeave(event)">
+      <span class="exp-handle">⠿</span>
+      <span class="exp-tag ${r.side}">${r.side.toUpperCase()}</span>
+      <span class="exp-text">${esc(r.text)}</span>
+      <span class="exp-del" onclick="expDel(${i})" title="Rimuovi">✕</span>
+    </div>`).join('');
+}
+
+function expDel(i) { expRows.splice(i,1); renderExpList(); }
+
+// drag-and-drop reorder
+let dragIdx = null;
+function dStart(e, i) { dragIdx=i; e.currentTarget.classList.add('dragging'); }
+function dOver(e, i)  { e.preventDefault(); e.currentTarget.classList.add('dragover'); }
+function dLeave(e)    { e.currentTarget.classList.remove('dragover'); }
+function dDrop(e, i)  {
+  e.preventDefault(); e.currentTarget.classList.remove('dragover');
+  if (dragIdx===null||dragIdx===i) return;
+  const [item] = expRows.splice(dragIdx, 1);
+  expRows.splice(i, 0, item);
+  dragIdx = null; renderExpList();
+}
+
+function getComposedText() {
+  return expRows.map(r => r.text).join('\n');
+}
+
+function downloadComposed() {
+  if (!expRows.length) { toast('Nessuna riga — prima premi Aggiorna'); return; }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([getComposedText()], {type:'text/plain'}));
+  a.download = 'testo_composto.txt'; a.click();
+  toast('Scaricato!');
+}
+
+function copyComposed() {
+  if (!expRows.length) { toast('Nessuna riga'); return; }
+  navigator.clipboard.writeText(getComposedText()).then(
+    () => toast('✓ Testo copiato'),
+    () => toast('Copia non supportata dal browser')
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   VIEW SWITCHING
+═══════════════════════════════════════════════════ */
+function showView(name, btn) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (name==='library') renderLib();
+  if (name==='compare') { fillCmpSelects(); renderCmp(); }
+  if (name==='export')  buildExport();
+}
+
+/* ═══════════════════════════════════════════════════
+   LIBRARY
+═══════════════════════════════════════════════════ */
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderLib() {
+  const q    = (document.getElementById('lib-q').value||'').trim();
+  const list = dbList(q);
+  document.getElementById('lib-n').textContent = list.length + ' canzoni';
+  const grid = document.getElementById('lib-grid');
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty"><div class="big">${q?'Nessun risultato':'Libreria vuota'}</div><p>${q?'Prova altri termini.':'Crea la prima canzone nell\'editor.'}</p></div>`;
+    return;
+  }
+  grid.innerHTML = list.map(s => {
+    const date = new Date(s.ts).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'});
+    const lines= s.text ? s.text.split('\n').filter(l=>l.trim()).length : 0;
+    const m    = s.marks||{};
+    const n1   = Object.values(m).filter(v=>v===1).length;
+    const n2   = Object.values(m).filter(v=>v===2).length;
+    const mstr = [n1>0?`<span style="color:var(--green)">✓${n1}</span>`:'', n2>0?`<span style="color:var(--red)">✕${n2}</span>`:''].filter(Boolean).join(' ');
+    return `<div class="card" onclick="libLoad('${s.id}')">
       <div class="card-title">${esc(s.title)}</div>
-      <div class="card-meta">${date} · ${lines} righe${ckOn>0?' · ✓ '+ckOn:''}</div>
-      <div class="card-preview">${esc(s.text.slice(0,160))}</div>
-      <div class="card-actions">
-        <button class="btn ghost sm" onclick="event.stopPropagation();loadInEditorSide('${s.id}','a')">→A</button>
-        <button class="btn ghost sm" onclick="event.stopPropagation();loadInEditorSide('${s.id}','b')">→B</button>
-        <button class="btn danger sm" onclick="event.stopPropagation();confirmDelete('${s.id}')">✕</button>
+      <div class="card-meta">${date} · ${lines} righe ${mstr}</div>
+      <div class="card-prev">${esc(s.text.slice(0,160))}</div>
+      <div class="card-acts">
+        <button class="btn ghost sm" onclick="event.stopPropagation();libSide('${s.id}','a')">→A</button>
+        <button class="btn ghost sm" onclick="event.stopPropagation();libSide('${s.id}','b')">→B</button>
+        <button class="btn danger sm" onclick="event.stopPropagation();libDel('${s.id}')">✕</button>
       </div>
     </div>`;
   }).join('');
 }
 
-function loadInEditor(id) {
-  const side = !ST.a.id ? 'a' : (!ST.b.id ? 'b' : 'a');
-  loadInEditorSide(id, side);
-}
-function loadInEditorSide(id, side) {
-  const s = songs[id]; if (!s) return;
-  ST[side].id = id;
-  loadPanel(side, s.title, s.text, s.checks||{});
-  showView('editor', document.querySelector('nav button[data-view="editor"]'));
+function libLoad(id) { const side=!S.a.id?'a':(!S.b.id?'b':'a'); libSide(id,side); }
+
+function libSide(id, side) {
+  const s=DB[id]; if(!s){toast('Non trovata');return;}
+  S[side].id=id;
+  loadPanel(side,s.title,s.text,s.marks||{});
+  showView('editor',document.querySelector('.nav-btn[data-v="editor"]'));
   toast('Caricata in '+side.toUpperCase()+': '+s.title);
 }
-function confirmDelete(id) {
-  const s = songs[id]; if (!s) return;
-  showPromptModal(`Elimina "${s.title}"?\nScrivi il titolo per confermare`, '', input => {
-    if (input===s.title) { deleteSong(id); renderLibrary(); toast('Eliminata: '+s.title); }
-    else toast('Titolo non corrisponde — annullato');
+
+function libDel(id) {
+  const s=DB[id]; if(!s) return;
+  showModal('Elimina "'+s.title+'"?\nScrivi il titolo per confermare','',async inp=>{
+    if(inp===s.title){await dbDel(id);renderLib();toast('Eliminata: '+s.title);}
+    else toast('Titolo non corrisponde');
   });
 }
 
-/* ════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    COMPARE
-════════════════════════════════════════════ */
-function populateCmpSelects() {
-  const list = sortedSongs();
+═══════════════════════════════════════════════════ */
+function fillCmpSelects() {
+  const list=dbList();
   ['csel-a','csel-b'].forEach(sid=>{
-    const sel=document.getElementById(sid), prev=sel.value;
+    const sel=document.getElementById(sid),prev=sel.value;
     sel.innerHTML='<option value="">— seleziona —</option>'+list.map(s=>`<option value="${s.id}">${esc(s.title)}</option>`).join('');
-    if (prev) sel.value=prev;
+    if(prev)sel.value=prev;
   });
 }
-function renderCompare() {
+function renderCmp() {
   ['a','b'].forEach(side=>{
-    const id  = document.getElementById('csel-'+side).value;
-    const ta  = document.getElementById('cmp-ta-'+side);
-    const ti  = document.getElementById('cmp-title-'+side);
-    const ln  = document.getElementById('cmp-ln-'+side);
-    const st  = document.getElementById('cmp-stats-'+side);
-    if (id && songs[id]) {
-      const s = songs[id];
-      ti.value = s.title; ta.value = s.text;
-      const lines = s.text ? s.text.split('\n').length : 0;
-      const words = s.text.trim() ? s.text.trim().split(/\s+/).length : 0;
-      ln.textContent = Array.from({length:lines},(_,i)=>i+1).join('\n');
-      st.textContent = `${lines} righe · ${words} parole`;
-    } else { ti.value=''; ta.value=''; ln.textContent='1'; st.textContent=''; }
+    const id =document.getElementById('csel-'+side).value;
+    const ta =document.getElementById('cmp-ta-'+side);
+    const ln =document.getElementById('cmp-ln-'+side);
+    const ti =document.getElementById('cmp-title-'+side);
+    const st =document.getElementById('cmp-stats-'+side);
+    if(id&&DB[id]){
+      const s=DB[id]; ta.value=s.text||''; ti.value=s.title;
+      const n=s.text?s.text.split('\n').length:0;
+      ln.textContent=Array.from({length:n},(_,i)=>i+1).join('\n');
+      const w=s.text.trim()?s.text.trim().split(/\s+/).length:0;
+      st.textContent=`${n} righe · ${w} parole`;
+    } else { ta.value='';ln.textContent='1';ti.value='';st.textContent=''; }
   });
 }
-function openBothInEditor() {
+let cmpLock=false;
+function cmpScroll(side){
+  const src=document.getElementById('cmp-ta-'+side);
+  document.getElementById('cmp-ln-'+side).scrollTop=src.scrollTop;
+  if(cmpLock)return; cmpLock=true;
+  const dst=document.getElementById('cmp-ta-'+(side==='a'?'b':'a'));
+  const ln2=document.getElementById('cmp-ln-'+(side==='a'?'b':'a'));
+  const ms=src.scrollHeight-src.clientHeight, md=dst.scrollHeight-dst.clientHeight;
+  if(ms>0){dst.scrollTop=(src.scrollTop/ms)*md; ln2.scrollTop=dst.scrollTop;}
+  requestAnimationFrame(()=>{cmpLock=false;});
+}
+function cmpEdit(){
   const idA=document.getElementById('csel-a').value;
   const idB=document.getElementById('csel-b').value;
-  if (idA) loadInEditorSide(idA,'a');
-  if (idB) loadInEditorSide(idB,'b');
-  if (idA||idB) showView('editor', document.querySelector('nav button[data-view="editor"]'));
+  if(idA)libSide(idA,'a'); if(idB)libSide(idB,'b');
+  if(idA||idB)showView('editor',document.querySelector('.nav-btn[data-v="editor"]'));
 }
 
-/* ════════════════════════════════════════════
-   EXPORT
-════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   EXPORT ALL (full dump)
+═══════════════════════════════════════════════════ */
 function exportAll() {
-  const list = sortedSongs();
-  if (!list.length) { toast('Nessuna canzone'); return; }
-  const txt = list.map(s=>{
-    const lines = (s.text||'').split('\n').map((l,i)=>((s.checks||{})[i]?'[✓] ':'    ')+l);
-    return `${'='.repeat(50)}\n${s.title}\n${new Date(s.updatedAt).toLocaleDateString('it-IT')}\n${'='.repeat(50)}\n${lines.join('\n')}`;
+  const list=dbList(); if(!list.length){toast('Nessuna canzone');return;}
+  const txt=list.map(s=>{
+    const lines=(s.text||'').split('\n').map((l,i)=>{
+      const m=(s.marks||{})[i]||0;
+      return (m===1?'[✓] ':m===2?'[✕] ':'    ')+l;
+    });
+    return ['='.repeat(50),s.title,new Date(s.ts).toLocaleDateString('it-IT'),'='.repeat(50),...lines].join('\n');
   }).join('\n\n');
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain'}));
   a.download='lyricstudio_export.txt'; a.click();
-  toast(`Esportate ${list.length} canzoni`);
+  toast('Esportate '+list.length+' canzoni');
 }
 
-/* ════════════════════════════════════════════
-   SETTINGS MODAL (API key)
-════════════════════════════════════════════ */
-function openSettings(forceShow) {
-  const cur = getApiKey();
-  document.getElementById('modal-inner').innerHTML = `
-    <h3>⚙️ Impostazioni</h3>
-    <p class="sub">Inserisci la tua Anthropic API key per usare la traduzione AI.<br>Viene salvata solo nel browser locale.</p>
-    <label>ANTHROPIC API KEY</label>
-    <input type="password" id="set-apikey" value="${cur}" placeholder="sk-ant-…" autocomplete="off" />
-    <p class="api-hint">Ottieni la tua key su <a href="https://console.anthropic.com/keys" target="_blank">console.anthropic.com/keys</a></p>
-    <div class="modal-actions">
-      <button class="btn ghost" onclick="closeModal()">Annulla</button>
-      <button class="btn primary" onclick="saveSettings()">Salva</button>
-    </div>`;
+/* ═══════════════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════════════ */
+function showModal(title,def,cb){
+  modalCb=cb;
+  document.getElementById('modal-title').textContent=title;
+  document.getElementById('modal-inp').value=def||'';
   document.getElementById('modal-bg').classList.add('open');
-  setTimeout(()=>document.getElementById('set-apikey')?.focus(), 80);
+  setTimeout(()=>document.getElementById('modal-inp').focus(),60);
 }
+function modalOk(){const v=document.getElementById('modal-inp').value.trim();modalClose();if(modalCb)modalCb(v);}
+function modalClose(){document.getElementById('modal-bg').classList.remove('open');modalCb=null;}
+document.getElementById('modal-bg').addEventListener('click',e=>{if(e.target===e.currentTarget)modalClose();});
 
-function saveSettings() {
-  const k = document.getElementById('set-apikey').value.trim();
-  saveApiKey(k);
-  closeModal();
-  toast(k ? '✓ API key salvata' : 'API key rimossa');
-}
-
-/* ════════════════════════════════════════════
-   GENERIC MODAL
-════════════════════════════════════════════ */
-let _modalCb = null;
-function showPromptModal(title, def, cb) {
-  _modalCb = cb;
-  document.getElementById('modal-inner').innerHTML = `
-    <h3>${esc(title)}</h3>
-    <input type="text" id="modal-input" value="${esc(def||'')}" placeholder="Titolo…" onkeydown="if(event.key==='Enter')confirmModal()" />
-    <div class="modal-actions">
-      <button class="btn ghost" onclick="closeModal()">Annulla</button>
-      <button class="btn primary" onclick="confirmModal()">OK</button>
-    </div>`;
-  document.getElementById('modal-bg').classList.add('open');
-  setTimeout(()=>document.getElementById('modal-input')?.focus(), 60);
-}
-function confirmModal() {
-  const v = document.getElementById('modal-input')?.value.trim()||'';
-  closeModal(); if (_modalCb) _modalCb(v);
-}
-function closeModal() { document.getElementById('modal-bg').classList.remove('open'); _modalCb=null; }
-document.getElementById('modal-bg').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeModal(); });
-
-/* ════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    TOAST
-════════════════════════════════════════════ */
-let _toastT;
-function toast(msg) {
+═══════════════════════════════════════════════════ */
+let _tt;
+function toast(msg){
   const el=document.getElementById('toast');
   el.textContent=msg; el.classList.add('show');
-  clearTimeout(_toastT);
-  _toastT=setTimeout(()=>el.classList.remove('show'), 2400);
+  clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('show'),2600);
 }
 
-/* ════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    INIT
-════════════════════════════════════════════ */
-updateLnums('a'); updateLnums('b');
-updateChecks('a'); updateChecks('b');
-updateFooter('a'); updateFooter('b');
-renderLibrary();
-
-// Prompt API key if missing
-if (!getApiKey()) {
-  setTimeout(()=> toast('⚙️ Imposta la API key per usare l\'AI traduttore'), 800);
-}
+═══════════════════════════════════════════════════ */
+loadPanel('a','','',{});
+loadPanel('b','','',{});
+renderLib();
+pullFromSupabase(); // sync on load
 </script>
 </body>
 </html>
