@@ -578,7 +578,10 @@ async function pushSong(id) {
     const { error } = await sb.from('songs').upsert({ id:s.id, title:s.title, text:s.text, marks:s.marks, ts:s.ts });
     if (error) throw error;
     setSyncDot('ok');
-  } catch(e) { setSyncDot('error'); toast('⚠️ Sync fallita — salvato in locale'); }
+  } catch(e) {
+    setSyncDot('error');
+    toast('⚠️ Sync fallita — salvato in locale');
+  }
 }
 async function dbDel(id) {
   delete DB[id]; localSave();
@@ -793,19 +796,34 @@ function openNew() {
 /* ══════════════════════════════════════════
    SESSIONS
 ══════════════════════════════════════════ */
+async function forceSave1(side) {
+  // saves panel and returns id, no modal
+  const title = document.getElementById('title-' + side).value.trim() || 'Senza titolo';
+  const text  = getVal(side);
+  if (!text.trim()) return null;
+  S[side].id = await dbSave(S[side].id, title, text, S[side].marks);
+  // flush to supabase immediately, don't wait debounce
+  await pushSong(S[side].id);
+  clean(side);
+  return S[side].id;
+}
+
 async function saveEditorSession() {
-  if (!S.a.id && !S.b.id) {
-    // auto-save both first if they have content
-    const hasA = getVal('a').trim(), hasB = getVal('b').trim();
-    if (!hasA && !hasB) { toast('Carica almeno una canzone prima'); return; }
-    await saveSession();
-    // wait a tick for IDs to be set
-    await new Promise(r => setTimeout(r, 200));
-  }
+  const hasA = getVal('a').trim();
+  const hasB = getVal('b').trim();
+  if (!hasA && !hasB) { toast('Nessun testo aperto nell\'editor'); return; }
+
+  // Make sure songs are saved and have IDs before saving session
+  if (hasA && !S.a.id) await forceSave1('a');
+  if (hasB && !S.b.id) await forceSave1('b');
+  // Also push any dirty panels
+  if (S.a.dirty && S.a.id) await forceSave1('a');
+  if (S.b.dirty && S.b.id) await forceSave1('b');
+
   showModal('Nome sessione', '', async name => {
     if (!name) return;
     const sess = {
-      id: 'sess_' + Date.now(),
+      id:     'sess_' + Date.now(),
       name,
       songA:  S.a.id || null,
       songB:  S.b.id || null,
@@ -815,11 +833,28 @@ async function saveEditorSession() {
     };
     SESS[sess.id] = sess;
     localSaveSess();
+
+    // Push to Supabase with visible error
     setSyncDot('saving');
-    await pushSession(sess.id);
-    setSyncDot('ok');
+    try {
+      const { error } = await sb.from('sessions').upsert({
+        id:      sess.id,
+        name:    sess.name,
+        song_a:  sess.songA,
+        song_b:  sess.songB,
+        marks_a: sess.marksA,
+        marks_b: sess.marksB,
+        ts:      sess.ts
+      });
+      if (error) throw error;
+      setSyncDot('ok');
+      toast('📌 Sessione salvata: ' + name);
+    } catch(e) {
+      setSyncDot('error');
+      toast('❌ Errore: ' + (e.message || JSON.stringify(e)));
+      // Still show it locally
+    }
     renderSessions();
-    toast('📌 Sessione salvata: ' + name);
     showView('sessions', document.querySelector('.nav-btn[data-v="sessions"]'));
   });
 }
