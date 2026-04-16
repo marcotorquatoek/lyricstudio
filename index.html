@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>Lyric Studio</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -20,319 +20,403 @@
       --green2: #dcfce7;
       --red:    #dc2626;
       --red2:   #fee2e2;
-      --lh:     1.6;
-      --fs:     16px;
+      --lh: 1.6;
+      --fs: 16px;
+      --tap: 44px; /* minimum tap target */
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
-      height: 100%; font-family: 'Inter', sans-serif; font-size: 14px;
-      background: var(--bg); color: var(--text);
-      overscroll-behavior: none; -webkit-text-size-adjust: 100%;
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      background: var(--bg);
+      color: var(--text);
+      overscroll-behavior: none;
+      -webkit-text-size-adjust: 100%;
     }
     #app { display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
 
     /* ── HEADER ── */
     header {
-      flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
       height: 48px; padding: 0 14px;
       background: var(--surf); border-bottom: 1px solid var(--border); z-index: 20;
     }
-    .logo { font-size: .95rem; font-weight: 700; color: var(--accent); letter-spacing: -.01em; }
+    .logo { font-size: .9rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
     .logo em { font-style: normal; color: var(--purple); }
-    .hdr-btns { display: flex; gap: 6px; align-items: center; }
-    .sync-dot {
-      width: 8px; height: 8px; border-radius: 50%; background: #9ca3af;
-      transition: background .3s; flex-shrink: 0;
-    }
+    .logo .ver { font-size: .65rem; font-weight: 500; color: var(--muted); margin-left: 4px; }
+    .hdr-right { display: flex; align-items: center; gap: 8px; }
+    .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #9ca3af; flex-shrink: 0; transition: background .3s; }
     .sync-dot.ok     { background: var(--green); }
     .sync-dot.saving { background: var(--accent); animation: pulse .8s infinite; }
     .sync-dot.error  { background: var(--red); }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.3} }
 
-    /* ── NAV ── */
+    /* ── NAV TABS ── */
     nav {
-      flex-shrink: 0; display: flex; background: var(--surf);
-      border-bottom: 1px solid var(--border); overflow-x: auto;
+      flex-shrink: 0;
+      display: flex; background: var(--surf);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
     }
     nav::-webkit-scrollbar { display: none; }
     .nav-btn {
-      flex-shrink: 0; font-family: 'Inter', sans-serif; font-size: .82rem; font-weight: 500;
-      padding: 10px 16px; border: none; border-bottom: 2px solid transparent;
-      background: transparent; color: var(--muted); cursor: pointer; margin-bottom: -1px;
+      flex: 1; min-width: 0;
+      font-family: 'Inter', sans-serif; font-size: .78rem; font-weight: 500;
+      padding: 0 4px; height: 40px;
+      border: none; border-bottom: 2px solid transparent;
+      background: transparent; color: var(--muted);
+      cursor: pointer; margin-bottom: -1px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       -webkit-tap-highlight-color: transparent;
     }
-    .nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-    /* ── BUTTONS ── */
-    .btn {
-      display: inline-flex; align-items: center; gap: 4px;
-      font-family: 'Inter', sans-serif; font-size: .8rem; font-weight: 500;
-      padding: 6px 13px; border: 1px solid var(--border); border-radius: 7px;
-      background: var(--surf); color: var(--text); cursor: pointer; white-space: nowrap;
-      -webkit-tap-highlight-color: transparent; transition: background .1s;
-    }
-    .btn:active { background: var(--surf2); }
-    .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .btn.primary:active { background: #1d4ed8; }
-    .btn.ghost  { border-color: transparent; background: transparent; color: var(--muted); }
-    .btn.ghost:active { background: var(--surf2); color: var(--text); }
-    .btn.danger { border-color: transparent; background: transparent; color: var(--red); }
-    .btn.sm { padding: 4px 10px; font-size: .75rem; }
-    .btn.xs { padding: 2px 7px;  font-size: .70rem; border-radius: 5px; }
-    .btn:disabled { opacity: .4; pointer-events: none; }
+    .nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
 
     /* ── VIEWS ── */
     .view { display: none; flex: 1; flex-direction: column; overflow: hidden; min-height: 0; }
     .view.active { display: flex; }
 
-    /* ═══════════════════════════════
-       EDITOR
-    ═══════════════════════════════ */
-    .ed-toolbar {
-      flex-shrink: 0; display: flex; align-items: center; gap: 6px;
-      padding: 6px 12px; background: var(--surf); border-bottom: 1px solid var(--border);
+    /* ── SHARED BUTTON ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+      font-family: 'Inter', sans-serif; font-size: .8rem; font-weight: 500;
+      min-height: 36px; padding: 0 14px;
+      border: 1px solid var(--border); border-radius: 8px;
+      background: var(--surf); color: var(--text);
+      cursor: pointer; white-space: nowrap; flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
     }
-    .sp { flex: 1; }
+    .btn:active { opacity: .7; }
+    .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn.ghost  { border-color: transparent; background: transparent; color: var(--muted); }
+    .btn.ghost:active { background: var(--surf2); }
+    .btn.danger { border-color: transparent; color: var(--red); background: transparent; }
+    .btn.sm { min-height: 30px; padding: 0 10px; font-size: .75rem; border-radius: 6px; }
+    .btn.icon { min-height: var(--tap); min-width: var(--tap); padding: 0; border: none; background: transparent; font-size: 1.1rem; color: var(--muted); }
+    .btn.icon:active { background: var(--surf2); border-radius: 8px; }
+    .btn:disabled { opacity: .4; pointer-events: none; }
+
+    /* ════════════════════════
+       EDITOR VIEW
+    ════════════════════════ */
+    /* Compact single-row toolbar */
+    .ed-toolbar {
+      flex-shrink: 0;
+      display: flex; align-items: center; gap: 4px;
+      padding: 4px 10px;
+      background: var(--surf); border-bottom: 1px solid var(--border);
+      min-height: 44px;
+    }
+    .mark-legend {
+      display: flex; gap: 6px; align-items: center;
+      font-size: .7rem; flex-shrink: 0;
+    }
+    .mark-legend b { font-size: .8rem; }
+    .sp { flex: 1; min-width: 0; }
+
     .stack { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
 
-    .panel { flex: 1; display: flex; flex-direction: column; min-height: 0; background: var(--surf); }
+    /* ── PANEL ── */
+    .panel { flex: 1; display: flex; flex-direction: column; min-height: 0; }
     .panel-head {
-      flex-shrink: 0; display: flex; align-items: center; gap: 6px;
-      padding: 5px 10px; background: var(--surf2); border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      display: flex; align-items: center; gap: 6px;
+      padding: 0 10px; height: 40px;
+      background: var(--surf2); border-bottom: 1px solid var(--border);
     }
-    .badge { flex-shrink: 0; font-size: .66rem; font-weight: 700; color: #fff; background: var(--accent); padding: 2px 7px; border-radius: 4px; }
+    .badge { flex-shrink: 0; font-size: .62rem; font-weight: 700; color: #fff; background: var(--accent); padding: 2px 6px; border-radius: 4px; }
     .badge.b { background: var(--purple); }
     .ptitle {
-      flex: 1; min-width: 0; font-family: 'Inter', sans-serif; font-size: var(--fs);
-      font-weight: 500; border: none; background: transparent; outline: none; color: var(--text);
+      flex: 1; min-width: 0;
+      font-family: 'Inter', sans-serif; font-size: var(--fs); font-weight: 500;
+      border: none; background: transparent; outline: none; color: var(--text);
     }
     .ptitle::placeholder { color: var(--muted); font-weight: 400; }
-    .pstats  { flex-shrink: 0; font-size: .68rem; color: var(--muted); white-space: nowrap; }
-    .pdirty  { flex-shrink: 0; font-size: .68rem; white-space: nowrap; }
+    .pdirty { flex-shrink: 0; font-size: .65rem; }
     .pdirty.unsaved { color: var(--red); }
     .pdirty.saved   { color: var(--green); }
-
-    /* mark legend in toolbar */
-    .legend { display: flex; gap: 10px; align-items: center; font-size: .72rem; color: var(--muted); }
-    .legend span { display: flex; align-items: center; gap: 3px; }
 
     /* ── EDITOR BODY ── */
     .ed-body { flex: 1; display: flex; overflow: hidden; min-height: 0; position: relative; }
 
     .lnums {
-      flex-shrink: 0; width: 36px; padding: 14px 5px 14px 0;
+      flex-shrink: 0; width: 34px;
+      padding: 14px 4px 14px 0;
       overflow: hidden; text-align: right;
       font-family: 'Inter', monospace; font-size: var(--fs); line-height: var(--lh);
       color: #c5ccd8; background: var(--surf2); border-right: 1px solid var(--border);
       user-select: none; pointer-events: none; white-space: pre;
     }
 
-    /* mark column — LEFT of textarea */
+    /* Mark column */
     .mk-col {
-      flex-shrink: 0; width: 28px; overflow: hidden;
+      flex-shrink: 0; width: 32px; overflow: hidden;
       background: var(--surf2); border-right: 1px solid var(--border);
       position: relative;
     }
-    .mk-inner {
-      position: absolute; top: 14px; left: 0; right: 0; pointer-events: all;
-    }
+    .mk-inner { position: absolute; top: 14px; left: 0; right: 0; pointer-events: all; }
     .mk {
       display: flex; align-items: center; justify-content: center;
       height: calc(var(--fs) * var(--lh));
-      cursor: pointer; font-size: 13px; font-weight: 700;
+      cursor: pointer; font-size: 12px; font-weight: 700;
       -webkit-tap-highlight-color: transparent; user-select: none;
-      transition: background .1s;
     }
-    /* states: neutral → green → red → neutral */
     .mk[data-s="0"] { color: #d1d5db; }
-    .mk[data-s="0"]:hover { color: var(--green); }
     .mk[data-s="1"] { color: var(--green); background: var(--green2); }
     .mk[data-s="2"] { color: var(--red);   background: var(--red2); }
 
     .ta {
-      flex: 1; width: 0; padding: 14px 12px;
+      flex: 1; width: 0; padding: 14px 10px;
       font-family: 'Inter', sans-serif; font-size: var(--fs); line-height: var(--lh);
-      border: none; resize: none; outline: none; color: var(--text); background: var(--surf);
-      overflow-y: scroll; -webkit-overflow-scrolling: touch; touch-action: manipulation;
+      border: none; resize: none; outline: none;
+      color: var(--text); background: var(--surf);
+      overflow-y: scroll; -webkit-overflow-scrolling: touch;
+      touch-action: manipulation;
     }
     .ta::placeholder { color: #bbc3cf; }
 
     .panel-foot {
-      flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
-      padding: 3px 10px; background: var(--surf2); border-top: 1px solid var(--border);
-      font-size: .7rem; color: var(--muted);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 2px 10px; height: 24px;
+      background: var(--surf2); border-top: 1px solid var(--border);
+      font-size: .66rem; color: var(--muted);
     }
     .foot-marks { display: flex; gap: 8px; }
 
+    /* Divider between A and B */
     .divider {
       flex-shrink: 0; height: 4px; background: var(--purple);
-      display: flex; justify-content: center; align-items: flex-start; position: relative;
+      position: relative; display: flex; justify-content: center;
     }
     .divider span {
       position: absolute; top: 0; background: var(--purple); color: #fff;
-      font-size: .58rem; font-weight: 700; letter-spacing: .08em;
-      padding: 1px 10px; border-radius: 0 0 4px 4px; white-space: nowrap;
+      font-size: .55rem; font-weight: 700; letter-spacing: .08em;
+      padding: 1px 8px; border-radius: 0 0 4px 4px;
     }
 
-    /* ═══════════════════════════════
-       EXPORT VIEW
-    ═══════════════════════════════ */
-    #view-export { overflow-y: auto; padding: 16px; gap: 14px; }
-    .exp-section { background: var(--surf); border: 1px solid var(--border); border-radius: 9px; overflow: hidden; }
-    .exp-head {
-      display: flex; align-items: center; gap: 8px;
-      padding: 9px 14px; background: var(--surf2); border-bottom: 1px solid var(--border);
-      font-size: .82rem; font-weight: 600;
+    /* ════════════════════════
+       SESSIONS VIEW
+    ════════════════════════ */
+    #view-sessions { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px; gap: 10px; }
+    .sess-new-btn { width: 100%; margin-bottom: 14px; min-height: 46px; font-size: .9rem; }
+    .sess-card {
+      background: var(--surf); border: 1px solid var(--border); border-radius: 10px;
+      padding: 14px; display: flex; align-items: center; gap: 10px;
+      cursor: pointer; -webkit-tap-highlight-color: transparent; margin-bottom: 8px;
     }
-    .exp-list { padding: 10px 14px; }
+    .sess-card:active { background: var(--surf2); }
+    .sess-info { flex: 1; min-width: 0; }
+    .sess-name { font-size: .92rem; font-weight: 600; margin-bottom: 3px; }
+    .sess-meta { font-size: .72rem; color: var(--muted); }
+    .sess-del { flex-shrink: 0; min-width: var(--tap); min-height: var(--tap); display: flex; align-items: center; justify-content: center; color: var(--red); font-size: 1rem; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .sess-empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+    .sess-empty .big { font-size: 1.1rem; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+
+    /* ════════════════════════
+       COMPONI VIEW
+    ════════════════════════ */
+    #view-export { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px; }
+    .exp-hd {
+      display: flex; align-items: center; gap: 8px;
+      font-size: .82rem; font-weight: 600; margin-bottom: 10px;
+    }
     .exp-row {
       display: flex; align-items: center; gap: 8px;
-      padding: 5px 0; border-bottom: 1px solid var(--border); cursor: grab;
+      padding: 10px 12px; background: var(--surf);
+      border: 1px solid var(--border); border-radius: 8px;
+      margin-bottom: 6px;
     }
-    .exp-row:last-child { border-bottom: none; }
-    .exp-row.dragging { opacity: .4; }
-    .exp-row.dragover { border-top: 2px solid var(--accent); }
-    .exp-handle { color: var(--border); font-size: 14px; flex-shrink: 0; cursor: grab; }
-    .exp-tag { flex-shrink: 0; font-size: .65rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; color: #fff; }
+    .exp-handle { color: var(--border); font-size: 1rem; cursor: grab; flex-shrink: 0; }
+    .exp-tag { flex-shrink: 0; font-size: .62rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; color: #fff; }
     .exp-tag.a { background: var(--accent); }
     .exp-tag.b { background: var(--purple); }
-    .exp-text { flex: 1; font-size: .88rem; line-height: 1.5; color: var(--text); }
-    .exp-del { flex-shrink: 0; cursor: pointer; color: var(--muted); font-size: 13px; padding: 2px 4px; }
-    .exp-del:hover { color: var(--red); }
-    .exp-empty { padding: 20px; text-align: center; color: var(--muted); font-size: .85rem; }
-    .exp-actions { display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
+    .exp-text { flex: 1; font-size: .88rem; line-height: 1.45; min-width: 0; }
+    .exp-del { flex-shrink: 0; min-width: 36px; min-height: 36px; display: flex; align-items: center; justify-content: center; color: var(--muted); cursor: pointer; font-size: .85rem; -webkit-tap-highlight-color: transparent; }
+    .exp-del:active { color: var(--red); }
+    .exp-empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: .85rem; }
+    .exp-actions { display: flex; gap: 8px; margin-top: 14px; }
+    .exp-actions .btn { flex: 1; min-height: 46px; }
 
-    /* ═══════════════════════════════
-       LIBRARY
-    ═══════════════════════════════ */
-    #view-library { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px; }
-    .lib-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    /* ════════════════════════
+       LIBRARY VIEW
+    ════════════════════════ */
+    #view-library { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px; }
+    .lib-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
     .lib-search {
       flex: 1; font-family: 'Inter', sans-serif; font-size: var(--fs);
-      border: 1px solid var(--border); border-radius: 7px; padding: 8px 12px;
-      background: var(--surf); color: var(--text); outline: none; -webkit-appearance: none;
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 9px 12px; background: var(--surf); color: var(--text); outline: none;
+      -webkit-appearance: none;
     }
     .lib-search:focus { border-color: var(--accent); }
-    .lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 10px; }
+    .lib-grid { display: flex; flex-direction: column; gap: 8px; }
     .card {
-      background: var(--surf); border: 1px solid var(--border); border-radius: 9px;
+      background: var(--surf); border: 1px solid var(--border); border-radius: 10px;
       padding: 13px 14px; cursor: pointer; position: relative;
       -webkit-tap-highlight-color: transparent;
     }
     .card:active { background: var(--surf2); }
-    .card-title { font-size: .92rem; font-weight: 600; margin-bottom: 2px; padding-right: 52px; }
-    .card-meta  { font-size: .7rem; color: var(--muted); margin-bottom: 6px; }
-    .card-prev  { font-size: .78rem; color: var(--muted); line-height: 1.45; max-height: 55px; overflow: hidden; -webkit-mask-image: linear-gradient(to bottom,black 50%,transparent); mask-image: linear-gradient(to bottom,black 50%,transparent); }
-    .card-acts  { position: absolute; top: 9px; right: 9px; display: flex; gap: 2px; opacity: 0; }
-    .card:hover .card-acts { opacity: 1; }
-    @media (hover:none) { .card-acts { opacity: 1; } }
-    .empty { grid-column:1/-1; text-align:center; padding:50px 20px; color:var(--muted); }
-    .empty .big { font-size:1.1rem; font-weight:600; color:var(--text); margin-bottom:5px; }
+    .card-title { font-size: .92rem; font-weight: 600; margin-bottom: 2px; padding-right: 56px; }
+    .card-meta  { font-size: .7rem; color: var(--muted); margin-bottom: 5px; }
+    .card-prev  { font-size: .78rem; color: var(--muted); line-height: 1.4; max-height: 50px; overflow: hidden; -webkit-mask-image: linear-gradient(to bottom,black 40%,transparent); mask-image: linear-gradient(to bottom,black 40%,transparent); }
+    .card-acts  { position: absolute; top: 10px; right: 10px; display: flex; gap: 2px; }
+    .empty { text-align: center; padding: 50px 20px; color: var(--muted); }
+    .empty .big { font-size: 1.1rem; font-weight: 600; color: var(--text); margin-bottom: 5px; }
 
-    /* ═══════════════════════════════
-       COMPARE
-    ═══════════════════════════════ */
+    /* ════════════════════════
+       COMPARE VIEW
+    ════════════════════════ */
     .cmp-bar {
-      flex-shrink: 0; display: flex; align-items: center; gap: 10px;
-      padding: 7px 13px; background: var(--surf); border-bottom: 1px solid var(--border); flex-wrap: wrap;
+      flex-shrink: 0;
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 12px;
+      background: var(--surf); border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
     }
-    .sg { display: flex; align-items: center; gap: 5px; }
-    .sg label { font-size: .73rem; color: var(--muted); white-space: nowrap; }
+    .sg { display: flex; align-items: center; gap: 5px; flex: 1; min-width: 120px; }
+    .sg label { font-size: .72rem; color: var(--muted); white-space: nowrap; }
     .sg select {
-      font-family: 'Inter', sans-serif; font-size: var(--fs);
-      border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px;
-      background: var(--surf); color: var(--text); outline: none; max-width: 140px; -webkit-appearance: none;
+      flex: 1; font-family: 'Inter', sans-serif; font-size: var(--fs);
+      border: 1px solid var(--border); border-radius: 7px;
+      padding: 6px 8px; background: var(--surf); color: var(--text);
+      outline: none; -webkit-appearance: none; min-width: 0;
     }
     .cmp-stack { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
     .cmp-panel { flex: 1; display: flex; flex-direction: column; min-height: 0; }
     .cmp-body  { flex: 1; display: flex; overflow: hidden; min-height: 0; }
     .cmp-lnums {
-      flex-shrink: 0; width: 36px; padding: 14px 5px 14px 0;
+      flex-shrink: 0; width: 34px; padding: 14px 4px 14px 0;
       overflow: hidden; text-align: right;
       font-family: 'Inter', monospace; font-size: var(--fs); line-height: var(--lh);
       color: #c5ccd8; background: var(--surf2); border-right: 1px solid var(--border);
       user-select: none; white-space: pre;
     }
     .cmp-ta {
-      flex: 1; width: 0; padding: 14px 12px;
+      flex: 1; width: 0; padding: 14px 10px;
       font-family: 'Inter', sans-serif; font-size: var(--fs); line-height: var(--lh);
-      border: none; resize: none; outline: none; color: var(--text); background: var(--surf2);
+      border: none; resize: none; outline: none;
+      color: var(--text); background: var(--surf2);
       overflow-y: scroll; -webkit-overflow-scrolling: touch;
     }
 
-    /* ═══════════════════════════════
-       MODAL
-    ═══════════════════════════════ */
-    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
-    .modal-bg.open { display: flex; }
-    .modal { background: var(--surf); border-radius: 12px; padding: 22px; width: 100%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,.15); }
-    .modal h3 { font-size: 1rem; font-weight: 600; margin-bottom: 14px; }
-    .modal input { width: 100%; font-family: 'Inter', sans-serif; font-size: var(--fs); border: 1px solid var(--border); border-radius: 7px; padding: 9px 11px; color: var(--text); outline: none; margin-bottom: 14px; -webkit-appearance: none; }
-    .modal input:focus { border-color: var(--accent); }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+    /* ════════════════════════
+       BOTTOM SHEET (menu ⋯)
+    ════════════════════════ */
+    .sheet-bg {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.4); z-index: 80;
+    }
+    .sheet-bg.open { display: block; }
+    .sheet {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 81;
+      background: var(--surf); border-radius: 16px 16px 0 0;
+      padding: 0 0 env(safe-area-inset-bottom,16px);
+      transform: translateY(100%);
+      transition: transform .25s cubic-bezier(.32,1,.6,1);
+    }
+    .sheet.open { transform: translateY(0); }
+    .sheet-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 10px auto 4px; }
+    .sheet-title { font-size: .8rem; font-weight: 600; color: var(--muted); text-align: center; padding: 4px 0 10px; letter-spacing: .04em; text-transform: uppercase; }
+    .sheet-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 0 20px; min-height: 54px;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+      border-top: 1px solid var(--border);
+    }
+    .sheet-item:active { background: var(--surf2); }
+    .sheet-icon { font-size: 1.2rem; width: 28px; text-align: center; flex-shrink: 0; }
+    .sheet-label { font-size: .95rem; font-weight: 500; }
+    .sheet-label.red { color: var(--red); }
 
-    /* ── TOAST ── */
-    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(70px); background: #1a1d23; color: #fff; font-size: .82rem; padding: 9px 18px; border-radius: 9px; z-index: 200; transition: transform .25s cubic-bezier(.34,1.56,.64,1); box-shadow: 0 4px 14px rgba(0,0,0,.2); pointer-events: none; white-space: nowrap; }
+    /* ════════════════════════
+       MODAL
+    ════════════════════════ */
+    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 100; align-items: flex-end; justify-content: center; padding: 0; }
+    .modal-bg.open { display: flex; }
+    .modal {
+      background: var(--surf); border-radius: 16px 16px 0 0;
+      padding: 20px 20px env(safe-area-inset-bottom,20px);
+      width: 100%; max-width: 480px;
+    }
+    .modal h3 { font-size: 1rem; font-weight: 600; margin-bottom: 14px; }
+    .modal input {
+      width: 100%; font-family: 'Inter', sans-serif; font-size: var(--fs);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 12px 14px; color: var(--text); outline: none; margin-bottom: 14px;
+      -webkit-appearance: none; background: var(--surf);
+    }
+    .modal input:focus { border-color: var(--accent); }
+    .modal-actions { display: flex; gap: 8px; }
+    .modal-actions .btn { flex: 1; min-height: 46px; font-size: .9rem; }
+
+    /* ════════════════════════
+       TOAST
+    ════════════════════════ */
+    .toast {
+      position: fixed; bottom: calc(env(safe-area-inset-bottom,0px) + 16px); left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1a1d23; color: #fff;
+      font-size: .82rem; padding: 10px 18px; border-radius: 10px;
+      z-index: 200; transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+      box-shadow: 0 4px 14px rgba(0,0,0,.2); pointer-events: none; white-space: nowrap;
+    }
     .toast.show { transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
 <div id="app">
 
+  <!-- HEADER -->
   <header>
-    <div class="logo">🎵 Lyric <em>Studio</em></div>
-    <div class="hdr-btns">
+    <div class="logo">🎵 Lyric <em>Studio</em> <span class="ver">v1.3</span></div>
+    <div class="hdr-right">
       <div class="sync-dot" id="sync-dot" title="Stato sync"></div>
-      <button class="btn ghost sm" onclick="exportAll()">↓ Esporta</button>
-      <button class="btn primary sm" onclick="openNew()">+ Nuova</button>
+      <button class="btn icon" onclick="openSheet('main')" aria-label="Menu">⋯</button>
     </div>
   </header>
 
+  <!-- NAV -->
   <nav>
-    <button class="nav-btn active" data-v="editor"  onclick="showView('editor',this)">Editor</button>
-    <button class="nav-btn"        data-v="export"  onclick="showView('export',this)">🎯 Componi</button>
-    <button class="nav-btn"        data-v="library" onclick="showView('library',this)">Libreria</button>
-    <button class="nav-btn"        data-v="compare" onclick="showView('compare',this)">Confronto</button>
+    <button class="nav-btn active" data-v="editor"   onclick="showView('editor',this)">Editor</button>
+    <button class="nav-btn"        data-v="sessions" onclick="showView('sessions',this)">📌 Sessioni</button>
+    <button class="nav-btn"        data-v="export"   onclick="showView('export',this)">🎯 Componi</button>
+    <button class="nav-btn"        data-v="library"  onclick="showView('library',this)">Libreria</button>
+    <button class="nav-btn"        data-v="compare"  onclick="showView('compare',this)">Confronto</button>
   </nav>
 
   <!-- ══ EDITOR ══ -->
   <div id="view-editor" class="view active">
     <div class="ed-toolbar">
-      <div class="legend">
-        <span><span style="color:var(--green);font-weight:700">✓</span> includi</span>
-        <span><span style="color:var(--red);font-weight:700">✕</span> escludi</span>
-        <span style="color:#d1d5db">· neutro</span>
+      <div class="mark-legend">
+        <b style="color:var(--green)">✓</b>
+        <b style="color:var(--red)">✕</b>
+        <span style="color:#d1d5db;font-size:.8rem">·</span>
       </div>
       <div class="sp"></div>
-      <select id="session-sel" onchange="loadSession(this.value)"
-        style="font-family:Inter,sans-serif;font-size:.78rem;border:1px solid var(--border);border-radius:6px;padding:4px 8px;background:var(--surf);color:var(--text);outline:none;max-width:130px;">
-        <option value="">📌 Sessioni…</option>
-      </select>
-      <button class="btn ghost sm" onclick="swapPanels()">⇅</button>
-      <button class="btn ghost sm" onclick="saveEditorSession()" title="Salva sessione">📌 Sessione</button>
-      <button class="btn sm" onclick="saveSession()">💾 Salva</button>
+      <button class="btn sm ghost" onclick="swapPanels()">⇅</button>
+      <button class="btn sm primary" onclick="saveSession()">💾 Salva</button>
     </div>
     <div class="stack">
 
-      <!-- PANEL A -->
+      <!-- Panel A -->
       <div class="panel">
         <div class="panel-head">
           <span class="badge">A</span>
-          <input class="ptitle" id="title-a" type="text" placeholder="Titolo (originale)…" oninput="dirty('a')" />
-          <button class="btn ghost sm" onclick="save1('a')">Salva</button>
-          <button class="btn ghost sm" onclick="clearPanel('a')">✕</button>
-          <span id="stats-a" class="pstats"></span>
+          <input class="ptitle" id="title-a" type="text" placeholder="Titolo originale…" oninput="dirty('a')"/>
           <span id="dirty-a" class="pdirty"></span>
+          <button class="btn icon" style="font-size:.9rem;min-width:36px;min-height:36px;" onclick="openPanelMenu('a')">⋯</button>
         </div>
         <div class="ed-body">
           <div class="lnums" id="ln-a">1</div>
-          <div class="mk-col" id="mkcol-a"><div class="mk-inner" id="mk-a"></div></div>
+          <div class="mk-col"><div class="mk-inner" id="mk-a"></div></div>
           <textarea class="ta" id="ta-a"
-            placeholder="Incolla o scrivi il testo originale…"
+            placeholder="Incolla o scrivi il testo…"
             oninput="onInput('a')" onscroll="onScroll('a')"></textarea>
         </div>
         <div class="panel-foot">
-          <span id="foot-a">0 righe · 0 parole</span>
+          <span id="foot-a">0 righe</span>
           <div class="foot-marks">
             <span id="fm-a-1" style="color:var(--green)"></span>
             <span id="fm-a-2" style="color:var(--red)"></span>
@@ -342,25 +426,23 @@
 
       <div class="divider"><span>TRADUZIONE / B</span></div>
 
-      <!-- PANEL B -->
+      <!-- Panel B -->
       <div class="panel">
         <div class="panel-head">
           <span class="badge b">B</span>
-          <input class="ptitle" id="title-b" type="text" placeholder="Titolo (traduzione)…" oninput="dirty('b')" />
-          <button class="btn ghost sm" onclick="save1('b')">Salva</button>
-          <button class="btn ghost sm" onclick="clearPanel('b')">✕</button>
-          <span id="stats-b" class="pstats"></span>
+          <input class="ptitle" id="title-b" type="text" placeholder="Titolo traduzione…" oninput="dirty('b')"/>
           <span id="dirty-b" class="pdirty"></span>
+          <button class="btn icon" style="font-size:.9rem;min-width:36px;min-height:36px;" onclick="openPanelMenu('b')">⋯</button>
         </div>
         <div class="ed-body">
           <div class="lnums" id="ln-b">1</div>
-          <div class="mk-col" id="mkcol-b"><div class="mk-inner" id="mk-b"></div></div>
+          <div class="mk-col"><div class="mk-inner" id="mk-b"></div></div>
           <textarea class="ta" id="ta-b"
             placeholder="Incolla o scrivi la traduzione…"
             oninput="onInput('b')" onscroll="onScroll('b')"></textarea>
         </div>
         <div class="panel-foot">
-          <span id="foot-b">0 righe · 0 parole</span>
+          <span id="foot-b">0 righe</span>
           <div class="foot-marks">
             <span id="fm-b-1" style="color:var(--green)"></span>
             <span id="fm-b-2" style="color:var(--red)"></span>
@@ -371,47 +453,48 @@
     </div>
   </div>
 
-  <!-- ══ COMPONI (export builder) ══ -->
+  <!-- ══ SESSIONI ══ -->
+  <div id="view-sessions" class="view">
+    <button class="btn primary sess-new-btn" onclick="saveEditorSession()">📌 Salva sessione corrente</button>
+    <div id="sess-list"><div class="sess-empty"><div class="big">Nessuna sessione</div><p>Apri due testi nell'editor e premi "Salva sessione".</p></div></div>
+  </div>
+
+  <!-- ══ COMPONI ══ -->
   <div id="view-export" class="view">
-    <div class="exp-section">
-      <div class="exp-head">
-        🎯 Testo composto — righe marcate ✓ da A e B
-        <div class="sp"></div>
-        <button class="btn ghost sm" onclick="buildExport()">↺ Aggiorna</button>
-      </div>
-      <div class="exp-list" id="exp-list">
-        <div class="exp-empty">Marca delle righe con ✓ nell'editor, poi premi Aggiorna.</div>
-      </div>
+    <div class="exp-hd">
+      🎯 Testo composto
+      <div class="sp"></div>
+      <button class="btn sm" onclick="buildExport()">↺ Aggiorna</button>
     </div>
+    <div id="exp-list"><div class="exp-empty">Marca righe con ✓ nell'editor, poi premi Aggiorna.</div></div>
     <div class="exp-actions">
-      <button class="btn primary" onclick="downloadComposed()">↓ Scarica testo composto</button>
-      <button class="btn ghost"   onclick="copyComposed()">⎘ Copia testo</button>
+      <button class="btn primary" onclick="downloadComposed()">↓ Scarica</button>
+      <button class="btn" onclick="copyComposed()">⎘ Copia</button>
     </div>
   </div>
 
-  <!-- ══ LIBRARY ══ -->
+  <!-- ══ LIBRERIA ══ -->
   <div id="view-library" class="view">
     <div class="lib-bar">
-      <input class="lib-search" id="lib-q" type="text" placeholder="🔍 Cerca…" oninput="renderLib()" />
+      <input class="lib-search" id="lib-q" type="text" placeholder="🔍 Cerca…" oninput="renderLib()"/>
       <span id="lib-n" style="font-size:.75rem;color:var(--muted);white-space:nowrap;"></span>
     </div>
     <div class="lib-grid" id="lib-grid"></div>
   </div>
 
-  <!-- ══ COMPARE ══ -->
+  <!-- ══ CONFRONTO ══ -->
   <div id="view-compare" class="view">
     <div class="cmp-bar">
       <div class="sg"><label>A:</label><select id="csel-a" onchange="renderCmp()"></select></div>
       <div class="sg"><label>B:</label><select id="csel-b" onchange="renderCmp()"></select></div>
-      <div class="sp"></div>
-      <button class="btn primary sm" onclick="cmpEdit()">Modifica →</button>
+      <button class="btn sm primary" onclick="cmpEdit()">Modifica →</button>
     </div>
     <div class="cmp-stack">
       <div class="cmp-panel">
         <div class="panel-head">
           <span class="badge">A</span>
-          <input class="ptitle" id="cmp-title-a" readonly style="pointer-events:none" />
-          <span id="cmp-stats-a" class="pstats"></span>
+          <input class="ptitle" id="cmp-title-a" readonly style="pointer-events:none"/>
+          <span id="cmp-stats-a" style="font-size:.68rem;color:var(--muted);flex-shrink:0;"></span>
         </div>
         <div class="cmp-body">
           <div class="cmp-lnums" id="cmp-ln-a">1</div>
@@ -422,8 +505,8 @@
       <div class="cmp-panel">
         <div class="panel-head">
           <span class="badge b">B</span>
-          <input class="ptitle" id="cmp-title-b" readonly style="pointer-events:none" />
-          <span id="cmp-stats-b" class="pstats"></span>
+          <input class="ptitle" id="cmp-title-b" readonly style="pointer-events:none"/>
+          <span id="cmp-stats-b" style="font-size:.68rem;color:var(--muted);flex-shrink:0;"></span>
         </div>
         <div class="cmp-body">
           <div class="cmp-lnums" id="cmp-ln-b">1</div>
@@ -433,13 +516,21 @@
     </div>
   </div>
 
+</div><!-- #app -->
+
+<!-- BOTTOM SHEET -->
+<div class="sheet-bg" id="sheet-bg" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title" id="sheet-title"></div>
+  <div id="sheet-items"></div>
 </div>
 
 <!-- MODAL -->
 <div class="modal-bg" id="modal-bg">
   <div class="modal">
-    <h3 id="modal-title">Salva</h3>
-    <input type="text" id="modal-inp" onkeydown="if(event.key==='Enter')modalOk()" />
+    <h3 id="modal-title"></h3>
+    <input type="text" id="modal-inp" onkeydown="if(event.key==='Enter')modalOk()"/>
     <div class="modal-actions">
       <button class="btn ghost" onclick="modalClose()">Annulla</button>
       <button class="btn primary" onclick="modalOk()">OK</button>
@@ -450,111 +541,112 @@
 <div class="toast" id="toast"></div>
 
 <script>
-/* ═══════════════════════════════════════════════════
+/* ══════════════════════════════════════════
    SUPABASE
-═══════════════════════════════════════════════════ */
+══════════════════════════════════════════ */
 const SB_URL = 'https://egffyuvtmvcgwuzhvsdx.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVnZmZ5dXZ0bXZjZ3d1emh2c2R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNDgyOTMsImV4cCI6MjA5MTkyNDI5M30.3O64a0fjLzYMq7nSEIPYI685alVZyAB07Qp7RM-np7Q';
 const sb = supabase.createClient(SB_URL, SB_KEY);
 
-function setSyncDot(state) { // 'ok' | 'saving' | 'error' | 'idle'
+function setSyncDot(s) {
   const d = document.getElementById('sync-dot');
-  d.className = 'sync-dot' + (state !== 'idle' ? ' ' + state : '');
-  d.title = { ok:'Sincronizzato', saving:'Salvataggio…', error:'Errore sync', idle:'In attesa' }[state] || '';
+  d.className = 'sync-dot' + (s !== 'idle' ? ' ' + s : '');
 }
 
-/* ═══════════════════════════════════════════════════
-   LOCAL CACHE + SUPABASE SYNC
-═══════════════════════════════════════════════════ */
-const LKEY = 'ls5_songs';
+/* ══════════════════════════════════════════
+   LOCAL DB (songs)
+══════════════════════════════════════════ */
+const LKEY = 'ls6_songs';
 let DB = {};
 try { DB = JSON.parse(localStorage.getItem(LKEY) || '{}'); } catch(_) {}
-
-function localSave() {
-  try { localStorage.setItem(LKEY, JSON.stringify(DB)); } catch(_) {}
-}
-
+function localSave() { try { localStorage.setItem(LKEY, JSON.stringify(DB)); } catch(_) {} }
 function uid() { return 'S' + Date.now() + Math.random().toString(36).slice(2,6); }
 
-/* upsert locally + push to Supabase */
-let saveTimer = null;
+let _saveTimer = null;
 async function dbSave(id, title, text, marks) {
   if (!id) id = uid();
-  DB[id] = { id, title: (title||'').trim()||'Senza titolo', text: text||'', marks: marks||{}, ts: Date.now() };
+  DB[id] = { id, title: (title||'').trim() || 'Senza titolo', text: text||'', marks: marks||{}, ts: Date.now() };
   localSave();
-  // debounce remote save 800ms
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => pushToSupabase(id), 800);
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(() => pushSong(id), 900);
   return id;
 }
-
-async function pushToSupabase(id) {
+async function pushSong(id) {
   const s = DB[id]; if (!s) return;
   setSyncDot('saving');
   try {
-    const { error } = await sb.from('songs').upsert({
-      id: s.id, title: s.title, text: s.text,
-      marks: s.marks, ts: s.ts
-    });
+    const { error } = await sb.from('songs').upsert({ id:s.id, title:s.title, text:s.text, marks:s.marks, ts:s.ts });
     if (error) throw error;
     setSyncDot('ok');
-  } catch(e) {
-    console.error('Supabase save error:', e);
-    setSyncDot('error');
-    toast('⚠️ Sync fallita — dati salvati in locale');
-  }
+  } catch(e) { setSyncDot('error'); toast('⚠️ Sync fallita — salvato in locale'); }
 }
-
 async function dbDel(id) {
   delete DB[id]; localSave();
   try { await sb.from('songs').delete().eq('id', id); } catch(_) {}
 }
-
 function dbList(q) {
-  let arr = Object.values(DB);
-  if (q) { const lq=q.toLowerCase(); arr=arr.filter(s=>s.title.toLowerCase().includes(lq)||s.text.toLowerCase().includes(lq)); }
-  return arr.sort((a,b)=>b.ts-a.ts);
+  let a = Object.values(DB);
+  if (q) { const lq=q.toLowerCase(); a=a.filter(s=>s.title.toLowerCase().includes(lq)||s.text.toLowerCase().includes(lq)); }
+  return a.sort((a,b) => b.ts - a.ts);
 }
 
-/* pull all songs from Supabase on load */
-async function pullFromSupabase() {
+async function pullSongs() {
   setSyncDot('saving');
   try {
-    const { data, error } = await sb.from('songs').select('*').order('ts', { ascending: false });
+    const { data, error } = await sb.from('songs').select('*').order('ts',{ascending:false});
     if (error) throw error;
-    // merge: remote wins on conflict (higher ts)
     (data||[]).forEach(s => {
-      if (!DB[s.id] || DB[s.id].ts < s.ts) {
-        DB[s.id] = { id: s.id, title: s.title, text: s.text, marks: s.marks||{}, ts: s.ts };
-      }
+      if (!DB[s.id] || DB[s.id].ts < s.ts)
+        DB[s.id] = { id:s.id, title:s.title, text:s.text, marks:s.marks||{}, ts:s.ts };
     });
-    localSave();
-    setSyncDot('ok');
-    renderLib();
-    toast('✓ Dati sincronizzati (' + (data||[]).length + ' canzoni)');
-  } catch(e) {
-    console.error('Supabase pull error:', e);
-    setSyncDot('error');
-    toast('⚠️ Impossibile connettersi a Supabase — uso dati locali');
-  }
+    localSave(); setSyncDot('ok'); renderLib();
+    toast('✓ ' + (data||[]).length + ' canzoni sincronizzate');
+  } catch(e) { setSyncDot('error'); toast('⚠️ Offline — uso dati locali'); }
 }
 
-/* ═══════════════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════════════ */
-// marks[i] = 0 (neutral) | 1 (include ✓) | 2 (exclude ✕)
+/* ══════════════════════════════════════════
+   LOCAL DB (sessions)
+══════════════════════════════════════════ */
+const SKEY = 'ls6_sessions';
+let SESS = {};
+try { SESS = JSON.parse(localStorage.getItem(SKEY) || '{}'); } catch(_) {}
+function localSaveSess() { try { localStorage.setItem(SKEY, JSON.stringify(SESS)); } catch(_) {} }
+
+async function pushSession(id) {
+  const s = SESS[id]; if (!s) return;
+  try {
+    await sb.from('sessions').upsert({
+      id: s.id, name: s.name,
+      song_a: s.songA, song_b: s.songB,
+      marks_a: s.marksA, marks_b: s.marksB,
+      ts: s.ts
+    });
+  } catch(_) {}
+}
+
+async function pullSessions() {
+  try {
+    const { data } = await sb.from('sessions').select('*').order('ts',{ascending:false});
+    (data||[]).forEach(s => {
+      SESS[s.id] = { id:s.id, name:s.name, songA:s.song_a, songB:s.song_b, marksA:s.marks_a||{}, marksB:s.marks_b||{}, ts:s.ts };
+    });
+    localSaveSess(); renderSessions();
+  } catch(_) {}
+}
+
+/* ══════════════════════════════════════════
+   PANEL STATE
+══════════════════════════════════════════ */
 const S = {
   a: { id: null, dirty: false, marks: {} },
   b: { id: null, dirty: false, marks: {} }
 };
 let modalCb = null;
-
-// export order list: [{side:'a'|'b', idx:Number, text:String}]
 let expRows = [];
 
-/* ═══════════════════════════════════════════════════
+/* ══════════════════════════════════════════
    LINE NUMBERS
-═══════════════════════════════════════════════════ */
+══════════════════════════════════════════ */
 function rebuildLn(side) {
   const ta = document.getElementById('ta-' + side);
   const ln = document.getElementById('ln-' + side);
@@ -562,89 +654,78 @@ function rebuildLn(side) {
   ln.textContent = Array.from({length:n},(_,i)=>i+1).join('\n');
 }
 function syncLn(side) {
-  const ta = document.getElementById('ta-' + side);
-  document.getElementById('ln-' + side).scrollTop = ta.scrollTop;
+  document.getElementById('ln-' + side).scrollTop = document.getElementById('ta-' + side).scrollTop;
 }
 
-/* ═══════════════════════════════════════════════════
-   MARKS COLUMN
-═══════════════════════════════════════════════════ */
-const LH_PX = 16 * 1.6; // 25.6px
-
+/* ══════════════════════════════════════════
+   MARKS
+══════════════════════════════════════════ */
 function rebuildMk(side) {
-  const ta     = document.getElementById('ta-' + side);
-  const inner  = document.getElementById('mk-' + side);
-  const marks  = S[side].marks;
-  const n      = ta.value ? ta.value.split('\n').length : 1;
-
+  const ta    = document.getElementById('ta-' + side);
+  const inner = document.getElementById('mk-' + side);
+  const marks = S[side].marks;
+  const n     = ta.value ? ta.value.split('\n').length : 1;
   let html = '';
   for (let i = 0; i < n; i++) {
     const s = marks[i] || 0;
-    const icon = s === 1 ? '✓' : s === 2 ? '✕' : '·';
-    html += `<div class="mk" data-i="${i}" data-s="${s}" title="Clicca per cambiare stato">${icon}</div>`;
+    const icon = s===1 ? '✓' : s===2 ? '✕' : '·';
+    html += `<div class="mk" data-i="${i}" data-s="${s}">${icon}</div>`;
   }
   inner.innerHTML = html;
-
   inner.querySelectorAll('.mk').forEach(el => {
     el.addEventListener('click', () => {
-      const i = parseInt(el.dataset.i);
-      const cur = S[side].marks[i] || 0;
-      S[side].marks[i] = (cur + 1) % 3; // cycle 0→1→2→0
-      dirty(side);
-      rebuildMk(side);
-      updateFoot(side);
+      const i = +el.dataset.i;
+      S[side].marks[i] = ((S[side].marks[i]||0) + 1) % 3;
+      dirty(side); rebuildMk(side); updateFoot(side);
     });
   });
-
   syncMk(side);
-  updateFoot(side);
 }
-
 function syncMk(side) {
   const ta    = document.getElementById('ta-' + side);
   const inner = document.getElementById('mk-' + side);
   inner.style.transform = `translateY(${-ta.scrollTop}px)`;
 }
 
-/* ═══════════════════════════════════════════════════
+/* ══════════════════════════════════════════
    FOOTER
-═══════════════════════════════════════════════════ */
+══════════════════════════════════════════ */
 function updateFoot(side) {
-  const val   = document.getElementById('ta-' + side).value;
-  const lines = val ? val.split('\n').length : 0;
-  const words = val.trim() ? val.trim().split(/\s+/).length : 0;
-  document.getElementById('foot-' + side).textContent = `${lines} righe · ${words} parole`;
-  const m = S[side].marks;
+  const val = document.getElementById('ta-' + side).value;
+  const n   = val ? val.split('\n').length : 0;
+  const w   = val.trim() ? val.trim().split(/\s+/).length : 0;
+  document.getElementById('foot-' + side).textContent = `${n} righe · ${w} parole`;
+  const m  = S[side].marks;
   const n1 = Object.values(m).filter(v=>v===1).length;
   const n2 = Object.values(m).filter(v=>v===2).length;
-  document.getElementById('fm-' + side + '-1').textContent = n1 > 0 ? `✓ ${n1}` : '';
-  document.getElementById('fm-' + side + '-2').textContent = n2 > 0 ? `✕ ${n2}` : '';
+  document.getElementById('fm-' + side + '-1').textContent = n1 > 0 ? `✓${n1}` : '';
+  document.getElementById('fm-' + side + '-2').textContent = n2 > 0 ? `✕${n2}` : '';
 }
 
-/* ═══════════════════════════════════════════════════
-   DIRTY / CLEAN
-═══════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   DIRTY
+══════════════════════════════════════════ */
 function dirty(side) {
   S[side].dirty = true;
   const el = document.getElementById('dirty-' + side);
-  el.textContent = '● non salvato'; el.className = 'pdirty unsaved';
+  el.textContent = '●'; el.className = 'pdirty unsaved';
 }
 function clean(side) {
   S[side].dirty = false;
   const el = document.getElementById('dirty-' + side);
-  el.textContent = '✓ salvato'; el.className = 'pdirty saved';
+  el.textContent = '✓'; el.className = 'pdirty saved';
 }
 
-/* ═══════════════════════════════════════════════════
+/* ══════════════════════════════════════════
    TEXTAREA EVENTS
-═══════════════════════════════════════════════════ */
-function onInput(side) { rebuildLn(side); rebuildMk(side); dirty(side); }
+══════════════════════════════════════════ */
+function onInput(side) { rebuildLn(side); rebuildMk(side); dirty(side); updateFoot(side); }
 
-let scrollDepth = 0;
+let _scrollDepth = 0;
 function onScroll(side) {
   syncLn(side); syncMk(side);
-  if (scrollDepth > 0) return;
-  scrollDepth++;
+  if (_scrollDepth > 0) return;
+  _scrollDepth++;
   const src  = document.getElementById('ta-' + side);
   const dst  = document.getElementById('ta-' + (side==='a'?'b':'a'));
   const maxS = src.scrollHeight - src.clientHeight;
@@ -654,48 +735,44 @@ function onScroll(side) {
     syncLn(side==='a'?'b':'a');
     syncMk(side==='a'?'b':'a');
   }
-  // release lock after both scroll events have fired
-  setTimeout(() => { scrollDepth = 0; }, 50);
+  setTimeout(() => { _scrollDepth = 0; }, 50);
 }
 
-/* ═══════════════════════════════════════════════════
+/* ══════════════════════════════════════════
    LOAD / CLEAR
-═══════════════════════════════════════════════════ */
+══════════════════════════════════════════ */
 function loadPanel(side, title, text, marks) {
   document.getElementById('title-' + side).value = title || '';
-  document.getElementById('ta-' + side).value    = text  || '';
+  document.getElementById('ta-'    + side).value = text  || '';
   S[side].marks = marks ? JSON.parse(JSON.stringify(marks)) : {};
   rebuildLn(side); rebuildMk(side); updateFoot(side); clean(side);
   document.getElementById('ta-' + side).scrollTop = 0;
-  syncLn(side); syncMk(side);
   document.getElementById('dirty-' + side).textContent = '';
-  document.getElementById('dirty-' + side).className   = 'pdirty';
+  document.getElementById('dirty-' + side).className = 'pdirty';
 }
-
 function clearPanel(side) {
   S[side].id = null;
   loadPanel(side, '', '', {});
 }
-
 function getVal(side) { return document.getElementById('ta-' + side).value; }
 
 function swapPanels() {
-  const tA=document.getElementById('title-a').value, vA=getVal('a'), mA=JSON.parse(JSON.stringify(S.a.marks)), idA=S.a.id;
-  const tB=document.getElementById('title-b').value, vB=getVal('b'), mB=JSON.parse(JSON.stringify(S.b.marks)), idB=S.b.id;
+  const [tA,vA,mA,idA] = [document.getElementById('title-a').value, getVal('a'), JSON.parse(JSON.stringify(S.a.marks)), S.a.id];
+  const [tB,vB,mB,idB] = [document.getElementById('title-b').value, getVal('b'), JSON.parse(JSON.stringify(S.b.marks)), S.b.id];
   S.a.id=idB; S.b.id=idA;
   loadPanel('a',tB,vB,mB); loadPanel('b',tA,vA,mA);
   toast('Pannelli invertiti');
 }
 
-/* ═══════════════════════════════════════════════════
+/* ══════════════════════════════════════════
    SAVE
-═══════════════════════════════════════════════════ */
+══════════════════════════════════════════ */
 async function save1(side) {
   const title = document.getElementById('title-' + side).value.trim();
   const text  = getVal(side);
   if (!title && !text.trim()) { toast('Niente da salvare'); return; }
   if (!title) {
-    showModal('Dai un titolo alla canzone', '', async name => {
+    showModal('Dai un titolo', '', async name => {
       if (!name) return;
       document.getElementById('title-' + side).value = name;
       S[side].id = await dbSave(S[side].id, name, text, S[side].marks);
@@ -706,7 +783,6 @@ async function save1(side) {
   S[side].id = await dbSave(S[side].id, title, text, S[side].marks);
   clean(side); renderLib(); toast('Salvata: ' + title);
 }
-
 function saveSession() { save1('a'); save1('b'); }
 
 function openNew() {
@@ -714,96 +790,155 @@ function openNew() {
   clearPanel('a'); clearPanel('b');
 }
 
-/* ═══════════════════════════════════════════════════
-   EXPORT / COMPONI
-═══════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   SESSIONS
+══════════════════════════════════════════ */
+async function saveEditorSession() {
+  if (!S.a.id && !S.b.id) {
+    // auto-save both first if they have content
+    const hasA = getVal('a').trim(), hasB = getVal('b').trim();
+    if (!hasA && !hasB) { toast('Carica almeno una canzone prima'); return; }
+    await saveSession();
+    // wait a tick for IDs to be set
+    await new Promise(r => setTimeout(r, 200));
+  }
+  showModal('Nome sessione', '', async name => {
+    if (!name) return;
+    const sess = {
+      id: 'sess_' + Date.now(),
+      name,
+      songA:  S.a.id || null,
+      songB:  S.b.id || null,
+      marksA: JSON.parse(JSON.stringify(S.a.marks)),
+      marksB: JSON.parse(JSON.stringify(S.b.marks)),
+      ts: Date.now()
+    };
+    SESS[sess.id] = sess;
+    localSaveSess();
+    setSyncDot('saving');
+    await pushSession(sess.id);
+    setSyncDot('ok');
+    renderSessions();
+    toast('📌 Sessione salvata: ' + name);
+    showView('sessions', document.querySelector('.nav-btn[data-v="sessions"]'));
+  });
+}
+
+function renderSessions() {
+  const list = Object.values(SESS).sort((a,b)=>b.ts-a.ts);
+  const el   = document.getElementById('sess-list');
+  if (!list.length) {
+    el.innerHTML = '<div class="sess-empty"><div class="big">Nessuna sessione</div><p>Apri due testi nell\'editor e premi "Salva sessione".</p></div>';
+    return;
+  }
+  el.innerHTML = list.map(s => {
+    const titleA = s.songA && DB[s.songA] ? DB[s.songA].title : '—';
+    const titleB = s.songB && DB[s.songB] ? DB[s.songB].title : '—';
+    const date   = new Date(s.ts).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    const n1A    = Object.values(s.marksA||{}).filter(v=>v===1).length;
+    const n1B    = Object.values(s.marksB||{}).filter(v=>v===1).length;
+    return `<div class="sess-card" onclick="loadSession('${s.id}')">
+      <div class="sess-info">
+        <div class="sess-name">${esc(s.name)}</div>
+        <div class="sess-meta">A: ${esc(titleA)} · B: ${esc(titleB)}</div>
+        <div class="sess-meta">${date}${n1A+n1B>0?' · ✓'+(n1A+n1B)+' righe':''}</div>
+      </div>
+      <div class="sess-del" onclick="event.stopPropagation();delSession('${s.id}')">🗑️</div>
+    </div>`;
+  }).join('');
+}
+
+async function loadSession(id) {
+  const sess = SESS[id]; if (!sess) return;
+  // fetch missing songs from supabase
+  const missing = [sess.songA, sess.songB].filter(i => i && !DB[i]);
+  if (missing.length) {
+    try {
+      const { data } = await sb.from('songs').select('*').in('id', missing);
+      (data||[]).forEach(s => { DB[s.id] = { id:s.id, title:s.title, text:s.text, marks:s.marks||{}, ts:s.ts }; });
+      localSave();
+    } catch(_) {}
+  }
+  if (sess.songA && DB[sess.songA]) {
+    S.a.id = sess.songA;
+    loadPanel('a', DB[sess.songA].title, DB[sess.songA].text, sess.marksA);
+  } else clearPanel('a');
+  if (sess.songB && DB[sess.songB]) {
+    S.b.id = sess.songB;
+    loadPanel('b', DB[sess.songB].title, DB[sess.songB].text, sess.marksB);
+  } else clearPanel('b');
+  showView('editor', document.querySelector('.nav-btn[data-v="editor"]'));
+  toast('📌 ' + sess.name + ' caricata');
+}
+
+async function delSession(id) {
+  const s = SESS[id]; if (!s) return;
+  delete SESS[id]; localSaveSess();
+  try { await sb.from('sessions').delete().eq('id', id); } catch(_) {}
+  renderSessions();
+  toast('Sessione eliminata');
+}
+
+/* ══════════════════════════════════════════
+   COMPONI
+══════════════════════════════════════════ */
 function buildExport() {
   const rows = [];
   ['a','b'].forEach(side => {
-    const lines  = getVal(side).split('\n');
-    const marks  = S[side].marks;
-    lines.forEach((txt, i) => {
-      if ((marks[i]||0) === 1 && txt.trim()) {
-        rows.push({ side, idx: i, text: txt });
-      }
+    getVal(side).split('\n').forEach((txt, i) => {
+      if ((S[side].marks[i]||0) === 1 && txt.trim())
+        rows.push({ side, idx:i, text:txt });
     });
   });
-  // sort by original line index to keep natural order,
-  // interleaving A and B lines by their position
   rows.sort((a,b) => a.idx - b.idx || (a.side==='a'?-1:1));
   expRows = rows;
   renderExpList();
 }
-
 function renderExpList() {
-  const list = document.getElementById('exp-list');
+  const el = document.getElementById('exp-list');
   if (!expRows.length) {
-    list.innerHTML = '<div class="exp-empty">Nessuna riga marcata con ✓. Torna nell\'editor e marca le righe da includere.</div>';
+    el.innerHTML = '<div class="exp-empty">Nessuna riga marcata con ✓.<br>Torna nell\'editor e marca le righe da includere.</div>';
     return;
   }
-  list.innerHTML = expRows.map((r, i) => `
-    <div class="exp-row" draggable="true"
-      ondragstart="dStart(event,${i})" ondragover="dOver(event,${i})"
-      ondrop="dDrop(event,${i})" ondragleave="dLeave(event)">
+  el.innerHTML = expRows.map((r,i) => `
+    <div class="exp-row">
       <span class="exp-handle">⠿</span>
       <span class="exp-tag ${r.side}">${r.side.toUpperCase()}</span>
       <span class="exp-text">${esc(r.text)}</span>
-      <span class="exp-del" onclick="expDel(${i})" title="Rimuovi">✕</span>
+      <span class="exp-del" onclick="expDel(${i})">✕</span>
     </div>`).join('');
 }
-
 function expDel(i) { expRows.splice(i,1); renderExpList(); }
-
-// drag-and-drop reorder
-let dragIdx = null;
-function dStart(e, i) { dragIdx=i; e.currentTarget.classList.add('dragging'); }
-function dOver(e, i)  { e.preventDefault(); e.currentTarget.classList.add('dragover'); }
-function dLeave(e)    { e.currentTarget.classList.remove('dragover'); }
-function dDrop(e, i)  {
-  e.preventDefault(); e.currentTarget.classList.remove('dragover');
-  if (dragIdx===null||dragIdx===i) return;
-  const [item] = expRows.splice(dragIdx, 1);
-  expRows.splice(i, 0, item);
-  dragIdx = null; renderExpList();
-}
-
-function getComposedText() {
-  return expRows.map(r => r.text).join('\n');
-}
-
+function getComposed() { return expRows.map(r=>r.text).join('\n'); }
 function downloadComposed() {
-  if (!expRows.length) { toast('Nessuna riga — prima premi Aggiorna'); return; }
+  if (!expRows.length) { toast('Nessuna riga — premi Aggiorna'); return; }
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([getComposedText()], {type:'text/plain'}));
-  a.download = 'testo_composto.txt'; a.click();
-  toast('Scaricato!');
+  a.href = URL.createObjectURL(new Blob([getComposed()],{type:'text/plain'}));
+  a.download = 'testo_composto.txt'; a.click(); toast('Scaricato!');
 }
-
 function copyComposed() {
   if (!expRows.length) { toast('Nessuna riga'); return; }
-  navigator.clipboard.writeText(getComposedText()).then(
-    () => toast('✓ Testo copiato'),
-    () => toast('Copia non supportata dal browser')
-  );
+  navigator.clipboard.writeText(getComposed()).then(()=>toast('✓ Copiato'),()=>toast('Copia non disponibile'));
 }
 
-/* ═══════════════════════════════════════════════════
+/* ══════════════════════════════════════════
    VIEW SWITCHING
-═══════════════════════════════════════════════════ */
+══════════════════════════════════════════ */
 function showView(name, btn) {
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
   if (btn) btn.classList.add('active');
-  if (name==='library') renderLib();
-  if (name==='compare') { fillCmpSelects(); renderCmp(); }
-  if (name==='export')  buildExport();
+  if (name==='library')  renderLib();
+  if (name==='compare')  { fillCmpSelects(); renderCmp(); }
+  if (name==='export')   buildExport();
+  if (name==='sessions') renderSessions();
 }
 
-/* ═══════════════════════════════════════════════════
+/* ══════════════════════════════════════════
    LIBRARY
-═══════════════════════════════════════════════════ */
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+══════════════════════════════════════════ */
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function renderLib() {
   const q    = (document.getElementById('lib-q').value||'').trim();
@@ -816,26 +951,22 @@ function renderLib() {
   }
   grid.innerHTML = list.map(s => {
     const date = new Date(s.ts).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'});
-    const lines= s.text ? s.text.split('\n').filter(l=>l.trim()).length : 0;
-    const m    = s.marks||{};
-    const n1   = Object.values(m).filter(v=>v===1).length;
-    const n2   = Object.values(m).filter(v=>v===2).length;
-    const mstr = [n1>0?`<span style="color:var(--green)">✓${n1}</span>`:'', n2>0?`<span style="color:var(--red)">✕${n2}</span>`:''].filter(Boolean).join(' ');
+    const n    = s.text ? s.text.split('\n').filter(l=>l.trim()).length : 0;
+    const n1   = Object.values(s.marks||{}).filter(v=>v===1).length;
+    const n2   = Object.values(s.marks||{}).filter(v=>v===2).length;
     return `<div class="card" onclick="libLoad('${s.id}')">
       <div class="card-title">${esc(s.title)}</div>
-      <div class="card-meta">${date} · ${lines} righe ${mstr}</div>
-      <div class="card-prev">${esc(s.text.slice(0,160))}</div>
+      <div class="card-meta">${date} · ${n} righe${n1?` · <span style="color:var(--green)">✓${n1}</span>`:''}${n2?` · <span style="color:var(--red)">✕${n2}</span>`:''}</div>
+      <div class="card-prev">${esc(s.text.slice(0,150))}</div>
       <div class="card-acts">
-        <button class="btn ghost sm" onclick="event.stopPropagation();libSide('${s.id}','a')">→A</button>
-        <button class="btn ghost sm" onclick="event.stopPropagation();libSide('${s.id}','b')">→B</button>
-        <button class="btn danger sm" onclick="event.stopPropagation();libDel('${s.id}')">✕</button>
+        <button class="btn sm ghost" onclick="event.stopPropagation();libSide('${s.id}','a')">→A</button>
+        <button class="btn sm ghost" onclick="event.stopPropagation();libSide('${s.id}','b')">→B</button>
+        <button class="btn sm danger" onclick="event.stopPropagation();libDel('${s.id}')">✕</button>
       </div>
     </div>`;
   }).join('');
 }
-
-function libLoad(id) { const side=!S.a.id?'a':(!S.b.id?'b':'a'); libSide(id,side); }
-
+function libLoad(id) { libSide(id, !S.a.id?'a':(!S.b.id?'b':'a')); }
 function libSide(id, side) {
   const s=DB[id]; if(!s){toast('Non trovata');return;}
   S[side].id=id;
@@ -843,18 +974,17 @@ function libSide(id, side) {
   showView('editor',document.querySelector('.nav-btn[data-v="editor"]'));
   toast('Caricata in '+side.toUpperCase()+': '+s.title);
 }
-
 function libDel(id) {
-  const s=DB[id]; if(!s) return;
+  const s=DB[id]; if(!s)return;
   showModal('Elimina "'+s.title+'"?\nScrivi il titolo per confermare','',async inp=>{
-    if(inp===s.title){await dbDel(id);renderLib();toast('Eliminata: '+s.title);}
+    if(inp===s.title){await dbDel(id);renderLib();toast('Eliminata');}
     else toast('Titolo non corrisponde');
   });
 }
 
-/* ═══════════════════════════════════════════════════
+/* ══════════════════════════════════════════
    COMPARE
-═══════════════════════════════════════════════════ */
+══════════════════════════════════════════ */
 function fillCmpSelects() {
   const list=dbList();
   ['csel-a','csel-b'].forEach(sid=>{
@@ -865,30 +995,30 @@ function fillCmpSelects() {
 }
 function renderCmp() {
   ['a','b'].forEach(side=>{
-    const id =document.getElementById('csel-'+side).value;
-    const ta =document.getElementById('cmp-ta-'+side);
-    const ln =document.getElementById('cmp-ln-'+side);
-    const ti =document.getElementById('cmp-title-'+side);
-    const st =document.getElementById('cmp-stats-'+side);
+    const id=document.getElementById('csel-'+side).value;
+    const ta=document.getElementById('cmp-ta-'+side);
+    const ln=document.getElementById('cmp-ln-'+side);
+    const ti=document.getElementById('cmp-title-'+side);
+    const st=document.getElementById('cmp-stats-'+side);
     if(id&&DB[id]){
       const s=DB[id]; ta.value=s.text||''; ti.value=s.title;
       const n=s.text?s.text.split('\n').length:0;
       ln.textContent=Array.from({length:n},(_,i)=>i+1).join('\n');
       const w=s.text.trim()?s.text.trim().split(/\s+/).length:0;
-      st.textContent=`${n} righe · ${w} parole`;
+      st.textContent=`${n}r · ${w}p`;
     } else { ta.value='';ln.textContent='1';ti.value='';st.textContent=''; }
   });
 }
-let cmpLock=false;
+let _cmpDepth=0;
 function cmpScroll(side){
   const src=document.getElementById('cmp-ta-'+side);
   document.getElementById('cmp-ln-'+side).scrollTop=src.scrollTop;
-  if(cmpLock)return; cmpLock=true;
+  if(_cmpDepth>0)return; _cmpDepth++;
   const dst=document.getElementById('cmp-ta-'+(side==='a'?'b':'a'));
   const ln2=document.getElementById('cmp-ln-'+(side==='a'?'b':'a'));
   const ms=src.scrollHeight-src.clientHeight, md=dst.scrollHeight-dst.clientHeight;
-  if(ms>0){dst.scrollTop=(src.scrollTop/ms)*md; ln2.scrollTop=dst.scrollTop;}
-  requestAnimationFrame(()=>{cmpLock=false;});
+  if(ms>0&&md>0){dst.scrollTop=(src.scrollTop/ms)*md; ln2.scrollTop=dst.scrollTop;}
+  setTimeout(()=>{_cmpDepth=0;},50);
 }
 function cmpEdit(){
   const idA=document.getElementById('csel-a').value;
@@ -897,9 +1027,9 @@ function cmpEdit(){
   if(idA||idB)showView('editor',document.querySelector('.nav-btn[data-v="editor"]'));
 }
 
-/* ═══════════════════════════════════════════════════
-   EXPORT ALL (full dump)
-═══════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   EXPORT ALL
+══════════════════════════════════════════ */
 function exportAll() {
   const list=dbList(); if(!list.length){toast('Nessuna canzone');return;}
   const txt=list.map(s=>{
@@ -915,131 +1045,91 @@ function exportAll() {
   toast('Esportate '+list.length+' canzoni');
 }
 
-/* ═══════════════════════════════════════════════════
-   SESSIONS — save/restore which songs+marks are open
-═══════════════════════════════════════════════════ */
-const SKEY2 = 'ls5_sessions';
-let SESSIONS = {};
-try { SESSIONS = JSON.parse(localStorage.getItem(SKEY2)||'{}'); } catch(_) {}
-
-function saveSessions() { try { localStorage.setItem(SKEY2, JSON.stringify(SESSIONS)); } catch(_) {} }
-
-async function saveEditorSession() {
-  // must have at least one song loaded
-  if (!S.a.id && !S.b.id) { toast('Carica almeno una canzone prima di salvare la sessione'); return; }
-  showModal('Nome per questa sessione', '', async name => {
-    if (!name) return;
-    const sess = {
-      id: 'sess_' + Date.now(),
-      name,
-      songA: S.a.id || null,
-      songB: S.b.id || null,
-      marksA: JSON.parse(JSON.stringify(S.a.marks)),
-      marksB: JSON.parse(JSON.stringify(S.b.marks)),
-      ts: Date.now()
-    };
-    SESSIONS[sess.id] = sess;
-    saveSessions();
-    // push to Supabase sessions table
-    setSyncDot('saving');
-    try {
-      await sb.from('sessions').upsert({
-        id: sess.id, name: sess.name,
-        song_a: sess.songA, song_b: sess.songB,
-        marks_a: sess.marksA, marks_b: sess.marksB,
-        ts: sess.ts
-      });
-      setSyncDot('ok');
-    } catch(e) { setSyncDot('error'); }
-    toast('📌 Sessione salvata: ' + name);
-    renderSessionSelect();
-  });
-}
-
-async function pullSessions() {
-  try {
-    const { data } = await sb.from('sessions').select('*').order('ts', { ascending: false });
-    (data||[]).forEach(s => {
-      SESSIONS[s.id] = { id: s.id, name: s.name, songA: s.song_a, songB: s.song_b, marksA: s.marks_a||{}, marksB: s.marks_b||{}, ts: s.ts };
-    });
-    saveSessions();
-    renderSessionSelect();
-  } catch(_) {}
-}
-
-function renderSessionSelect() {
-  const sel = document.getElementById('session-sel');
-  if (!sel) return;
-  const list = Object.values(SESSIONS).sort((a,b)=>b.ts-a.ts);
-  sel.innerHTML = '<option value="">📌 Sessioni…</option>' +
-    list.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
-}
-
-async function loadSession(id) {
-  if (!id) return;
-  const sess = SESSIONS[id]; if (!sess) return;
-  // ensure songs are loaded in DB
-  const missing = [];
-  if (sess.songA && !DB[sess.songA]) missing.push(sess.songA);
-  if (sess.songB && !DB[sess.songB]) missing.push(sess.songB);
-  if (missing.length) {
-    // try fetch from supabase
-    try {
-      const { data } = await sb.from('songs').select('*').in('id', missing);
-      (data||[]).forEach(s => { DB[s.id] = { id:s.id, title:s.title, text:s.text, marks:s.marks||{}, ts:s.ts }; });
-      localSave();
-    } catch(_) {}
+/* ══════════════════════════════════════════
+   BOTTOM SHEET
+══════════════════════════════════════════ */
+let _sheetOpen = false;
+const SHEETS = {
+  main: {
+    title: 'Menu',
+    items: [
+      { icon:'➕', label:'Nuova sessione', action:'openNew()' },
+      { icon:'📌', label:'Salva sessione corrente', action:'saveEditorSession()' },
+      { icon:'↓',  label:'Esporta tutte le canzoni', action:'exportAll()' },
+      { icon:'🔄', label:'Sincronizza con cloud', action:'pullSongs()' },
+    ]
   }
-  if (sess.songA && DB[sess.songA]) {
-    S.a.id = sess.songA;
-    loadPanel('a', DB[sess.songA].title, DB[sess.songA].text, sess.marksA);
-  } else { clearPanel('a'); }
-  if (sess.songB && DB[sess.songB]) {
-    S.b.id = sess.songB;
-    loadPanel('b', DB[sess.songB].title, DB[sess.songB].text, sess.marksB);
-  } else { clearPanel('b'); }
-  showView('editor', document.querySelector('.nav-btn[data-v="editor"]'));
-  toast('📌 Sessione caricata: ' + sess.name);
-  // reset select
-  document.getElementById('session-sel').value = '';
+};
+
+function openSheet(name) {
+  const def = SHEETS[name]; if (!def) return;
+  document.getElementById('sheet-title').textContent = def.title;
+  document.getElementById('sheet-items').innerHTML = def.items.map(it =>
+    `<div class="sheet-item" onclick="closeSheet();setTimeout(()=>${it.action},120)">
+      <span class="sheet-icon">${it.icon}</span>
+      <span class="sheet-label${it.red?' red':''}">${it.label}</span>
+    </div>`
+  ).join('');
+  document.getElementById('sheet-bg').classList.add('open');
+  document.getElementById('sheet').classList.add('open');
+  _sheetOpen = true;
 }
 
-async function deleteSession(id) {
-  const sess = SESSIONS[id]; if (!sess) return;
-  delete SESSIONS[id]; saveSessions();
-  try { await sb.from('sessions').delete().eq('id', id); } catch(_) {}
-  renderSessionSelect();
-  toast('Sessione eliminata');
+function openPanelMenu(side) {
+  const title = document.getElementById('title-' + side).value || 'Pannello ' + side.toUpperCase();
+  document.getElementById('sheet-title').textContent = title;
+  document.getElementById('sheet-items').innerHTML = [
+    { icon:'💾', label:'Salva', action:`save1('${side}')` },
+    { icon:'✕',  label:'Svuota pannello', action:`clearPanel('${side}')`, red:true },
+  ].map(it =>
+    `<div class="sheet-item" onclick="closeSheet();setTimeout(()=>${it.action},120)">
+      <span class="sheet-icon">${it.icon}</span>
+      <span class="sheet-label${it.red?' red':''}">${it.label}</span>
+    </div>`
+  ).join('');
+  document.getElementById('sheet-bg').classList.add('open');
+  document.getElementById('sheet').classList.add('open');
+  _sheetOpen = true;
 }
-function showModal(title,def,cb){
-  modalCb=cb;
-  document.getElementById('modal-title').textContent=title;
-  document.getElementById('modal-inp').value=def||'';
+
+function closeSheet() {
+  document.getElementById('sheet-bg').classList.remove('open');
+  document.getElementById('sheet').classList.remove('open');
+  _sheetOpen = false;
+}
+
+/* ══════════════════════════════════════════
+   MODAL
+══════════════════════════════════════════ */
+function showModal(title, def, cb) {
+  modalCb = cb;
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-inp').value = def||'';
   document.getElementById('modal-bg').classList.add('open');
-  setTimeout(()=>document.getElementById('modal-inp').focus(),60);
+  setTimeout(() => document.getElementById('modal-inp').focus(), 80);
 }
-function modalOk(){const v=document.getElementById('modal-inp').value.trim();modalClose();if(modalCb)modalCb(v);}
-function modalClose(){document.getElementById('modal-bg').classList.remove('open');modalCb=null;}
-document.getElementById('modal-bg').addEventListener('click',e=>{if(e.target===e.currentTarget)modalClose();});
+function modalOk() { const v=document.getElementById('modal-inp').value.trim(); modalClose(); if(modalCb)modalCb(v); }
+function modalClose() { document.getElementById('modal-bg').classList.remove('open'); modalCb=null; }
+document.getElementById('modal-bg').addEventListener('click', e=>{ if(e.target===e.currentTarget)modalClose(); });
 
-/* ═══════════════════════════════════════════════════
+/* ══════════════════════════════════════════
    TOAST
-═══════════════════════════════════════════════════ */
+══════════════════════════════════════════ */
 let _tt;
-function toast(msg){
+function toast(msg) {
   const el=document.getElementById('toast');
   el.textContent=msg; el.classList.add('show');
   clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('show'),2600);
 }
 
-/* ═══════════════════════════════════════════════════
+/* ══════════════════════════════════════════
    INIT
-═══════════════════════════════════════════════════ */
+══════════════════════════════════════════ */
 loadPanel('a','','',{});
 loadPanel('b','','',{});
 renderLib();
-renderSessionSelect();
-pullFromSupabase(); // sync on load
+renderSessions();
+pullSongs();
 pullSessions();
 </script>
 </body>
