@@ -304,7 +304,12 @@
         <span style="color:#d1d5db">· neutro</span>
       </div>
       <div class="sp"></div>
+      <select id="session-sel" onchange="loadSession(this.value)"
+        style="font-family:Inter,sans-serif;font-size:.78rem;border:1px solid var(--border);border-radius:6px;padding:4px 8px;background:var(--surf);color:var(--text);outline:none;max-width:130px;">
+        <option value="">📌 Sessioni…</option>
+      </select>
       <button class="btn ghost sm" onclick="swapPanels()">⇅</button>
+      <button class="btn ghost sm" onclick="saveEditorSession()" title="Salva sessione">📌 Sessione</button>
       <button class="btn sm" onclick="saveSession()">💾 Salva</button>
     </div>
     <div class="stack">
@@ -635,21 +640,22 @@ function clean(side) {
 ═══════════════════════════════════════════════════ */
 function onInput(side) { rebuildLn(side); rebuildMk(side); dirty(side); }
 
-let scrollLock = false;
+let scrollDepth = 0;
 function onScroll(side) {
   syncLn(side); syncMk(side);
-  if (scrollLock) return;
-  scrollLock = true;
-  const src = document.getElementById('ta-' + side);
-  const dst = document.getElementById('ta-' + (side==='a'?'b':'a'));
+  if (scrollDepth > 0) return;
+  scrollDepth++;
+  const src  = document.getElementById('ta-' + side);
+  const dst  = document.getElementById('ta-' + (side==='a'?'b':'a'));
   const maxS = src.scrollHeight - src.clientHeight;
   const maxD = dst.scrollHeight - dst.clientHeight;
-  if (maxS > 0) {
+  if (maxS > 0 && maxD > 0) {
     dst.scrollTop = (src.scrollTop / maxS) * maxD;
     syncLn(side==='a'?'b':'a');
     syncMk(side==='a'?'b':'a');
   }
-  requestAnimationFrame(() => { scrollLock = false; });
+  // release lock after both scroll events have fired
+  setTimeout(() => { scrollDepth = 0; }, 50);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -910,8 +916,101 @@ function exportAll() {
 }
 
 /* ═══════════════════════════════════════════════════
-   MODAL
+   SESSIONS — save/restore which songs+marks are open
 ═══════════════════════════════════════════════════ */
+const SKEY2 = 'ls5_sessions';
+let SESSIONS = {};
+try { SESSIONS = JSON.parse(localStorage.getItem(SKEY2)||'{}'); } catch(_) {}
+
+function saveSessions() { try { localStorage.setItem(SKEY2, JSON.stringify(SESSIONS)); } catch(_) {} }
+
+async function saveEditorSession() {
+  // must have at least one song loaded
+  if (!S.a.id && !S.b.id) { toast('Carica almeno una canzone prima di salvare la sessione'); return; }
+  showModal('Nome per questa sessione', '', async name => {
+    if (!name) return;
+    const sess = {
+      id: 'sess_' + Date.now(),
+      name,
+      songA: S.a.id || null,
+      songB: S.b.id || null,
+      marksA: JSON.parse(JSON.stringify(S.a.marks)),
+      marksB: JSON.parse(JSON.stringify(S.b.marks)),
+      ts: Date.now()
+    };
+    SESSIONS[sess.id] = sess;
+    saveSessions();
+    // push to Supabase sessions table
+    setSyncDot('saving');
+    try {
+      await sb.from('sessions').upsert({
+        id: sess.id, name: sess.name,
+        song_a: sess.songA, song_b: sess.songB,
+        marks_a: sess.marksA, marks_b: sess.marksB,
+        ts: sess.ts
+      });
+      setSyncDot('ok');
+    } catch(e) { setSyncDot('error'); }
+    toast('📌 Sessione salvata: ' + name);
+    renderSessionSelect();
+  });
+}
+
+async function pullSessions() {
+  try {
+    const { data } = await sb.from('sessions').select('*').order('ts', { ascending: false });
+    (data||[]).forEach(s => {
+      SESSIONS[s.id] = { id: s.id, name: s.name, songA: s.song_a, songB: s.song_b, marksA: s.marks_a||{}, marksB: s.marks_b||{}, ts: s.ts };
+    });
+    saveSessions();
+    renderSessionSelect();
+  } catch(_) {}
+}
+
+function renderSessionSelect() {
+  const sel = document.getElementById('session-sel');
+  if (!sel) return;
+  const list = Object.values(SESSIONS).sort((a,b)=>b.ts-a.ts);
+  sel.innerHTML = '<option value="">📌 Sessioni…</option>' +
+    list.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
+}
+
+async function loadSession(id) {
+  if (!id) return;
+  const sess = SESSIONS[id]; if (!sess) return;
+  // ensure songs are loaded in DB
+  const missing = [];
+  if (sess.songA && !DB[sess.songA]) missing.push(sess.songA);
+  if (sess.songB && !DB[sess.songB]) missing.push(sess.songB);
+  if (missing.length) {
+    // try fetch from supabase
+    try {
+      const { data } = await sb.from('songs').select('*').in('id', missing);
+      (data||[]).forEach(s => { DB[s.id] = { id:s.id, title:s.title, text:s.text, marks:s.marks||{}, ts:s.ts }; });
+      localSave();
+    } catch(_) {}
+  }
+  if (sess.songA && DB[sess.songA]) {
+    S.a.id = sess.songA;
+    loadPanel('a', DB[sess.songA].title, DB[sess.songA].text, sess.marksA);
+  } else { clearPanel('a'); }
+  if (sess.songB && DB[sess.songB]) {
+    S.b.id = sess.songB;
+    loadPanel('b', DB[sess.songB].title, DB[sess.songB].text, sess.marksB);
+  } else { clearPanel('b'); }
+  showView('editor', document.querySelector('.nav-btn[data-v="editor"]'));
+  toast('📌 Sessione caricata: ' + sess.name);
+  // reset select
+  document.getElementById('session-sel').value = '';
+}
+
+async function deleteSession(id) {
+  const sess = SESSIONS[id]; if (!sess) return;
+  delete SESSIONS[id]; saveSessions();
+  try { await sb.from('sessions').delete().eq('id', id); } catch(_) {}
+  renderSessionSelect();
+  toast('Sessione eliminata');
+}
 function showModal(title,def,cb){
   modalCb=cb;
   document.getElementById('modal-title').textContent=title;
@@ -939,7 +1038,9 @@ function toast(msg){
 loadPanel('a','','',{});
 loadPanel('b','','',{});
 renderLib();
+renderSessionSelect();
 pullFromSupabase(); // sync on load
+pullSessions();
 </script>
 </body>
 </html>
