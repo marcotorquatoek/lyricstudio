@@ -370,7 +370,7 @@
 
   <!-- HEADER -->
   <header>
-    <div class="logo">🎵 Lyric <em>Studio</em> <span class="ver">v1.3</span></div>
+    <div class="logo">🎵 Lyric <em>Studio</em> <span class="ver">v1.4</span></div>
     <div class="hdr-right">
       <div class="sync-dot" id="sync-dot" title="Stato sync"></div>
       <button class="btn icon" onclick="openSheet('main')" aria-label="Menu">⋯</button>
@@ -396,7 +396,7 @@
       </div>
       <div class="sp"></div>
       <button class="btn sm ghost" onclick="swapPanels()">⇅</button>
-      <button class="btn sm primary" onclick="saveEditorSession()">📌 Salva sessione</button>
+      <button class="btn sm primary" onclick="alert('click ok');saveEditorSession()">📌 Salva sessione</button>
     </div>
     <div class="stack">
 
@@ -1173,6 +1173,16 @@ loadPanel('a','','',{});
 loadPanel('b','','',{});
 renderLib();
 renderSessions();
+
+// catch any startup JS errors and show them visibly
+window.onerror = function(msg, src, line, col, err) {
+  toast('JS ERROR: ' + msg + ' (line ' + line + ')');
+  return false;
+};
+window.onunhandledrejection = function(e) {
+  toast('PROMISE ERROR: ' + (e.reason?.message || e.reason || 'unknown'));
+};
+
 pullSongs();
 pullSessions();
 </script>
