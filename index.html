@@ -74,7 +74,7 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
 .panel-body{flex:1;display:flex;overflow:hidden;position:relative}
 /* Row height = font-size * line-height, no extra vertical padding.
    All three columns (line-num, mark, textarea) share the same --row-h. */
-:root { --row-h: calc(16px * 1.6); }  /* 25.6px per row */
+:root { --row-h: calc(15px * 1.6); }  /* 24px per row */
 
 .line-col{width:32px;min-width:32px;overflow:hidden;position:relative;flex-shrink:0;background:var(--bg3);border-right:1px solid var(--border)}
 .line-col-inner{position:absolute;top:0;left:0;right:0;will-change:transform}
@@ -91,7 +91,7 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
   background:var(--bg2);
   color:var(--text);
   font-family:var(--font-sans);
-  font-size:16px;
+  font-size:15px;
   line-height:1.6;
   resize:none;
   overflow-y:auto;
@@ -140,45 +140,6 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
 .compose-tag-a{background:rgba(59,130,246,0.2);color:var(--a-col)}
 .compose-tag-b{background:rgba(236,72,153,0.2);color:var(--b-col)}
 .compose-text{font-family:var(--font-sans);font-size:15px;line-height:1.6;color:var(--text);flex:1;word-break:break-word}
-
-/* LIBRARY */
-#library-page{display:flex;flex-direction:column;overflow:hidden}
-.lib-search-bar{padding:10px 12px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0}
-.search-input-wrap{display:flex;align-items:center;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:0 12px;gap:8px}
-.search-input-wrap input{flex:1;height:40px;font-size:14px;background:none;color:var(--text)}
-.search-input-wrap input::placeholder{color:var(--text3)}
-.search-icon{color:var(--text3);font-size:16px}
-#lib-list{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
-.lib-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;display:flex;flex-direction:column;gap:6px}
-.lib-card-top{display:flex;align-items:center;gap:8px}
-.lib-title{font-weight:600;font-size:14px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lib-del{color:var(--text3);font-size:16px;min-height:44px;min-width:44px;display:flex;align-items:center;justify-content:center}
-.lib-meta{font-size:11px;color:var(--text3);font-family:var(--font-mono)}
-.lib-actions{display:flex;gap:6px;margin-top:2px}
-.btn-load{height:32px;padding:0 12px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid}
-.btn-load-a{border-color:var(--a-col);color:var(--a-col)}
-.btn-load-a:active{background:rgba(59,130,246,0.15)}
-.btn-load-b{border-color:var(--b-col);color:var(--b-col)}
-.btn-load-b:active{background:rgba(236,72,153,0.15)}
-
-/* COMPARE */
-#compare-page{display:flex;flex-direction:column;overflow:hidden}
-.compare-selects{padding:10px 12px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
-.compare-sel-wrap{flex:1;display:flex;flex-direction:column;gap:3px}
-.compare-sel-label{font-size:10px;font-weight:700;font-family:var(--font-mono)}
-.sel-a-label{color:var(--a-col)}
-.sel-b-label{color:var(--b-col)}
-.compare-sel-wrap select{height:40px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:0 10px;font-size:13px;color:var(--text);-webkit-appearance:none}
-.compare-body{flex:1;display:flex;overflow:hidden}
-.compare-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border)}
-.compare-panel:last-child{border-right:none}
-.compare-panel-header{height:32px;background:var(--bg3);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 10px;gap:6px;flex-shrink:0}
-.compare-panel-title{font-size:12px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
-.compare-scroll-area{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
-.compare-lines{padding:4px 0}
-.compare-line{display:flex;min-height:calc(1em * 1.6 + 8px);align-items:flex-start}
-.compare-lnum{width:28px;min-width:28px;padding:4px 0;font-family:var(--font-mono);font-size:10px;color:var(--text3);text-align:center;flex-shrink:0}
-.compare-ltext{flex:1;padding:4px 6px 4px 2px;font-family:var(--font-sans);font-size:14px;line-height:1.6;color:var(--text);word-break:break-word}
 
 /* COMPOSITIONS */
 #compositions-page{display:flex;flex-direction:column;overflow:hidden}
@@ -240,7 +201,7 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
 <div id="app">
   <header id="header">
     <div id="logo">Lyric<span>Studio</span></div>
-    <div id="ver">v1.4</div>
+    <div id="ver">v1.6</div>
     <div id="sync-dot" title="Sync status"></div>
   </header>
 
@@ -253,12 +214,6 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
     </button>
     <button class="nav-tab" data-tab="compose">
       <span class="tab-icon">🎵</span>Componi
-    </button>
-    <button class="nav-tab" data-tab="library">
-      <span class="tab-icon">📚</span>Libreria
-    </button>
-    <button class="nav-tab" data-tab="compare">
-      <span class="tab-icon">⚖️</span>Confronto
     </button>
     <button class="nav-tab" data-tab="compositions">
       <span class="tab-icon">📝</span>Composizioni
@@ -360,50 +315,6 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
       </div>
     </div>
 
-    <!-- LIBRARY TAB -->
-    <div class="tab-page" id="library-page">
-      <div class="lib-search-bar">
-        <div class="search-input-wrap">
-          <span class="search-icon">🔍</span>
-          <input type="search" id="lib-search" placeholder="Cerca canzoni…" autocomplete="off">
-        </div>
-      </div>
-      <div id="lib-list"></div>
-    </div>
-
-    <!-- COMPARE TAB -->
-    <div class="tab-page" id="compare-page">
-      <div class="compare-selects">
-        <div class="compare-sel-wrap">
-          <span class="compare-sel-label sel-a-label">CANZONE A</span>
-          <select id="cmp-sel-a"><option value="">— scegli —</option></select>
-        </div>
-        <div class="compare-sel-wrap">
-          <span class="compare-sel-label sel-b-label">CANZONE B</span>
-          <select id="cmp-sel-b"><option value="">— scegli —</option></select>
-        </div>
-      </div>
-      <div class="compare-body">
-        <div class="compare-panel">
-          <div class="compare-panel-header">
-            <span class="panel-label label-a">A</span>
-            <span class="compare-panel-title" id="cmp-title-a">—</span>
-          </div>
-          <div class="compare-scroll-area" id="cmp-scroll-a">
-            <div class="compare-lines" id="cmp-lines-a"></div>
-          </div>
-        </div>
-        <div class="compare-panel">
-          <div class="compare-panel-header">
-            <span class="panel-label label-b">B</span>
-            <span class="compare-panel-title" id="cmp-title-b">—</span>
-          </div>
-          <div class="compare-scroll-area" id="cmp-scroll-b">
-            <div class="compare-lines" id="cmp-lines-b"></div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -586,9 +497,7 @@ async function initialSync() {
     state.compositions = LS.getCompositions();
     setSyncDot('err');
   }
-  renderLibrary();
   renderSessions();
-  renderCompareSelects();
 }
 
 // ─── SONG SAVE ────────────────────────────────────────────────────────────────
@@ -618,7 +527,7 @@ function scheduleSave(which) {
 
 // ─── EDITOR RENDERING ─────────────────────────────────────────────────────────
 // ROW_H must match CSS --row-h = 16px * 1.6 = 25.6px. No extra padding on textarea.
-const ROW_H = 16 * 1.6; // 25.6px
+const ROW_H = 15 * 1.6; // 24px
 
 function buildLineNums(which, count) {
   const container = document.getElementById(`lnum-${which}`);
@@ -995,110 +904,11 @@ document.getElementById('comp-copy-btn').addEventListener('click', async () => {
   catch { toast('Copia non disponibile'); }
 });
 
-// ─── LIBRARY ─────────────────────────────────────────────────────────────────
-function renderLibrary(filter = '') {
-  const list = document.getElementById('lib-list');
-  let songs = state.songs;
-  if (filter) songs = songs.filter(s => (s.title + s.text).toLowerCase().includes(filter.toLowerCase()));
-  if (songs.length === 0) {
-    list.innerHTML = '<div class="empty-state"><div class="empty-icon">📚</div><div class="empty-text">Nessuna canzone in libreria</div></div>';
-    return;
-  }
-  list.innerHTML = songs.sort((a, b) => (b.ts || 0) - (a.ts || 0)).map(s => {
-    const lines = s.text ? s.text.split('\n').length : 0;
-    const marked = Object.values(s.marks || {}).filter(v => v === 1).length;
-    const date = s.ts ? new Date(s.ts).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '—';
-    return `<div class="lib-card">
-      <div class="lib-card-top">
-        <span class="lib-title">${escHtml(s.title || '(senza titolo)')}</span>
-        <button class="lib-del" data-del-song="${s.id}">✕</button>
-      </div>
-      <div class="lib-meta">${date} · ${lines} righe · ✓ ${marked}</div>
-      <div class="lib-actions">
-        <button class="btn-load btn-load-a" data-load-a="${s.id}">→ A</button>
-        <button class="btn-load btn-load-b" data-load-b="${s.id}">→ B</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-document.getElementById('lib-search').addEventListener('input', e => renderLibrary(e.target.value));
-
-document.getElementById('lib-list').addEventListener('click', async e => {
-  const delBtn = e.target.closest('[data-del-song]');
-  if (delBtn) {
-    const id = delBtn.dataset.delSong;
-    const song = state.songs.find(s => s.id === id);
-    const ok = await showConfirm('Elimina canzone', `Eliminare "${song ? song.title : 'questa canzone'}"?`);
-    if (!ok) return;
-    state.songs = state.songs.filter(s => s.id !== id);
-    LS.saveSongs(state.songs);
-    renderLibrary(document.getElementById('lib-search').value);
-    renderCompareSelects();
-    setSyncDot('syncing');
-    try { await sbDeleteSong(id); setSyncDot('ok'); } catch { setSyncDot('err'); }
-    return;
-  }
-  const loadA = e.target.closest('[data-load-a]');
-  if (loadA) { const s = state.songs.find(x => x.id === loadA.dataset.loadA); if (s) loadIntoPanel(s, 'a'); return; }
-  const loadB = e.target.closest('[data-load-b]');
-  if (loadB) { const s = state.songs.find(x => x.id === loadB.dataset.loadB); if (s) loadIntoPanel(s, 'b'); return; }
-});
-
-// ─── COMPARE ─────────────────────────────────────────────────────────────────
-function renderCompareSelects() {
-  ['a', 'b'].forEach(w => {
-    const sel = document.getElementById(`cmp-sel-${w}`);
-    const cur = sel.value;
-    sel.innerHTML = '<option value="">— scegli —</option>' +
-      state.songs.map(s => `<option value="${s.id}"${s.id === cur ? ' selected' : ''}>${escHtml(s.title || '(senza titolo)')}</option>`).join('');
-  });
-}
-
-let cmpLockA = false, cmpLockB = false;
-function renderComparePanel(which) {
-  const selId = document.getElementById(`cmp-sel-${which}`).value;
-  const song = state.songs.find(s => s.id === selId);
-  const titleEl = document.getElementById(`cmp-title-${which}`);
-  const linesEl = document.getElementById(`cmp-lines-${which}`);
-  titleEl.textContent = song ? (song.title || '(senza titolo)') : '—';
-  if (!song || !song.text) { linesEl.innerHTML = ''; return; }
-  const lines = song.text.split('\n');
-  linesEl.innerHTML = lines.map((l, i) => `<div class="compare-line"><span class="compare-lnum">${i + 1}</span><span class="compare-ltext">${escHtml(l)}</span></div>`).join('');
-}
-
-['a', 'b'].forEach(w => {
-  document.getElementById(`cmp-sel-${w}`).addEventListener('change', () => renderComparePanel(w));
-});
-
-// sync compare scroll
-function setupCompareSyncScroll() {
-  const sa = document.getElementById('cmp-scroll-a');
-  const sb = document.getElementById('cmp-scroll-b');
-  sa.addEventListener('scroll', () => {
-    if (cmpLockA) return;
-    const maxA = sa.scrollHeight - sa.clientHeight;
-    const ratio = maxA > 0 ? sa.scrollTop / maxA : 0;
-    cmpLockB = true;
-    sb.scrollTop = ratio * (sb.scrollHeight - sb.clientHeight);
-    setTimeout(() => { cmpLockB = false; }, 50);
-  });
-  sb.addEventListener('scroll', () => {
-    if (cmpLockB) return;
-    const maxB = sb.scrollHeight - sb.clientHeight;
-    const ratio = maxB > 0 ? sb.scrollTop / maxB : 0;
-    cmpLockA = true;
-    sa.scrollTop = ratio * (sa.scrollHeight - sa.clientHeight);
-    setTimeout(() => { cmpLockA = false; }, 50);
-  });
-}
-
 // ─── NAV TABS ─────────────────────────────────────────────────────────────────
 function switchTab(name) {
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   document.querySelectorAll('.tab-page').forEach(p => p.classList.toggle('active', p.id === `${name}-page`));
   if (name === 'compose') renderCompose();
-  if (name === 'library') renderLibrary(document.getElementById('lib-search').value);
   if (name === 'sessions') renderSessions();
   if (name === 'compositions') { showCompList(); renderCompositions(); }
 }
@@ -1118,7 +928,6 @@ function escHtml(s) {
   setupTextarea('a');
   setupTextarea('b');
   setupSyncScroll();
-  setupCompareSyncScroll();
   refreshPanel('a');
   refreshPanel('b');
   await initialSync();
