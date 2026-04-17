@@ -179,8 +179,6 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
 .comp-card-preview{font-size:13px;color:var(--text2);line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 /* composition editor view */
 .comp-editor-view{display:none;flex:1;flex-direction:column;overflow:hidden}
-.comp-editor-view.active{display:flex}
-.comp-list-view.hidden{display:none}
 .comp-editor-header{height:48px;min-height:48px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 8px;gap:6px;flex-shrink:0}
 .comp-back-btn{width:44px;height:44px;color:var(--accent);font-size:20px;display:flex;align-items:center;justify-content:center}
 .comp-title-inp{flex:1;height:44px;font-size:15px;font-weight:600;color:var(--text);background:none;border:none;padding:0 4px}
@@ -219,7 +217,7 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
 <div id="app">
   <header id="header">
     <div id="logo">Lyric<span>Studio</span></div>
-    <div id="ver">v2.2</div>
+    <div id="ver">v2.4</div>
     <button id="header-save-session-btn" title="Salva sessione" style="margin-left:auto;height:36px;padding:0 12px;background:var(--accent2);color:white;border-radius:8px;font-size:12px;font-weight:600;min-width:auto;min-height:auto">💾 Sessione</button>
     <div id="sync-dot" title="Sync status" style="margin-left:8px"></div>
   </header>
@@ -516,7 +514,7 @@ async function initialSync() {
 let debounceA, debounceB;
 async function saveSong(which) {
   const song = which === 'a' ? state.songA : state.songB;
-  if (!song.title && !song.text) return;
+  if (!song.title || !song.text) return; // richiede sia titolo che testo
   if (!song.id) song.id = uid();
   song.ts = now();
   const existing = state.songs.find(s => s.id === song.id);
@@ -524,10 +522,8 @@ async function saveSong(which) {
   else state.songs.push({ ...song });
   LS.saveSongs(state.songs);
   setSyncDot('syncing');
-  try {
-    await sbUpsertSong(song);
-    setSyncDot('ok');
-  } catch { setSyncDot('err'); }
+  try { await sbUpsertSong(song); setSyncDot('ok'); }
+  catch { setSyncDot('err'); }
 }
 
 function scheduleSave(which) {
@@ -911,8 +907,8 @@ document.getElementById('save-compose-btn').addEventListener('click', async () =
 let editingCompId = null;
 
 function showCompList() {
-  document.getElementById('comp-list').classList.remove('hidden');
-  document.getElementById('comp-editor').classList.remove('active');
+  document.getElementById('comp-list').style.display = 'flex';
+  document.getElementById('comp-editor').style.display = 'none';
   editingCompId = null;
 }
 
@@ -920,8 +916,8 @@ function showCompEditor(comp) {
   editingCompId = comp ? comp.id : null;
   document.getElementById('comp-title-inp').value = comp ? comp.title : '';
   document.getElementById('comp-textarea').value = comp ? comp.text : '';
-  document.getElementById('comp-list').classList.add('hidden');
-  document.getElementById('comp-editor').classList.add('active');
+  document.getElementById('comp-list').style.display = 'none';
+  document.getElementById('comp-editor').style.display = 'flex';
   setTimeout(() => document.getElementById('comp-textarea').focus(), 50);
 }
 
@@ -938,7 +934,7 @@ function renderCompositions() {
     return `<div class="comp-card" data-comp-id="${c.id}">
       <div class="comp-card-top">
         <span class="comp-card-title">${escHtml(c.title || '(senza titolo)')}</span>
-        <button class="comp-card-del" data-del-comp="${c.id}" onclick="event.stopPropagation()">🗑️</button>
+        <button class="comp-card-del" data-del-comp="${c.id}">🗑️</button>
       </div>
       <div class="comp-card-meta">${date}</div>
       <div class="comp-card-preview">${escHtml(preview)}</div>
@@ -949,6 +945,7 @@ function renderCompositions() {
 document.getElementById('comp-list').addEventListener('click', async e => {
   const del = e.target.closest('[data-del-comp]');
   if (del) {
+    e.stopPropagation();
     const id = del.dataset.delComp;
     const ok = await showConfirm('Elimina composizione', 'Eliminare questa composizione?');
     if (!ok) return;
