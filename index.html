@@ -90,7 +90,7 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
   padding:0 10px;
   background:var(--bg2);
   color:var(--text);
-  font-family:var(--font-mono);
+  font-family:var(--font-sans);
   font-size:16px;
   line-height:1.6;
   resize:none;
@@ -139,7 +139,7 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
 .compose-tag{font-family:var(--font-mono);font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;min-width:24px;text-align:center;flex-shrink:0;margin-top:2px}
 .compose-tag-a{background:rgba(59,130,246,0.2);color:var(--a-col)}
 .compose-tag-b{background:rgba(236,72,153,0.2);color:var(--b-col)}
-.compose-text{font-family:var(--font-mono);font-size:14px;line-height:1.6;color:var(--text);flex:1;word-break:break-word}
+.compose-text{font-family:var(--font-sans);font-size:15px;line-height:1.6;color:var(--text);flex:1;word-break:break-word}
 
 /* LIBRARY */
 #library-page{display:flex;flex-direction:column;overflow:hidden}
@@ -178,9 +178,31 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
 .compare-lines{padding:4px 0}
 .compare-line{display:flex;min-height:calc(1em * 1.6 + 8px);align-items:flex-start}
 .compare-lnum{width:28px;min-width:28px;padding:4px 0;font-family:var(--font-mono);font-size:10px;color:var(--text3);text-align:center;flex-shrink:0}
-.compare-ltext{flex:1;padding:4px 6px 4px 2px;font-family:var(--font-mono);font-size:13px;line-height:1.6;color:var(--text);word-break:break-word}
+.compare-ltext{flex:1;padding:4px 6px 4px 2px;font-family:var(--font-sans);font-size:14px;line-height:1.6;color:var(--text);word-break:break-word}
 
-/* MODAL */
+/* COMPOSITIONS */
+#compositions-page{display:flex;flex-direction:column;overflow:hidden}
+.comp-list-view{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.comp-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;display:flex;flex-direction:column;gap:6px;cursor:pointer;transition:border-color 0.2s}
+.comp-card:active{border-color:var(--accent)}
+.comp-card-top{display:flex;align-items:center;gap:8px}
+.comp-card-title{font-weight:600;font-size:14px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.comp-card-del{color:var(--text3);font-size:16px;min-height:44px;min-width:44px;display:flex;align-items:center;justify-content:center}
+.comp-card-meta{font-size:11px;color:var(--text3)}
+.comp-card-preview{font-size:13px;color:var(--text2);line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+/* composition editor view */
+.comp-editor-view{display:none;flex:1;flex-direction:column;overflow:hidden}
+.comp-editor-view.active{display:flex}
+.comp-list-view.hidden{display:none}
+.comp-editor-header{height:48px;min-height:48px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 8px;gap:6px;flex-shrink:0}
+.comp-back-btn{width:44px;height:44px;color:var(--accent);font-size:20px;display:flex;align-items:center;justify-content:center}
+.comp-title-inp{flex:1;height:44px;font-size:15px;font-weight:600;color:var(--text);background:none;border:none;padding:0 4px}
+.comp-title-inp::placeholder{color:var(--text3);font-weight:400}
+.comp-save-btn{height:36px;padding:0 14px;background:var(--accent2);color:white;border-radius:8px;font-size:13px;font-weight:600;min-width:auto}
+.comp-copy-btn{height:36px;width:36px;border:1px solid var(--border);border-radius:8px;color:var(--text3);font-size:16px;min-width:auto;min-height:auto}
+.comp-textarea{flex:1;width:100%;padding:14px;font-family:var(--font-sans);font-size:16px;line-height:1.7;color:var(--text);background:var(--bg);border:none;outline:none;resize:none;-webkit-overflow-scrolling:touch;overflow-y:auto}
+.comp-header-bar{height:44px;min-height:44px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:8px;flex-shrink:0}
+.comp-header-bar h2{font-size:14px;font-weight:600;flex:1}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;align-items:flex-end;justify-content:center}
 .modal-overlay.visible{display:flex}
 .modal-sheet{background:var(--bg2);border-radius:16px 16px 0 0;width:100%;max-width:480px;padding:20px;border-top:1px solid var(--border)}
@@ -218,7 +240,7 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
 <div id="app">
   <header id="header">
     <div id="logo">Lyric<span>Studio</span></div>
-    <div id="ver">v1.2</div>
+    <div id="ver">v1.4</div>
     <div id="sync-dot" title="Sync status"></div>
   </header>
 
@@ -237,6 +259,9 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
     </button>
     <button class="nav-tab" data-tab="compare">
       <span class="tab-icon">⚖️</span>Confronto
+    </button>
+    <button class="nav-tab" data-tab="compositions">
+      <span class="tab-icon">📝</span>Composizioni
     </button>
   </nav>
 
@@ -306,13 +331,32 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
         <h2>Composizione finale</h2>
         <div class="compose-actions">
           <button class="btn-sm btn-outline" id="copy-btn">📋 Copia</button>
-          <button class="btn-sm btn-outline" id="download-btn">⬇️ .txt</button>
+          <button class="btn-sm btn-outline" id="save-compose-btn">💾 Salva</button>
         </div>
       </div>
       <div class="compose-lines" id="compose-lines"></div>
       <div class="empty-state" id="compose-empty" style="display:none">
         <div class="empty-icon">🎵</div>
         <div class="empty-text">Segna delle righe con ✓ nell'editor per comporle qui</div>
+      </div>
+    </div>
+
+    <!-- COMPOSITIONS TAB -->
+    <div class="tab-page" id="compositions-page">
+      <div class="comp-header-bar">
+        <h2>Composizioni</h2>
+      </div>
+      <!-- list view -->
+      <div class="comp-list-view" id="comp-list"></div>
+      <!-- editor view -->
+      <div class="comp-editor-view" id="comp-editor">
+        <div class="comp-editor-header">
+          <button class="comp-back-btn" id="comp-back-btn">←</button>
+          <input class="comp-title-inp" id="comp-title-inp" placeholder="Titolo composizione…" autocomplete="off" spellcheck="false">
+          <button class="comp-copy-btn" id="comp-copy-btn" title="Copia">📋</button>
+          <button class="comp-save-btn" id="comp-save-inline-btn">Salva</button>
+        </div>
+        <textarea class="comp-textarea" id="comp-textarea" placeholder="Il testo della composizione…" spellcheck="false"></textarea>
       </div>
     </div>
 
@@ -399,9 +443,10 @@ const sb = supabase.createClient(SB_URL, SB_KEY);
 const state = {
   songA: { id: null, title: '', text: '', marks: {} },
   songB: { id: null, title: '', text: '', marks: {} },
-  songs: [],      // library
-  sessions: [],   // sessions list
-  syncStatus: 'idle' // idle | syncing | ok | err
+  songs: [],
+  sessions: [],
+  compositions: [],
+  syncStatus: 'idle'
 };
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
@@ -478,6 +523,8 @@ const LS = {
   saveSongs(songs) { localStorage.setItem('ls_songs', JSON.stringify(songs)); },
   getSessions() { try { return JSON.parse(localStorage.getItem('ls_sessions') || '[]'); } catch { return []; } },
   saveSessions(sessions) { localStorage.setItem('ls_sessions', JSON.stringify(sessions)); },
+  getCompositions() { try { return JSON.parse(localStorage.getItem('ls_compositions') || '[]'); } catch { return []; } },
+  saveCompositions(comps) { localStorage.setItem('ls_compositions', JSON.stringify(comps)); },
 };
 
 // ─── SUPABASE SYNC ────────────────────────────────────────────────────────────
@@ -531,10 +578,12 @@ async function initialSync() {
     LS.saveSessions(mergedSessions);
     state.songs = mergedSongs;
     state.sessions = mergedSessions;
+    state.compositions = LS.getCompositions();
     setSyncDot('ok');
   } catch (e) {
     state.songs = LS.getSongs();
     state.sessions = LS.getSessions();
+    state.compositions = LS.getCompositions();
     setSyncDot('err');
   }
   renderLibrary();
@@ -850,13 +899,100 @@ document.getElementById('copy-btn').addEventListener('click', async () => {
   catch { toast('Copia non disponibile'); }
 });
 
-document.getElementById('download-btn').addEventListener('click', () => {
+document.getElementById('save-compose-btn').addEventListener('click', async () => {
   const txt = getComposeText();
   if (!txt) { toast('Nessuna riga selezionata'); return; }
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain' }));
-  a.download = 'lyric-studio-compose.txt';
-  a.click();
+  const name = await showModal('Nome composizione', 'Es. Versione finale…', '');
+  if (!name) return;
+  const comp = { id: uid(), title: name, text: txt, ts: now() };
+  state.compositions.push(comp);
+  LS.saveCompositions(state.compositions);
+  toast('Composizione salvata ✓');
+  switchTab('compositions');
+});
+
+// ─── COMPOSITIONS ─────────────────────────────────────────────────────────────
+let editingCompId = null;
+
+function showCompList() {
+  document.getElementById('comp-list').classList.remove('hidden');
+  document.getElementById('comp-editor').classList.remove('active');
+  editingCompId = null;
+}
+
+function showCompEditor(comp) {
+  editingCompId = comp ? comp.id : null;
+  document.getElementById('comp-title-inp').value = comp ? comp.title : '';
+  document.getElementById('comp-textarea').value = comp ? comp.text : '';
+  document.getElementById('comp-list').classList.add('hidden');
+  document.getElementById('comp-editor').classList.add('active');
+  setTimeout(() => document.getElementById('comp-textarea').focus(), 50);
+}
+
+function renderCompositions() {
+  const list = document.getElementById('comp-list');
+  const comps = state.compositions;
+  if (comps.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div><div class="empty-text">Nessuna composizione salvata.<br>Vai in Componi e premi Salva.</div></div>';
+    return;
+  }
+  list.innerHTML = comps.sort((a, b) => (b.ts || 0) - (a.ts || 0)).map(c => {
+    const date = c.ts ? new Date(c.ts).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '—';
+    const preview = (c.text || '').split('\n').slice(0, 2).join(' · ');
+    return `<div class="comp-card" data-comp-id="${c.id}">
+      <div class="comp-card-top">
+        <span class="comp-card-title">${escHtml(c.title || '(senza titolo)')}</span>
+        <button class="comp-card-del" data-del-comp="${c.id}" onclick="event.stopPropagation()">🗑️</button>
+      </div>
+      <div class="comp-card-meta">${date}</div>
+      <div class="comp-card-preview">${escHtml(preview)}</div>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('comp-list').addEventListener('click', async e => {
+  const del = e.target.closest('[data-del-comp]');
+  if (del) {
+    const id = del.dataset.delComp;
+    const ok = await showConfirm('Elimina composizione', 'Eliminare questa composizione?');
+    if (!ok) return;
+    state.compositions = state.compositions.filter(c => c.id !== id);
+    LS.saveCompositions(state.compositions);
+    renderCompositions();
+    return;
+  }
+  const card = e.target.closest('.comp-card');
+  if (card) {
+    const comp = state.compositions.find(c => c.id === card.dataset.compId);
+    if (comp) showCompEditor(comp);
+  }
+});
+
+document.getElementById('comp-back-btn').addEventListener('click', () => {
+  showCompList();
+  renderCompositions();
+});
+
+document.getElementById('comp-save-inline-btn').addEventListener('click', () => {
+  const title = document.getElementById('comp-title-inp').value.trim() || '(senza titolo)';
+  const text = document.getElementById('comp-textarea').value;
+  if (editingCompId) {
+    const c = state.compositions.find(x => x.id === editingCompId);
+    if (c) { c.title = title; c.text = text; c.ts = now(); }
+  } else {
+    const c = { id: uid(), title, text, ts: now() };
+    state.compositions.push(c);
+    editingCompId = c.id;
+  }
+  LS.saveCompositions(state.compositions);
+  toast('Salvata ✓');
+});
+
+document.getElementById('comp-copy-btn').addEventListener('click', async () => {
+  const txt = document.getElementById('comp-textarea').value;
+  if (!txt) { toast('Nessun testo'); return; }
+  try { await navigator.clipboard.writeText(txt); toast('Copiato ✓'); }
+  catch { toast('Copia non disponibile'); }
 });
 
 // ─── LIBRARY ─────────────────────────────────────────────────────────────────
@@ -964,6 +1100,7 @@ function switchTab(name) {
   if (name === 'compose') renderCompose();
   if (name === 'library') renderLibrary(document.getElementById('lib-search').value);
   if (name === 'sessions') renderSessions();
+  if (name === 'compositions') { showCompList(); renderCompositions(); }
 }
 
 document.getElementById('nav').addEventListener('click', e => {
