@@ -64,6 +64,12 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
 .panel{display:flex;flex-direction:column;position:relative;overflow:hidden}
 .panel-a{flex:1;border-bottom:3px solid var(--accent2)}
 .panel-b{flex:1}
+
+@media(min-width:768px){
+  #editor-page{flex-direction:row}
+  .panel-a{flex:1;border-bottom:none;border-right:3px solid var(--accent2)}
+  .panel-b{flex:1}
+}
 .panel-header{height:36px;min-height:36px;background:var(--bg3);display:flex;align-items:center;padding:0 12px;gap:8px;border-bottom:1px solid var(--border);flex-shrink:0}
 .panel-label{font-family:var(--font-mono);font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px}
 .label-a{background:rgba(59,130,246,0.15);color:var(--a-col)}
@@ -141,6 +147,26 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
 .compose-tag-b{background:rgba(236,72,153,0.2);color:var(--b-col)}
 .compose-text{font-family:var(--font-sans);font-size:15px;line-height:1.6;color:var(--text);flex:1;word-break:break-word}
 
+/* LIBRARY */
+#library-page{display:flex;flex-direction:column;overflow:hidden}
+.lib-search-bar{padding:10px 12px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0}
+.search-input-wrap{display:flex;align-items:center;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:0 12px;gap:8px}
+.search-input-wrap input{flex:1;height:40px;font-size:14px;background:none;color:var(--text)}
+.search-input-wrap input::placeholder{color:var(--text3)}
+.search-icon{color:var(--text3);font-size:16px}
+#lib-list{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.lib-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;display:flex;flex-direction:column;gap:6px}
+.lib-card-top{display:flex;align-items:center;gap:8px}
+.lib-title{font-weight:600;font-size:14px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lib-del{color:var(--text3);font-size:16px;min-height:44px;min-width:44px;display:flex;align-items:center;justify-content:center}
+.lib-meta{font-size:11px;color:var(--text3)}
+.lib-actions{display:flex;gap:6px;margin-top:2px}
+.btn-load{height:32px;padding:0 12px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid;min-height:auto;min-width:auto}
+.btn-load-a{border-color:var(--a-col);color:var(--a-col)}
+.btn-load-a:active{background:rgba(59,130,246,0.15)}
+.btn-load-b{border-color:var(--b-col);color:var(--b-col)}
+.btn-load-b:active{background:rgba(236,72,153,0.15)}
+
 /* COMPOSITIONS */
 #compositions-page{display:flex;flex-direction:column;overflow:hidden}
 .comp-list-view{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
@@ -174,14 +200,6 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
 .modal-btn-cancel{flex:1;height:48px;border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);font-size:15px;font-weight:500}
 .modal-btn-ok{flex:1;height:48px;background:var(--accent2);border-radius:var(--radius);color:white;font-size:15px;font-weight:600}
 
-/* CONFIRM MODAL */
-.confirm-sheet{background:var(--bg2);border-radius:16px 16px 0 0;width:100%;max-width:480px;padding:20px;border-top:1px solid var(--border)}
-.confirm-title{font-size:16px;font-weight:600;margin-bottom:8px}
-.confirm-msg{font-size:14px;color:var(--text2);margin-bottom:20px;line-height:1.5}
-.confirm-btns{display:flex;gap:10px}
-.confirm-cancel{flex:1;height:48px;border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);font-size:15px;font-weight:500}
-.confirm-ok{flex:1;height:48px;background:var(--red);border-radius:var(--radius);color:white;font-size:15px;font-weight:600}
-
 /* TOAST */
 #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg4);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:13px;color:var(--text);opacity:0;transition:all 0.25s;z-index:2000;white-space:nowrap;pointer-events:none}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -201,8 +219,9 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
 <div id="app">
   <header id="header">
     <div id="logo">Lyric<span>Studio</span></div>
-    <div id="ver">v1.7</div>
-    <div id="sync-dot" title="Sync status"></div>
+    <div id="ver">v2.2</div>
+    <button id="header-save-session-btn" title="Salva sessione" style="margin-left:auto;height:36px;padding:0 12px;background:var(--accent2);color:white;border-radius:8px;font-size:12px;font-weight:600;min-width:auto;min-height:auto">💾 Sessione</button>
+    <div id="sync-dot" title="Sync status" style="margin-left:8px"></div>
   </header>
 
   <nav id="nav">
@@ -214,6 +233,9 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
     </button>
     <button class="nav-tab" data-tab="compose">
       <span class="tab-icon">🎵</span>Componi
+    </button>
+    <button class="nav-tab" data-tab="library">
+      <span class="tab-icon">📚</span>Libreria
     </button>
     <button class="nav-tab" data-tab="compositions">
       <span class="tab-icon">📝</span>Composizioni
@@ -296,6 +318,17 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
       </div>
     </div>
 
+    <!-- LIBRARY TAB -->
+    <div class="tab-page" id="library-page">
+      <div class="lib-search-bar">
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="search" id="lib-search" placeholder="Cerca canzoni…" autocomplete="off">
+        </div>
+      </div>
+      <div id="lib-list"></div>
+    </div>
+
     <!-- COMPOSITIONS TAB -->
     <div class="tab-page" id="compositions-page">
       <div class="comp-header-bar">
@@ -330,17 +363,6 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
   </div>
 </div>
 
-<!-- MODAL: confirm -->
-<div class="modal-overlay" id="modal-confirm">
-  <div class="confirm-sheet">
-    <div class="confirm-title" id="confirm-title">Conferma</div>
-    <div class="confirm-msg" id="confirm-msg"></div>
-    <div class="confirm-btns">
-      <button class="confirm-cancel" id="confirm-cancel">Annulla</button>
-      <button class="confirm-ok" id="confirm-ok">Elimina</button>
-    </div>
-  </div>
-</div>
 
 <div id="toast"></div>
 
@@ -357,6 +379,7 @@ const state = {
   songs: [],
   sessions: [],
   compositions: [],
+  currentSessionId: null,
   syncStatus: 'idle'
 };
 
@@ -408,24 +431,7 @@ function showModal(title = 'Nome', placeholder = '', defaultVal = '') {
 }
 
 function showConfirm(title, msg) {
-  return new Promise(resolve => {
-    const overlay = document.getElementById('modal-confirm');
-    document.getElementById('confirm-title').textContent = title;
-    document.getElementById('confirm-msg').textContent = msg;
-    overlay.classList.add('visible');
-    const okBtn = document.getElementById('confirm-ok');
-    const cancelBtn = document.getElementById('confirm-cancel');
-    function cleanup(v) {
-      overlay.classList.remove('visible');
-      okBtn.removeEventListener('click', onOk);
-      cancelBtn.removeEventListener('click', onCancel);
-      resolve(v);
-    }
-    function onOk() { cleanup(true); }
-    function onCancel() { cleanup(false); }
-    okBtn.addEventListener('click', onOk);
-    cancelBtn.addEventListener('click', onCancel);
-  });
+  return Promise.resolve(window.confirm(`${title}\n${msg}`));
 }
 
 // ─── LOCAL STORAGE ────────────────────────────────────────────────────────────
@@ -468,12 +474,17 @@ async function sbDeleteSession(id) {
   await sb.from('sessions').delete().eq('id', id);
 }
 
+const DELETED = {
+  _set: null,
+  _load() { if (!this._set) { try { this._set = new Set(JSON.parse(localStorage.getItem('ls_deleted') || '[]')); } catch { this._set = new Set(); } } return this._set; },
+  add(id) { this._load().add(id); localStorage.setItem('ls_deleted', JSON.stringify([...this._set])); },
+  has(id) { return this._load().has(id); }
+};
+
 function mergeSongs(local, remote) {
   const map = {};
-  for (const s of local) map[s.id] = s;
-  for (const s of remote) {
-    if (!map[s.id] || s.ts > map[s.id].ts) map[s.id] = s;
-  }
+  for (const s of local) if (!DELETED.has(s.id)) map[s.id] = s;
+  for (const s of remote) if (!DELETED.has(s.id)) { if (!map[s.id] || s.ts > map[s.id].ts) map[s.id] = s; }
   return Object.values(map);
 }
 
@@ -498,6 +509,7 @@ async function initialSync() {
     setSyncDot('err');
   }
   renderSessions();
+  renderLibrary();
 }
 
 // ─── SONG SAVE ────────────────────────────────────────────────────────────────
@@ -667,6 +679,54 @@ function loadIntoPanel(song, which) {
   switchTab('editor');
 }
 
+// ─── LIBRARY ─────────────────────────────────────────────────────────────────
+function renderLibrary(filter = '') {
+  const list = document.getElementById('lib-list');
+  let songs = [...state.songs];
+  if (filter) songs = songs.filter(s => (s.title + s.text).toLowerCase().includes(filter.toLowerCase()));
+  if (songs.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">📚</div><div class="empty-text">Nessuna canzone salvata</div></div>';
+    return;
+  }
+  list.innerHTML = songs.sort((a, b) => (b.ts || 0) - (a.ts || 0)).map(s => {
+    const lines = s.text ? s.text.split('\n').length : 0;
+    const marked = Object.values(s.marks || {}).filter(v => v === 1).length;
+    const date = s.ts ? new Date(s.ts).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '—';
+    return `<div class="lib-card">
+      <div class="lib-card-top">
+        <span class="lib-title">${escHtml(s.title || '(senza titolo)')}</span>
+        <button class="lib-del" data-del-song="${s.id}">🗑️</button>
+      </div>
+      <div class="lib-meta">${date} · ${lines} righe · ✓ ${marked}</div>
+      <div class="lib-actions">
+        <button class="btn-load btn-load-a" data-load-a="${s.id}">→ A</button>
+        <button class="btn-load btn-load-b" data-load-b="${s.id}">→ B</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+document.getElementById('lib-search').addEventListener('input', e => renderLibrary(e.target.value));
+document.getElementById('lib-list').addEventListener('click', async e => {
+  const delBtn = e.target.closest('[data-del-song]');
+  if (delBtn) {
+    const id = delBtn.dataset.delSong;
+    const song = state.songs.find(s => s.id === id);
+    const ok = await showConfirm('Elimina canzone', `Eliminare "${song ? song.title : 'questa canzone'}"?`);
+    if (!ok) return;
+    state.songs = state.songs.filter(s => s.id !== id);
+    DELETED.add(id);
+    LS.saveSongs(state.songs);
+    renderLibrary(document.getElementById('lib-search').value);
+    setSyncDot('syncing');
+    try { await sbDeleteSong(id); setSyncDot('ok'); } catch { setSyncDot('err'); }
+    return;
+  }
+  const loadA = e.target.closest('[data-load-a]');
+  if (loadA) { const s = state.songs.find(x => x.id === loadA.dataset.loadA); if (s) loadIntoPanel(s, 'a'); return; }
+  const loadB = e.target.closest('[data-load-b]');
+  if (loadB) { const s = state.songs.find(x => x.id === loadB.dataset.loadB); if (s) loadIntoPanel(s, 'b'); return; }
+});
+
 // ─── SESSIONS ─────────────────────────────────────────────────────────────────
 function renderSessions() {
   const list = document.getElementById('sessions-list');
@@ -678,17 +738,19 @@ function renderSessions() {
   list.innerHTML = sessions.sort((a, b) => b.ts - a.ts).map(s => {
     const songA = state.songs.find(x => x.id === s.song_a);
     const songB = state.songs.find(x => x.id === s.song_b);
+    const titleA = songA ? songA.title : (s.snap_a?.title || '—');
+    const titleB = songB ? songB.title : (s.snap_b?.title || '—');
     const marksA = Object.values(s.marks_a || {}).filter(v => v === 1).length;
     const marksB = Object.values(s.marks_b || {}).filter(v => v === 1).length;
     const date = new Date(s.ts).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' });
     return `<div class="session-card" data-sid="${s.id}">
       <div class="session-card-top">
         <span class="session-name">${escHtml(s.name)}</span>
-        <button class="session-del" data-del-session="${s.id}" onclick="event.stopPropagation()">🗑️</button>
+        <button class="session-del" data-del-session="${s.id}">🗑️</button>
       </div>
       <div class="session-songs">
-        <span class="song-tag song-tag-a">A: ${escHtml(songA ? songA.title : '—')}</span>
-        <span class="song-tag song-tag-b">B: ${escHtml(songB ? songB.title : '—')}</span>
+        <span class="song-tag song-tag-a">A: ${escHtml(titleA)}</span>
+        <span class="song-tag song-tag-b">B: ${escHtml(titleB)}</span>
       </div>
       <div class="session-meta">
         <span>${date}</span>
@@ -701,10 +763,12 @@ function renderSessions() {
 document.getElementById('sessions-list').addEventListener('click', async e => {
   const delBtn = e.target.closest('[data-del-session]');
   if (delBtn) {
+    e.stopPropagation();
     const id = delBtn.dataset.delSession;
     const ok = await showConfirm('Elimina sessione', 'Eliminare questa sessione?');
     if (!ok) return;
     state.sessions = state.sessions.filter(s => s.id !== id);
+    DELETED.add(id);
     LS.saveSessions(state.sessions);
     renderSessions();
     setSyncDot('syncing');
@@ -732,36 +796,52 @@ document.getElementById('sessions-list').addEventListener('click', async e => {
     document.getElementById('ta-b').value = state.songB.text;
     document.getElementById('title-b').value = state.songB.title;
     refreshPanel('a'); refreshPanel('b');
+    state.currentSessionId = session.id;
     toast('Sessione caricata');
     switchTab('editor');
   }
 });
 
-document.getElementById('save-session-btn').addEventListener('click', async () => {
-  const name = await showModal('Nome sessione', 'Es. Canzone #1', '');
-  if (!name) return;
-  // save songs first
+async function saveSessionNow() {
   await saveSong('a');
   await saveSong('b');
-  const session = {
-    id: uid(),
-    name,
-    song_a: state.songA.id,
-    song_b: state.songB.id,
-    // snapshot completo per recupero anche senza libreria
-    snap_a: { title: state.songA.title, text: state.songA.text },
-    snap_b: { title: state.songB.title, text: state.songB.text },
-    marks_a: { ...state.songA.marks },
-    marks_b: { ...state.songB.marks },
-    ts: now()
-  };
-  state.sessions.push(session);
-  LS.saveSessions(state.sessions);
-  renderSessions();
-  setSyncDot('syncing');
-  try { await sbUpsertSession(session); setSyncDot('ok'); toast('Sessione salvata ✓'); }
-  catch { setSyncDot('err'); toast('Salvato in locale'); }
-});
+  const existing = state.currentSessionId ? state.sessions.find(s => s.id === state.currentSessionId) : null;
+  if (existing) {
+    existing.snap_a = { title: state.songA.title, text: state.songA.text };
+    existing.snap_b = { title: state.songB.title, text: state.songB.text };
+    existing.marks_a = { ...state.songA.marks };
+    existing.marks_b = { ...state.songB.marks };
+    existing.song_a = state.songA.id;
+    existing.song_b = state.songB.id;
+    existing.ts = now();
+    LS.saveSessions(state.sessions);
+    renderSessions();
+    setSyncDot('syncing');
+    try { await sbUpsertSession(existing); setSyncDot('ok'); toast('Sessione aggiornata ✓'); }
+    catch { setSyncDot('err'); toast('Salvato in locale'); }
+  } else {
+    const name = await showModal('Nome sessione', 'Es. Canzone #1', '');
+    if (!name) return;
+    const session = {
+      id: uid(), name,
+      song_a: state.songA.id, song_b: state.songB.id,
+      snap_a: { title: state.songA.title, text: state.songA.text },
+      snap_b: { title: state.songB.title, text: state.songB.text },
+      marks_a: { ...state.songA.marks },
+      marks_b: { ...state.songB.marks },
+      ts: now()
+    };
+    state.sessions.push(session);
+    state.currentSessionId = session.id;
+    LS.saveSessions(state.sessions);
+    renderSessions();
+    setSyncDot('syncing');
+    try { await sbUpsertSession(session); setSyncDot('ok'); toast('Sessione salvata ✓'); }
+    catch { setSyncDot('err'); toast('Salvato in locale'); }
+  }
+}
+document.getElementById('save-session-btn').addEventListener('click', saveSessionNow);
+document.getElementById('header-save-session-btn').addEventListener('click', saveSessionNow);
 
 // ─── COMPOSE ─────────────────────────────────────────────────────────────────
 function renderCompose() {
@@ -873,6 +953,7 @@ document.getElementById('comp-list').addEventListener('click', async e => {
     const ok = await showConfirm('Elimina composizione', 'Eliminare questa composizione?');
     if (!ok) return;
     state.compositions = state.compositions.filter(c => c.id !== id);
+    DELETED.add(id);
     LS.saveCompositions(state.compositions);
     renderCompositions();
     return;
@@ -917,6 +998,7 @@ function switchTab(name) {
   document.querySelectorAll('.tab-page').forEach(p => p.classList.toggle('active', p.id === `${name}-page`));
   if (name === 'compose') renderCompose();
   if (name === 'sessions') renderSessions();
+  if (name === 'library') renderLibrary(document.getElementById('lib-search').value);
   if (name === 'compositions') { showCompList(); renderCompositions(); }
 }
 
