@@ -396,7 +396,7 @@
       </div>
       <div class="sp"></div>
       <button class="btn sm ghost" onclick="swapPanels()">⇅</button>
-      <button class="btn sm primary" onclick="saveSession()">💾 Salva</button>
+      <button class="btn sm primary" onclick="saveEditorSession()">📌 Salva sessione</button>
     </div>
     <div class="stack">
 
@@ -644,7 +644,6 @@ const S = {
   a: { id: null, dirty: false, marks: {} },
   b: { id: null, dirty: false, marks: {} }
 };
-let modalCb = null;
 let expRows = [];
 
 /* ══════════════════════════════════════════
@@ -775,12 +774,11 @@ async function save1(side) {
   const text  = getVal(side);
   if (!title && !text.trim()) { toast('Niente da salvare'); return; }
   if (!title) {
-    showModal('Dai un titolo', '', async name => {
-      if (!name) return;
-      document.getElementById('title-' + side).value = name;
-      S[side].id = await dbSave(S[side].id, name, text, S[side].marks);
-      clean(side); renderLib(); toast('Salvata: ' + name);
-    });
+    const name = await showModal('Dai un titolo', '');
+    if (!name) return;
+    document.getElementById('title-' + side).value = name;
+    S[side].id = await dbSave(S[side].id, name, text, S[side].marks);
+    clean(side); renderLib(); toast('Salvata: ' + name);
     return;
   }
   S[side].id = await dbSave(S[side].id, title, text, S[side].marks);
@@ -797,31 +795,32 @@ function openNew() {
    SESSIONS
 ══════════════════════════════════════════ */
 async function forceSave1(side) {
-  // saves panel and returns id, no modal
   const title = document.getElementById('title-' + side).value.trim() || 'Senza titolo';
   const text  = getVal(side);
   if (!text.trim()) return null;
   S[side].id = await dbSave(S[side].id, title, text, S[side].marks);
-  // flush to supabase immediately, don't wait debounce
   await pushSong(S[side].id);
   clean(side);
   return S[side].id;
 }
 
-async function saveEditorSession() {
+function saveEditorSession() {
   const hasA = getVal('a').trim();
   const hasB = getVal('b').trim();
   if (!hasA && !hasB) { toast('Nessun testo aperto nell\'editor'); return; }
 
-  // Make sure songs are saved and have IDs before saving session
-  if (hasA && !S.a.id) await forceSave1('a');
-  if (hasB && !S.b.id) await forceSave1('b');
-  // Also push any dirty panels
-  if (S.a.dirty && S.a.id) await forceSave1('a');
-  if (S.b.dirty && S.b.id) await forceSave1('b');
-
-  showModal('Nome sessione', '', async name => {
+  showModal('Nome sessione / progetto', '').then(async name => {
     if (!name) return;
+
+    toast('⏳ Salvataggio in corso…');
+
+    try {
+      if (hasA) await forceSave1('a');
+      if (hasB) await forceSave1('b');
+    } catch(e) {
+      toast('❌ Errore salvataggio canzoni: ' + e.message); return;
+    }
+
     const sess = {
       id:     'sess_' + Date.now(),
       name,
@@ -829,12 +828,12 @@ async function saveEditorSession() {
       songB:  S.b.id || null,
       marksA: JSON.parse(JSON.stringify(S.a.marks)),
       marksB: JSON.parse(JSON.stringify(S.b.marks)),
-      ts: Date.now()
+      ts:     Date.now()
     };
+
     SESS[sess.id] = sess;
     localSaveSess();
 
-    // Push to Supabase with visible error
     setSyncDot('saving');
     try {
       const { error } = await sb.from('sessions').upsert({
@@ -848,12 +847,12 @@ async function saveEditorSession() {
       });
       if (error) throw error;
       setSyncDot('ok');
-      toast('📌 Sessione salvata: ' + name);
+      toast('📌 Sessione "' + name + '" salvata!');
     } catch(e) {
       setSyncDot('error');
-      toast('❌ Errore: ' + (e.message || JSON.stringify(e)));
-      // Still show it locally
+      toast('⚠️ Locale OK. Errore cloud: ' + (e.message || e.code || JSON.stringify(e)));
     }
+
     renderSessions();
     showView('sessions', document.querySelector('.nav-btn[data-v="sessions"]'));
   });
@@ -1009,12 +1008,11 @@ function libSide(id, side) {
   showView('editor',document.querySelector('.nav-btn[data-v="editor"]'));
   toast('Caricata in '+side.toUpperCase()+': '+s.title);
 }
-function libDel(id) {
-  const s=DB[id]; if(!s)return;
-  showModal('Elimina "'+s.title+'"?\nScrivi il titolo per confermare','',async inp=>{
-    if(inp===s.title){await dbDel(id);renderLib();toast('Eliminata');}
-    else toast('Titolo non corrisponde');
-  });
+async function libDel(id) {
+  const s = DB[id]; if (!s) return;
+  const inp = await showModal('Elimina "' + s.title + '"?\nScrivi il titolo per confermare', '');
+  if (inp === s.title) { await dbDel(id); renderLib(); toast('Eliminata'); }
+  else if (inp !== null) toast('Titolo non corrisponde');
 }
 
 /* ══════════════════════════════════════════
@@ -1134,18 +1132,29 @@ function closeSheet() {
 }
 
 /* ══════════════════════════════════════════
-   MODAL
+   MODAL — promise based, no callback issues
 ══════════════════════════════════════════ */
-function showModal(title, def, cb) {
-  modalCb = cb;
-  document.getElementById('modal-title').textContent = title;
-  document.getElementById('modal-inp').value = def||'';
-  document.getElementById('modal-bg').classList.add('open');
-  setTimeout(() => document.getElementById('modal-inp').focus(), 80);
+let _modalResolve = null;
+
+function showModal(title, def) {
+  return new Promise(resolve => {
+    _modalResolve = resolve;
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-inp').value = def || '';
+    document.getElementById('modal-bg').classList.add('open');
+    setTimeout(() => document.getElementById('modal-inp').focus(), 80);
+  });
 }
-function modalOk() { const v=document.getElementById('modal-inp').value.trim(); modalClose(); if(modalCb)modalCb(v); }
-function modalClose() { document.getElementById('modal-bg').classList.remove('open'); modalCb=null; }
-document.getElementById('modal-bg').addEventListener('click', e=>{ if(e.target===e.currentTarget)modalClose(); });
+function modalOk() {
+  const v = document.getElementById('modal-inp').value.trim();
+  modalClose();
+  if (_modalResolve) { _modalResolve(v); _modalResolve = null; }
+}
+function modalClose() {
+  document.getElementById('modal-bg').classList.remove('open');
+  if (_modalResolve) { _modalResolve(null); _modalResolve = null; }
+}
+document.getElementById('modal-bg').addEventListener('click', e => { if (e.target === e.currentTarget) modalClose(); });
 
 /* ══════════════════════════════════════════
    TOAST
