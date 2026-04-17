@@ -201,7 +201,7 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
 <div id="app">
   <header id="header">
     <div id="logo">Lyric<span>Studio</span></div>
-    <div id="ver">v1.6</div>
+    <div id="ver">v1.7</div>
     <div id="sync-dot" title="Sync status"></div>
   </header>
 
@@ -511,8 +511,6 @@ async function saveSong(which) {
   if (existing) Object.assign(existing, { title: song.title, text: song.text, marks: song.marks, ts: song.ts });
   else state.songs.push({ ...song });
   LS.saveSongs(state.songs);
-  renderLibrary();
-  renderCompareSelects();
   setSyncDot('syncing');
   try {
     await sbUpsertSong(song);
@@ -718,15 +716,21 @@ document.getElementById('sessions-list').addEventListener('click', async e => {
     const id = card.dataset.sid;
     const session = state.sessions.find(s => s.id === id);
     if (!session) return;
-    // load songs
     const sA = state.songs.find(s => s.id === session.song_a);
     const sB = state.songs.find(s => s.id === session.song_b);
-    if (sA) { Object.assign(state.songA, { ...sA, marks: { ...(session.marks_a || {}) } }); }
-    if (sB) { Object.assign(state.songB, { ...sB, marks: { ...(session.marks_b || {}) } }); }
-    document.getElementById('ta-a').value = state.songA.text || '';
-    document.getElementById('title-a').value = state.songA.title || '';
-    document.getElementById('ta-b').value = state.songB.text || '';
-    document.getElementById('title-b').value = state.songB.title || '';
+    // Carica testo dalla libreria o dallo snapshot, poi applica SEMPRE le marks della sessione
+    state.songA.id = session.song_a;
+    state.songA.title = (sA ? sA.title : session.snap_a?.title) || '';
+    state.songA.text  = (sA ? sA.text  : session.snap_a?.text)  || '';
+    state.songA.marks = { ...(session.marks_a || {}) };
+    state.songB.id = session.song_b;
+    state.songB.title = (sB ? sB.title : session.snap_b?.title) || '';
+    state.songB.text  = (sB ? sB.text  : session.snap_b?.text)  || '';
+    state.songB.marks = { ...(session.marks_b || {}) };
+    document.getElementById('ta-a').value = state.songA.text;
+    document.getElementById('title-a').value = state.songA.title;
+    document.getElementById('ta-b').value = state.songB.text;
+    document.getElementById('title-b').value = state.songB.title;
     refreshPanel('a'); refreshPanel('b');
     toast('Sessione caricata');
     switchTab('editor');
@@ -744,6 +748,9 @@ document.getElementById('save-session-btn').addEventListener('click', async () =
     name,
     song_a: state.songA.id,
     song_b: state.songB.id,
+    // snapshot completo per recupero anche senza libreria
+    snap_a: { title: state.songA.title, text: state.songA.text },
+    snap_b: { title: state.songB.title, text: state.songB.text },
     marks_a: { ...state.songA.marks },
     marks_b: { ...state.songB.marks },
     ts: now()
