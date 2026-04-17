@@ -72,18 +72,22 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
 .panel-btn{width:44px;height:36px;color:var(--text3);font-size:14px;flex-shrink:0}
 .panel-btn:hover{color:var(--text)}
 .panel-body{flex:1;display:flex;overflow:hidden;position:relative}
-.line-col{width:32px;min-width:32px;overflow:hidden;position:relative;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border)}
+/* Row height = font-size * line-height, no extra vertical padding.
+   All three columns (line-num, mark, textarea) share the same --row-h. */
+:root { --row-h: calc(16px * 1.6); }  /* 25.6px per row */
+
+.line-col{width:32px;min-width:32px;overflow:hidden;position:relative;flex-shrink:0;background:var(--bg3);border-right:1px solid var(--border)}
 .line-col-inner{position:absolute;top:0;left:0;right:0;will-change:transform}
-.line-num{height:calc(1em * 1.6 + 16px);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;color:var(--text3)}
-.mark-col{width:36px;min-width:36px;overflow:hidden;position:relative;flex-shrink:0;border-right:1px solid var(--border)}
+.line-num{height:var(--row-h);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;color:var(--text3)}
+.mark-col{width:36px;min-width:36px;overflow:hidden;position:relative;flex-shrink:0;border-right:1px solid var(--border);background:var(--bg2)}
 .mark-col-inner{position:absolute;top:0;left:0;right:0;will-change:transform}
-.mark-btn{height:calc(1em * 1.6 + 16px);width:36px;display:flex;align-items:center;justify-content:center;font-size:14px;font-family:var(--font-mono);color:var(--text3);cursor:pointer;user-select:none;-webkit-user-select:none}
+.mark-btn{height:var(--row-h);width:36px;display:flex;align-items:center;justify-content:center;font-size:14px;font-family:var(--font-mono);color:var(--text3);cursor:pointer;user-select:none;-webkit-user-select:none}
 .mark-btn[data-state="1"]{color:var(--green)}
 .mark-btn[data-state="2"]{color:var(--red)}
 .textarea-wrap{flex:1;overflow:hidden;position:relative}
 .lyric-ta{
   width:100%;height:100%;
-  padding:8px 10px;
+  padding:0 10px;
   background:var(--bg2);
   color:var(--text);
   font-family:var(--font-mono);
@@ -214,7 +218,7 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
 <div id="app">
   <header id="header">
     <div id="logo">Lyric<span>Studio</span></div>
-    <div id="ver">v1.0</div>
+    <div id="ver">v1.2</div>
     <div id="sync-dot" title="Sync status"></div>
   </header>
 
@@ -564,7 +568,8 @@ function scheduleSave(which) {
 }
 
 // ─── EDITOR RENDERING ─────────────────────────────────────────────────────────
-const LINE_H = 16 * 1.6 + 16; // approx px per line (font-size * line-height + padding)
+// ROW_H must match CSS --row-h = 16px * 1.6 = 25.6px. No extra padding on textarea.
+const ROW_H = 16 * 1.6; // 25.6px
 
 function buildLineNums(which, count) {
   const container = document.getElementById(`lnum-${which}`);
