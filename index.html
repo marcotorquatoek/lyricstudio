@@ -217,7 +217,7 @@ button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:ce
 <div id="app">
   <header id="header">
     <div id="logo">Lyric<span>Studio</span></div>
-    <div id="ver">v2.4</div>
+    <div id="ver">v2.5</div>
     <button id="header-save-session-btn" title="Salva sessione" style="margin-left:auto;height:36px;padding:0 12px;background:var(--accent2);color:white;border-radius:8px;font-size:12px;font-weight:600;min-width:auto;min-height:auto">💾 Sessione</button>
     <div id="sync-dot" title="Sync status" style="margin-left:8px"></div>
   </header>
@@ -494,14 +494,18 @@ async function initialSync() {
     const locSessions = LS.getSessions();
     const mergedSongs = mergeSongs(locSongs, remSongs);
     const mergedSessions = mergeSongs(locSessions, remSessions);
-    LS.saveSongs(mergedSongs);
+    // Rimuovi canzoni senza titolo e senza testo reale (anche da Supabase)
+    const junk = mergedSongs.filter(s => !s.title || !s.title.trim() || !s.text || s.text.trim().length <= 1);
+    junk.forEach(s => { DELETED.add(s.id); sb.from('songs').delete().eq('id', s.id); });
+    const cleanSongs = mergedSongs.filter(s => s.title && s.title.trim() && s.text && s.text.trim().length > 1);
+    LS.saveSongs(cleanSongs);
     LS.saveSessions(mergedSessions);
-    state.songs = mergedSongs;
+    state.songs = cleanSongs;
     state.sessions = mergedSessions;
     state.compositions = LS.getCompositions();
     setSyncDot('ok');
   } catch (e) {
-    state.songs = LS.getSongs();
+    state.songs = LS.getSongs().filter(s => s.title && s.title.trim() && s.text && s.text.trim().length > 1);
     state.sessions = LS.getSessions();
     state.compositions = LS.getCompositions();
     setSyncDot('err');
