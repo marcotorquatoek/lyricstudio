@@ -2,765 +2,1400 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#f5f5f7">
-<title>Lyric Studio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lyric Composer v1.1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{
-  --bg:#f5f5f7;--bg2:#fff;--bg3:#ebebed;--bg4:#e0e0e3;
-  --border:#d0d0d5;--text:#1a1a1e;--text2:#5a5a6a;--text3:#9090a0;
-  --accent:#7c3aed;--accent2:#6d28d9;
-  --green:#16a34a;--red:#dc2626;--amber:#d97706;
-  --a-col:#2563eb;--b-col:#db2777;
-  --radius:10px;--header:52px;--nav:50px;
-  --font-mono:'Roboto Mono',monospace;--font-sans:'Roboto',sans-serif;
-  --row-h:24px;
+:root {
+  --bg: #0d0d0f;
+  --bg2: #13131a;
+  --bg3: #1a1a24;
+  --bg4: #21212e;
+  --border: #2a2a3a;
+  --border2: #35354a;
+  --gold: #c9a84c;
+  --gold2: #e8c97a;
+  --gold-dim: rgba(201,168,76,0.15);
+  --gold-dim2: rgba(201,168,76,0.08);
+  --text: #e8e4d8;
+  --text2: #a09a8c;
+  --text3: #5a5650;
+  --green: #5db88a;
+  --red: #c96060;
+  --yellow: #c9a060;
+  --blue: #607ac9;
+  --radius: 8px;
+  --panel: 420px;
 }
-html,body{height:100%;height:100dvh;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-sans);font-size:16px;-webkit-font-smoothing:antialiased}
-button,input,textarea,select{font-family:inherit;font-size:16px;color:inherit;background:none;border:none;outline:none}
-button{cursor:pointer;min-height:44px;min-width:44px;display:flex;align-items:center;justify-content:center}
 
-#app{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
-#header{height:var(--header);min-height:var(--header);background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 14px;gap:8px;z-index:100;flex-shrink:0}
-#logo{font-family:var(--font-mono);font-size:15px;font-weight:700}
-#logo span{color:var(--accent)}
-#ver{font-size:11px;color:var(--text3);font-family:var(--font-mono);background:var(--bg3);padding:2px 6px;border-radius:4px;border:1px solid var(--border)}
-#hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
-#btn-save-session{height:34px;padding:0 12px;background:var(--accent2);color:#fff;border-radius:8px;font-size:12px;font-weight:600;min-width:auto;min-height:auto}
-#sync-dot{width:8px;height:8px;border-radius:50%;background:var(--text3);transition:background .3s;flex-shrink:0}
-#sync-dot.syncing{background:var(--amber);animation:pulse 1s infinite}
-#sync-dot.ok{background:var(--green)}
-#sync-dot.err{background:var(--red)}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-
-#nav{height:var(--nav);min-height:var(--nav);background:var(--bg2);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;overflow-y:hidden;flex-shrink:0;scrollbar-width:none}
-#nav::-webkit-scrollbar{display:none}
-.ntab{flex:1;min-width:60px;height:var(--nav);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--text3);font-size:10px;font-weight:500;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;padding:0 4px;white-space:nowrap}
-.ntab .ti{font-size:18px;line-height:1}
-.ntab.active{color:var(--accent);border-bottom-color:var(--accent)}
-
-#content{flex:1;overflow:hidden}
-.page{display:none;flex-direction:column;height:100%;overflow:hidden}
-.page.active{display:flex}
-
-/* EDITOR */
-#editor-page{flex-direction:column}
-.panel{display:flex;flex-direction:column;overflow:hidden;flex:1}
-.panel-a{border-bottom:3px solid var(--accent2)}
-@media(min-width:768px){
-  #editor-page{flex-direction:row}
-  .panel-a{border-bottom:none;border-right:3px solid var(--accent2)}
+[data-theme="light"] {
+  --bg: #f5f4f0;
+  --bg2: #eceae4;
+  --bg3: #e2e0d8;
+  --bg4: #d8d5cc;
+  --border: #ccc9be;
+  --border2: #b8b4a8;
+  --gold: #9a7530;
+  --gold2: #7a5a18;
+  --gold-dim: rgba(154,117,48,0.12);
+  --gold-dim2: rgba(154,117,48,0.06);
+  --text: #1a1814;
+  --text2: #5a5248;
+  --text3: #9a9288;
+  --green: #2d7a55;
+  --red: #a03030;
+  --yellow: #8a6030;
+  --blue: #3050a0;
 }
-.panel-hdr{height:36px;min-height:36px;background:var(--bg3);display:flex;align-items:center;padding:0 10px;gap:6px;border-bottom:1px solid var(--border);flex-shrink:0}
-.plabel{font-family:var(--font-mono);font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;flex-shrink:0}
-.la{background:rgba(37,99,235,.12);color:var(--a-col)}
-.lb{background:rgba(219,39,119,.12);color:var(--b-col)}
-.ptitle{flex:1;font-size:13px;color:var(--text2);min-width:0;height:32px;padding:0 4px}
-.ptitle::placeholder{color:var(--text3)}
-.ptitle:focus{color:var(--text)}
-.pbtn{width:36px;height:36px;color:var(--text3);font-size:15px;min-height:auto;min-width:auto;flex-shrink:0}
-.pbtn:active{color:var(--accent)}
-.panel-body{flex:1;display:flex;overflow:hidden}
-.lcol{width:30px;min-width:30px;overflow:hidden;position:relative;flex-shrink:0;background:var(--bg3);border-right:1px solid var(--border)}
-.lcol-inner{position:absolute;top:0;left:0;right:0}
-.lnum{height:var(--row-h);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;color:var(--text3)}
-.mcol{width:34px;min-width:34px;overflow:hidden;position:relative;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border)}
-.mcol-inner{position:absolute;top:0;left:0;right:0}
-.mbtn{height:var(--row-h);width:34px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--text3);cursor:pointer;user-select:none;-webkit-user-select:none}
-.mbtn[data-s="1"]{color:var(--green)}
-.mbtn[data-s="2"]{color:var(--red)}
-.tawrap{flex:1;overflow:hidden}
-.lyta{width:100%;height:100%;padding:0 10px;background:var(--bg2);color:var(--text);font-family:var(--font-sans);font-size:15px;line-height:1.6;resize:none;overflow-y:auto;overflow-x:auto;white-space:pre;-webkit-overflow-scrolling:touch;border:none;outline:none;display:block}
-.lyta::placeholder{color:var(--text3)}
-.panel-ftr{height:26px;min-height:26px;background:var(--bg3);border-top:1px solid var(--border);display:flex;align-items:center;padding:0 8px;gap:10px;flex-shrink:0}
-.fstat{font-size:11px;color:var(--text3);font-family:var(--font-mono)}
-.fmarks{font-size:11px;color:var(--green);font-family:var(--font-mono)}
 
-/* SESSIONI */
-#sessions-page{overflow-y:auto;padding:14px;gap:10px}
-.shdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-shrink:0}
-.shdr h2{font-size:14px;font-weight:600}
-.btn-primary{height:38px;padding:0 14px;background:var(--accent2);color:#fff;border-radius:var(--radius);font-size:13px;font-weight:600;min-width:auto;min-height:auto}
-.scard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;display:flex;flex-direction:column;gap:5px;cursor:pointer}
-.scard:active{border-color:var(--accent)}
-.scard-top{display:flex;align-items:center;gap:8px}
-.scard-name{font-weight:600;font-size:14px;flex:1}
-.scard-del{color:var(--text3);font-size:15px;min-height:44px;min-width:44px;display:flex;align-items:center;justify-content:center}
-.stags{display:flex;gap:6px;flex-wrap:wrap}
-.stag{font-size:11px;font-family:var(--font-mono);padding:2px 7px;border-radius:4px}
-.stag-a{background:rgba(37,99,235,.1);color:var(--a-col)}
-.stag-b{background:rgba(219,39,119,.1);color:var(--b-col)}
-.smeta{font-size:11px;color:var(--text3)}
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  color: var(--text2);
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.theme-toggle:hover { border-color: var(--gold); color: var(--gold); }
 
-/* COMPONI */
-#compose-page{display:flex;flex-direction:column;overflow:hidden}
-.compose-toolbar{height:44px;min-height:44px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 14px;gap:8px;flex-shrink:0}
-.compose-toolbar h2{font-size:14px;font-weight:600;flex:1}
-.btn-sm{height:34px;padding:0 12px;border-radius:8px;font-size:13px;font-weight:500;border:1px solid var(--border);color:var(--text2);min-height:auto;min-width:auto;display:flex;align-items:center;gap:5px}
-.btn-sm:active{background:var(--bg3)}
-.compose-list{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:2px}
-.cline{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid var(--bg3)}
-.ctag{font-family:var(--font-mono);font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;flex-shrink:0;margin-top:2px}
-.ctag-a{background:rgba(37,99,235,.15);color:var(--a-col)}
-.ctag-b{background:rgba(219,39,119,.15);color:var(--b-col)}
-.ctext{font-size:15px;line-height:1.6;color:var(--text);flex:1;word-break:break-word}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* LIBRERIA */
-#library-page{display:flex;flex-direction:column;overflow:hidden}
-.lsearch{padding:10px 12px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
-.lsearch-inner{display:flex;align-items:center;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:0 12px;gap:8px}
-.lsearch-inner input{flex:1;height:38px;font-size:14px}
-.lsearch-inner input::placeholder{color:var(--text3)}
-#lib-list{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
-.lcard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;display:flex;flex-direction:column;gap:5px}
-.lcard-top{display:flex;align-items:center;gap:8px}
-.lcard-title{font-weight:600;font-size:14px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lcard-del{color:var(--text3);font-size:15px;min-height:44px;min-width:44px;display:flex;align-items:center;justify-content:center}
-.lcard-meta{font-size:11px;color:var(--text3)}
-.lcard-actions{display:flex;gap:6px}
-.btn-load{height:30px;padding:0 12px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid;min-height:auto;min-width:auto}
-.btn-load-a{border-color:var(--a-col);color:var(--a-col)}
-.btn-load-b{border-color:var(--b-col);color:var(--b-col)}
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+}
 
-/* COMPOSIZIONI */
-#comps-page{display:flex;flex-direction:column;overflow:hidden}
-#comps-list-view{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
-#comps-editor-view{display:none;flex:1;flex-direction:column;overflow:hidden}
-.comps-toolbar{height:44px;min-height:44px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 8px;gap:6px;flex-shrink:0}
-.comps-back{font-size:20px;color:var(--accent);width:44px;height:44px;min-width:auto;min-height:auto;display:flex;align-items:center;justify-content:center}
-.comps-title-inp{flex:1;height:44px;font-size:15px;font-weight:600;color:var(--text);padding:0 4px}
-.comps-title-inp::placeholder{color:var(--text3);font-weight:400}
-.comps-save-btn{height:34px;padding:0 14px;background:var(--accent2);color:#fff;border-radius:8px;font-size:13px;font-weight:600;min-width:auto;min-height:auto}
-.comps-copy-btn{height:34px;width:34px;border:1px solid var(--border);border-radius:8px;color:var(--text3);font-size:15px;min-width:auto;min-height:auto;display:flex;align-items:center;justify-content:center}
-.comps-ta{flex:1;width:100%;padding:14px;font-family:var(--font-sans);font-size:15px;line-height:1.7;color:var(--text);background:var(--bg);border:none;outline:none;resize:none;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.ccard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;display:flex;flex-direction:column;gap:5px;cursor:pointer}
-.ccard:active{border-color:var(--accent)}
-.ccard-top{display:flex;align-items:center;gap:8px}
-.ccard-title{font-weight:600;font-size:14px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ccard-del{color:var(--text3);font-size:15px;min-height:44px;min-width:44px;display:flex;align-items:center;justify-content:center}
-.ccard-meta{font-size:11px;color:var(--text3)}
-.ccard-preview{font-size:13px;color:var(--text2);line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+/* ── SCROLLBARS ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
 
-/* EMPTY */
-.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:8px;color:var(--text3);padding:40px 20px;text-align:center}
-.empty-icon{font-size:40px;opacity:.4}
-.empty-text{font-size:14px;line-height:1.5}
+/* ── LAYOUT ── */
+#app { display: flex; flex-direction: column; height: 100vh; }
 
-/* MODAL */
-.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:flex-end;justify-content:center}
-.modal-ov.open{display:flex}
-.modal-box{background:var(--bg2);border-radius:16px 16px 0 0;width:100%;max-width:500px;padding:20px;border-top:1px solid var(--border)}
-.modal-box h3{font-size:16px;font-weight:600;margin-bottom:14px}
-.modal-inp{width:100%;height:48px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:0 14px;font-size:16px;color:var(--text);margin-bottom:14px}
-.modal-inp:focus{border-color:var(--accent)}
-.modal-btns{display:flex;gap:10px}
-.mbtn-cancel{flex:1;height:48px;border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);font-size:15px;font-weight:500;min-height:auto}
-.mbtn-ok{flex:1;height:48px;background:var(--accent2);border-radius:var(--radius);color:#fff;font-size:15px;font-weight:600;min-height:auto}
+/* ── HEADER ── */
+header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+  height: 52px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  flex-shrink: 0;
+  z-index: 10;
+}
 
-/* TOAST */
-#toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%) translateY(16px);background:rgba(26,26,30,.9);border-radius:8px;padding:9px 16px;font-size:13px;color:#fff;opacity:0;transition:all .22s;z-index:2000;white-space:nowrap;pointer-events:none}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.logo {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--gold2);
+  white-space: nowrap;
+}
+.logo span { color: var(--text2); font-weight: 400; }
 
-::-webkit-scrollbar{width:3px;height:3px}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+header .spacer { flex: 1; }
+
+.sync-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--text3);
+  flex-shrink: 0;
+  transition: background 0.3s;
+}
+.sync-dot.syncing { background: var(--yellow); animation: blink 0.7s infinite alternate; }
+.sync-dot.ok { background: var(--green); }
+.sync-dot.err { background: var(--red); }
+@keyframes blink { from { opacity: 1; } to { opacity: 0.3; } }
+
+.session-label {
+  font-size: 11px;
+  color: var(--text3);
+  font-family: 'DM Mono', monospace;
+  white-space: nowrap;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.session-label.active { color: var(--gold); }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 13px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.btn:hover { border-color: var(--gold); color: var(--gold); }
+.btn.primary { background: var(--gold-dim); border-color: var(--gold); color: var(--gold2); }
+.btn.primary:hover { background: rgba(201,168,76,0.25); }
+.btn.danger:hover { border-color: var(--red); color: var(--red); }
+.btn.small { padding: 4px 9px; font-size: 11px; }
+.btn.icon { padding: 5px 8px; }
+
+/* ── TABS ── */
+.tabs-bar {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+.tab-btn {
+  padding: 10px 18px;
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--text2); }
+.tab-btn.active { color: var(--gold2); border-bottom-color: var(--gold); }
+
+/* ── TAB CONTENT ── */
+.tab-content { display: none; flex: 1; overflow: hidden; }
+.tab-content.active { display: flex; flex-direction: column; }
+
+/* ── EDITOR TAB ── */
+#tab-editor {
+  flex-direction: row;
+  overflow: hidden;
+}
+
+.panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+}
+.panel:last-child { border-right: none; }
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  flex-shrink: 0;
+}
+
+.panel-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--gold-dim);
+  color: var(--gold);
+  flex-shrink: 0;
+}
+.panel-label.b { background: rgba(96,122,201,0.15); color: #8fa3e0; }
+
+.title-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  outline: none;
+  min-width: 0;
+}
+.title-input::placeholder { color: var(--text3); font-weight: 400; }
+
+.panel-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+}
+
+.line-numbers {
+  width: 40px;
+  flex-shrink: 0;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  font-family: 'JetBrains Mono', 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--text3);
+  text-align: right;
+  padding-right: 6px;
+  user-select: none;
+  line-height: 1.7;
+  overflow: hidden;
+  position: relative;
+}
+
+.line-numbers-inner {
+  position: absolute;
+  top: 12px;
+  right: 6px;
+  left: 0;
+  white-space: pre;
+}
+
+.marks-col {
+  width: 28px;
+  flex-shrink: 0;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.marks-col-inner {
+  position: absolute;
+  top: 12px;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mark-btn {
+  width: 28px;
+  height: calc(13px * 1.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--text3);
+  transition: all 0.1s;
+  flex-shrink: 0;
+  padding: 0;
+}
+.mark-btn:hover { color: var(--text); }
+.mark-btn.include { color: var(--green); }
+.mark-btn.exclude { color: var(--red); }
+
+.textarea-wrap {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.editor-textarea {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: 'JetBrains Mono', 'DM Mono', monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  outline: none;
+  resize: none;
+  padding: 12px;
+  white-space: pre;
+  overflow-wrap: normal;
+  letter-spacing: 0.01em;
+  overflow: auto;
+}
+
+.panel-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+  flex-shrink: 0;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text3);
+}
+.panel-footer .stat { color: var(--text2); }
+.panel-footer .spacer { flex: 1; }
+
+/* ── LIST VIEWS ── */
+.list-view {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.list-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  padding: 6px 12px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.search-input:focus { border-color: var(--gold); }
+.search-input::placeholder { color: var(--text3); }
+
+/* ── CARDS ── */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.card:hover { border-color: var(--border2); background: var(--bg3); }
+.card.active-session { border-color: var(--gold); background: var(--gold-dim2); }
+
+.card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.card-meta {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text3);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.card-meta .badge {
+  background: var(--gold-dim);
+  color: var(--gold);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+}
+.card-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+/* ── COMPOSE TAB ── */
+#tab-compose {
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.compose-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  flex-shrink: 0;
+}
+
+.compose-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.compose-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: all 0.1s;
+}
+.compose-row:hover { background: var(--bg3); border-color: var(--border); }
+
+.compose-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.compose-tag.a { background: var(--gold-dim); color: var(--gold); }
+.compose-tag.b { background: rgba(96,122,201,0.15); color: #8fa3e0; }
+.compose-tag.idx { color: var(--text3); font-family: 'DM Mono', monospace; font-size: 10px; }
+
+.compose-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--text);
+  flex: 1;
+}
+
+/* ── COMPOSITION EDITOR ── */
+.comp-editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.comp-editor-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  flex-shrink: 0;
+}
+.comp-title-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  outline: none;
+}
+.comp-title-input::placeholder { color: var(--text3); font-weight: 400; }
+.comp-textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: 'JetBrains Mono', 'DM Mono', monospace;
+  font-size: 13px;
+  line-height: 1.8;
+  outline: none;
+  resize: none;
+  padding: 20px;
+  letter-spacing: 0.01em;
+}
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text3);
+  font-size: 13px;
+}
+.empty-state .icon { font-size: 36px; margin-bottom: 12px; }
+.empty-state p { margin-top: 6px; line-height: 1.6; max-width: 300px; margin-inline: auto; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 28px;
+  min-width: 320px;
+  max-width: 420px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.modal h3 { font-size: 16px; font-weight: 700; color: var(--gold2); }
+.modal p { font-size: 13px; color: var(--text2); line-height: 1.5; }
+.modal-input {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  padding: 10px 14px;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+.modal-input:focus { border-color: var(--gold); }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ── MOBILE ── */
+@media (max-width: 680px) {
+  #tab-editor { flex-direction: column; }
+  .panel { border-right: none; border-bottom: 1px solid var(--border); }
+  .panel:last-child { border-bottom: none; }
+  .tab-btn { padding: 10px 12px; font-size: 11px; }
+}
 </style>
 </head>
 <body>
 <div id="app">
-  <header id="header">
-    <div id="logo">Lyric<span>Studio</span></div>
-    <div id="ver">v3.0</div>
-    <div id="hdr-right">
-      <button id="btn-save-session">💾 Sessione</button>
-      <div id="sync-dot"></div>
-    </div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">Lyric<span>Composer</span></div>
+    <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);font-weight:400;letter-spacing:0.5px;">v1.1</span>
+    <div class="session-label" id="session-label">nessuna sessione</div>
+    <div class="spacer"></div>
+    <div class="sync-dot" id="sync-dot" title="Sync status"></div>
+    <button class="theme-toggle" id="btn-theme" title="Cambia tema">☀️ Chiaro</button>
+    <button class="btn primary" id="btn-save-session">💾 Sessione</button>
   </header>
-  <nav id="nav">
-    <button class="ntab active" data-tab="editor"><span class="ti">✏️</span>Editor</button>
-    <button class="ntab" data-tab="sessions"><span class="ti">🗂️</span>Sessioni</button>
-    <button class="ntab" data-tab="compose"><span class="ti">🎵</span>Componi</button>
-    <button class="ntab" data-tab="library"><span class="ti">📚</span>Libreria</button>
-    <button class="ntab" data-tab="comps"><span class="ti">📝</span>Composizioni</button>
-  </nav>
-  <div id="content">
 
-    <!-- EDITOR -->
-    <div class="page active" id="editor-page">
-      <div class="panel panel-a">
-        <div class="panel-hdr">
-          <span class="plabel la">A</span>
-          <input class="ptitle" id="title-a" placeholder="Titolo canzone A…" autocomplete="off" spellcheck="false">
-          <button class="pbtn" id="save-a">💾</button>
-        </div>
-        <div class="panel-body">
-          <div class="lcol"><div class="lcol-inner" id="lnum-a"></div></div>
-          <div class="mcol"><div class="mcol-inner" id="mark-a"></div></div>
-          <div class="tawrap"><textarea class="lyta" id="ta-a" placeholder="Incolla il testo originale…" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea></div>
-        </div>
-        <div class="panel-ftr">
-          <span class="fstat" id="stat-a">0 righe · 0 parole</span>
-          <span class="fmarks" id="mstat-a">✓ 0</span>
-        </div>
-      </div>
-      <div class="panel panel-b">
-        <div class="panel-hdr">
-          <span class="plabel lb">B</span>
-          <input class="ptitle" id="title-b" placeholder="Titolo canzone B…" autocomplete="off" spellcheck="false">
-          <button class="pbtn" id="save-b">💾</button>
-        </div>
-        <div class="panel-body">
-          <div class="lcol"><div class="lcol-inner" id="lnum-b"></div></div>
-          <div class="mcol"><div class="mcol-inner" id="mark-b"></div></div>
-          <div class="tawrap"><textarea class="lyta" id="ta-b" placeholder="Incolla la traduzione…" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea></div>
-        </div>
-        <div class="panel-ftr">
-          <span class="fstat" id="stat-b">0 righe · 0 parole</span>
-          <span class="fmarks" id="mstat-b">✓ 0</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- SESSIONI -->
-    <div class="page" id="sessions-page">
-      <div class="shdr">
-        <h2>Sessioni salvate</h2>
-        <button class="btn-primary" id="btn-new-session">＋ Nuova</button>
-      </div>
-      <div id="sessions-list"></div>
-    </div>
-
-    <!-- COMPONI -->
-    <div class="page" id="compose-page">
-      <div class="compose-toolbar">
-        <h2>Composizione finale</h2>
-        <button class="btn-sm" id="btn-copy-compose">📋 Copia</button>
-        <button class="btn-sm" id="btn-save-compose">💾 Salva</button>
-      </div>
-      <div class="compose-list" id="compose-lines">
-        <div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">Segna righe con ✓ nell'editor</div></div>
-      </div>
-    </div>
-
-    <!-- LIBRERIA -->
-    <div class="page" id="library-page">
-      <div class="lsearch">
-        <div class="lsearch-inner">
-          <span>🔍</span>
-          <input type="search" id="lib-search" placeholder="Cerca canzoni…" autocomplete="off">
-        </div>
-      </div>
-      <div id="lib-list"></div>
-    </div>
-
-    <!-- COMPOSIZIONI -->
-    <div class="page" id="comps-page">
-      <div id="comps-list-view"></div>
-      <div id="comps-editor-view">
-        <div class="comps-toolbar">
-          <button class="comps-back" id="comps-back">←</button>
-          <input class="comps-title-inp" id="comps-title" placeholder="Titolo…" autocomplete="off" spellcheck="false">
-          <button class="comps-copy-btn" id="comps-copy">📋</button>
-          <button class="comps-save-btn" id="comps-save">Salva</button>
-        </div>
-        <textarea class="comps-ta" id="comps-ta" placeholder="Testo composizione…" spellcheck="false"></textarea>
-      </div>
-    </div>
-
+  <!-- TABS -->
+  <div class="tabs-bar">
+    <button class="tab-btn active" data-tab="editor">Editor</button>
+    <button class="tab-btn" data-tab="sessions">Sessioni</button>
+    <button class="tab-btn" data-tab="compose">Componi</button>
+    <button class="tab-btn" data-tab="library">Libreria</button>
+    <button class="tab-btn" data-tab="compositions">Composizioni</button>
   </div>
+
+  <!-- TAB: EDITOR -->
+  <div class="tab-content active" id="tab-editor">
+    <!-- PANEL A -->
+    <div class="panel" id="panel-a">
+      <div class="panel-header">
+        <span class="panel-label">A</span>
+        <input class="title-input" id="title-a" placeholder="Titolo canzone A…">
+        <button class="btn icon small" id="save-a" title="Salva canzone A">💾</button>
+      </div>
+      <div class="panel-body">
+        <div class="line-numbers" id="ln-a"><div class="line-numbers-inner" id="ln-a-inner"></div></div>
+        <div class="marks-col" id="marks-a"><div class="marks-col-inner" id="marks-a-inner"></div></div>
+        <div class="textarea-wrap" id="wrap-a">
+          <textarea class="editor-textarea" id="text-a" placeholder="Testo canzone A…" spellcheck="false"></textarea>
+        </div>
+      </div>
+      <div class="panel-footer">
+        <span>Righe: <span class="stat" id="stat-a-lines">0</span></span>
+        <span>Parole: <span class="stat" id="stat-a-words">0</span></span>
+        <span>✓ <span class="stat" id="stat-a-marks">0</span></span>
+      </div>
+    </div>
+    <!-- PANEL B -->
+    <div class="panel" id="panel-b">
+      <div class="panel-header">
+        <span class="panel-label b">B</span>
+        <input class="title-input" id="title-b" placeholder="Titolo canzone B…">
+        <button class="btn icon small" id="save-b" title="Salva canzone B">💾</button>
+      </div>
+      <div class="panel-body">
+        <div class="line-numbers" id="ln-b"><div class="line-numbers-inner" id="ln-b-inner"></div></div>
+        <div class="marks-col" id="marks-b"><div class="marks-col-inner" id="marks-b-inner"></div></div>
+        <div class="textarea-wrap" id="wrap-b">
+          <textarea class="editor-textarea" id="text-b" placeholder="Testo canzone B…" spellcheck="false"></textarea>
+        </div>
+      </div>
+      <div class="panel-footer">
+        <span>Righe: <span class="stat" id="stat-b-lines">0</span></span>
+        <span>Parole: <span class="stat" id="stat-b-words">0</span></span>
+        <span>✓ <span class="stat" id="stat-b-marks">0</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: SESSIONS -->
+  <div class="tab-content" id="tab-sessions">
+    <div class="list-header">
+      <span style="font-weight:700;font-size:13px;">Sessioni salvate</span>
+      <div class="spacer"></div>
+      <button class="btn" id="btn-new-session">+ Nuova sessione</button>
+    </div>
+    <div class="list-view" id="sessions-list"></div>
+  </div>
+
+  <!-- TAB: COMPOSE -->
+  <div class="tab-content" id="tab-compose">
+    <div class="compose-toolbar">
+      <span style="font-weight:700;font-size:13px;color:var(--text2);">Righe selezionate</span>
+      <div class="spacer"></div>
+      <button class="btn small" id="btn-copy-compose">📋 Copia</button>
+      <button class="btn small primary" id="btn-save-composition">💾 Salva composizione</button>
+    </div>
+    <div class="compose-list" id="compose-list"></div>
+  </div>
+
+  <!-- TAB: LIBRARY -->
+  <div class="tab-content" id="tab-library">
+    <div class="list-header">
+      <input class="search-input" id="library-search" placeholder="Cerca per titolo o testo…">
+    </div>
+    <div class="list-view" id="library-list"></div>
+  </div>
+
+  <!-- TAB: COMPOSITIONS -->
+  <div class="tab-content" id="tab-compositions">
+    <div class="list-header" id="comp-list-header">
+      <span style="font-weight:700;font-size:13px;">Composizioni</span>
+    </div>
+    <div class="list-view" id="compositions-list"></div>
+    <!-- inline editor -->
+    <div class="comp-editor" id="comp-editor" style="display:none;">
+      <div class="comp-editor-header">
+        <button class="btn small" id="btn-comp-back">← Lista</button>
+        <input class="comp-title-input" id="comp-title" placeholder="Titolo composizione…">
+        <button class="btn small primary" id="btn-comp-save">💾 Salva</button>
+        <button class="btn small" id="btn-comp-copy">📋 Copia</button>
+        <button class="btn small danger" id="btn-comp-delete">🗑</button>
+      </div>
+      <textarea class="comp-textarea" id="comp-textarea" spellcheck="false"></textarea>
+    </div>
+  </div>
+
 </div>
 
 <!-- MODAL -->
-<div class="modal-ov" id="modal">
-  <div class="modal-box">
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
     <h3 id="modal-title">Nome</h3>
-    <input class="modal-inp" id="modal-inp" autocomplete="off">
-    <div class="modal-btns">
-      <button class="mbtn-cancel" id="modal-cancel">Annulla</button>
-      <button class="mbtn-ok" id="modal-ok">OK</button>
+    <p id="modal-desc"></p>
+    <input class="modal-input" id="modal-input" placeholder="">
+    <div class="modal-actions">
+      <button class="btn" id="modal-cancel">Annulla</button>
+      <button class="btn primary" id="modal-confirm">Conferma</button>
     </div>
   </div>
 </div>
-<div id="toast"></div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirm-overlay">
+  <div class="modal">
+    <h3 id="confirm-title">Conferma</h3>
+    <p id="confirm-desc"></p>
+    <div class="modal-actions">
+      <button class="btn" id="confirm-cancel">Annulla</button>
+      <button class="btn danger" id="confirm-ok">Elimina</button>
+    </div>
+  </div>
+</div>
 
 <script>
-'use strict';
+// ══════════════════════════════════════════
+//  SUPABASE
+// ══════════════════════════════════════════
+const SUPA_URL = 'https://egffyuvtmvcgwuzhvsdx.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVnZmZ5dXZ0bXZjZ3d1emh2c2R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNDgyOTMsImV4cCI6MjA5MTkyNDI5M30.3O64a0fjLzYMq7nSEIPYI685alVZyAB07Qp7RM-np7Q';
+const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 
-const SB = supabase.createClient(
-  'https://egffyuvtmvcgwuzhvsdx.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVnZmZ5dXZ0bXZjZ3d1emh2c2R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNDgyOTMsImV4cCI6MjA5MTkyNDI5M30.3O64a0fjLzYMq7nSEIPYI685alVZyAB07Qp7RM-np7Q'
-);
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+let songs = {};        // { id: { id, title, text, marks, ts } }
+let sessions = {};     // { id: { id, name, song_a, song_b, title_a, title_b, text_a, text_b, marks_a, marks_b, ts } }
+let compositions = {}; // { id: { id, title, text, ts } }
 
-// Chiavi localStorage — nuove per evitare conflitti con versioni precedenti
-const K_SONGS    = 'lys3_songs';
-const K_SESSIONS = 'lys3_sessions';
-const K_COMPS    = 'lys3_comps';
-
-function lsGet(k) { try { return JSON.parse(localStorage.getItem(k)||'[]'); } catch { return []; } }
-function lsSet(k,v) { localStorage.setItem(k, JSON.stringify(v)); }
-
-// Stato globale
-const S = {
-  a: { id:null, title:'', text:'', marks:{} },
-  b: { id:null, title:'', text:'', marks:{} },
-  songs:    [],
-  sessions: [],
-  comps:    [],
-  sessionId: null,
-  compId:    null,
+let editorState = {
+  songIdA: null, songIdB: null,
+  marksA: [], marksB: [],
 };
+let sessionId = null;
+let sessionName = null;
 
-// Utils
-function uid()  { return Date.now().toString(36)+Math.random().toString(36).slice(2); }
-function now()  { return Date.now(); }
-function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function fmt(t) { return t ? new Date(t).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'2-digit'}) : '—'; }
+// ══════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════
+const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
+const now = () => Date.now();
+const $  = id => document.getElementById(id);
+const qs = (sel, ctx = document) => ctx.querySelector(sel);
 
-let _tt;
-function toast(m,d=2200) {
-  const el=document.getElementById('toast');
-  el.textContent=m; el.classList.add('show');
-  clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('show'),d);
-}
-function dot(s) {
-  const d=document.getElementById('sync-dot');
-  d.className=s==='syncing'?'syncing':s==='ok'?'ok':s==='err'?'err':'';
+function setSyncStatus(s) {
+  const dot = $('sync-dot');
+  dot.className = 'sync-dot' + (s ? ' ' + s : '');
 }
 
-// Modal promise-based
-function askName(title, ph='', def='') {
-  return new Promise(res => {
-    const ov=document.getElementById('modal');
-    const inp=document.getElementById('modal-inp');
-    const ok=document.getElementById('modal-ok');
-    const ca=document.getElementById('modal-cancel');
-    document.getElementById('modal-title').textContent=title;
-    inp.placeholder=ph; inp.value=def;
-    ov.classList.add('open');
-    setTimeout(()=>inp.focus(),80);
-    function done(v){ ov.classList.remove('open'); ok.removeEventListener('click',onOk); ca.removeEventListener('click',onCa); inp.removeEventListener('keydown',onKey); res(v); }
-    function onOk()  { done(inp.value.trim()||null); }
-    function onCa()  { done(null); }
-    function onKey(e){ if(e.key==='Enter')onOk(); if(e.key==='Escape')onCa(); }
-    ok.addEventListener('click',onOk);
-    ca.addEventListener('click',onCa);
-    inp.addEventListener('keydown',onKey);
-  });
+// ══════════════════════════════════════════
+//  LOCALSTORAGE
+// ══════════════════════════════════════════
+function lsLoad() {
+  try { songs        = JSON.parse(localStorage.getItem('lc_songs')   || '{}'); } catch { songs = {}; }
+  try { sessions     = JSON.parse(localStorage.getItem('lc_sessions') || '{}'); } catch { sessions = {}; }
+  try { compositions = JSON.parse(localStorage.getItem('lc_comps')   || '{}'); } catch { compositions = {}; }
+}
+function lsSave() {
+  localStorage.setItem('lc_songs',    JSON.stringify(songs));
+  localStorage.setItem('lc_sessions', JSON.stringify(sessions));
+  localStorage.setItem('lc_comps',    JSON.stringify(compositions));
 }
 
-// Supabase ops
-async function sbPush(table, row)  { try { await SB.from(table).upsert(row); } catch {} }
-async function sbDel(table, id)    { try { await SB.from(table).delete().eq('id',id); } catch {} }
-async function sbPull(table)       { try { const {data}=await SB.from(table).select('*'); return data||[]; } catch { return []; } }
-
-function mergeById(local, remote) {
-  const m={};
-  for(const r of local)  m[r.id]=r;
-  for(const r of remote) { if(!m[r.id]||r.ts>m[r.id].ts) m[r.id]=r; }
-  return Object.values(m);
-}
-
-// Sync iniziale
-async function syncAll() {
-  dot('syncing');
+// ══════════════════════════════════════════
+//  SUPABASE SYNC
+// ══════════════════════════════════════════
+async function syncPull() {
+  setSyncStatus('syncing');
   try {
-    const [rSongs,rSessions] = await Promise.all([sbPull('songs'),sbPull('sessions')]);
-    S.songs    = mergeById(lsGet(K_SONGS), rSongs).filter(s=>s.title&&s.text);
-    S.sessions = mergeById(lsGet(K_SESSIONS), rSessions);
-    S.comps    = lsGet(K_COMPS);
-    lsSet(K_SONGS, S.songs);
-    lsSet(K_SESSIONS, S.sessions);
-    dot('ok');
-  } catch {
-    S.songs    = lsGet(K_SONGS).filter(s=>s.title&&s.text);
-    S.sessions = lsGet(K_SESSIONS);
-    S.comps    = lsGet(K_COMPS);
-    dot('err');
+    const [{ data: s }, { data: se }, { data: c }] = await Promise.all([
+      supa.from('songs').select('*'),
+      supa.from('sessions').select('*'),
+      supa.from('compositions').select('*'),
+    ]);
+    (s || []).forEach(r => { if (!songs[r.id] || songs[r.id].ts < r.ts) songs[r.id] = r; });
+    (se || []).forEach(r => { if (!sessions[r.id] || sessions[r.id].ts < r.ts) sessions[r.id] = r; });
+    (c || []).forEach(r => { if (!compositions[r.id] || compositions[r.id].ts < r.ts) compositions[r.id] = r; });
+    lsSave();
+    setSyncStatus('ok');
+    setTimeout(() => setSyncStatus(''), 2000);
+  } catch(e) {
+    console.warn('Sync pull error', e);
+    setSyncStatus('err');
+    setTimeout(() => setSyncStatus(''), 3000);
   }
 }
 
-// ── EDITOR ──────────────────────────────────────────────────────────────────
-
-function buildPanel(w) {
-  const ta   = document.getElementById(`ta-${w}`);
-  const lnEl = document.getElementById(`lnum-${w}`);
-  const mkEl = document.getElementById(`mark-${w}`);
-  const p    = S[w];
-  const lines = ta.value==='' ? [] : ta.value.split('\n');
-  const n = lines.length;
-
-  let lh='', mh='';
-  for(let i=0;i<n;i++){
-    lh += `<div class="lnum">${i+1}</div>`;
-    const s = p.marks[i]??0;
-    mh += `<div class="mbtn" data-s="${s}" data-i="${i}" data-w="${w}">${s===1?'✓':s===2?'✕':'·'}</div>`;
-  }
-  lnEl.innerHTML=lh;
-  mkEl.innerHTML=mh;
-
-  const words  = ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0;
-  const marked = Object.values(p.marks).filter(v=>v===1).length;
-  document.getElementById(`stat-${w}`).textContent  = `${n} righe · ${words} parole`;
-  document.getElementById(`mstat-${w}`).textContent = `✓ ${marked}`;
+async function pushSong(song) {
+  try { await supa.from('songs').upsert(song); } catch(e) { console.warn(e); }
+}
+async function pushSession(sess) {
+  try { await supa.from('sessions').upsert(sess); } catch(e) { console.warn(e); }
+}
+async function pushComposition(comp) {
+  try { await supa.from('compositions').upsert(comp); } catch(e) { console.warn(e); }
+}
+async function deleteSong(id) {
+  try { await supa.from('songs').delete().eq('id', id); } catch(e) { console.warn(e); }
+}
+async function deleteSession(id) {
+  try { await supa.from('sessions').delete().eq('id', id); } catch(e) { console.warn(e); }
+}
+async function deleteComposition(id) {
+  try { await supa.from('compositions').delete().eq('id', id); } catch(e) { console.warn(e); }
 }
 
-function syncScroll(ta, w) {
-  const st=ta.scrollTop;
-  document.getElementById(`lnum-${w}`).style.transform=`translateY(-${st}px)`;
-  document.getElementById(`mark-${w}`).style.transform=`translateY(-${st}px)`;
-}
-
-let _lkA=false,_lkB=false;
-function setupScrollSync() {
-  const tA=document.getElementById('ta-a'), tB=document.getElementById('ta-b');
-  tA.addEventListener('scroll',()=>{
-    syncScroll(tA,'a');
-    if(_lkA)return;
-    const mA=tA.scrollHeight-tA.clientHeight, r=mA>0?tA.scrollTop/mA:0;
-    _lkB=true; tB.scrollTop=r*(tB.scrollHeight-tB.clientHeight); syncScroll(tB,'b');
-    setTimeout(()=>_lkB=false,50);
+// ══════════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════════
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    $('tab-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'sessions') renderSessions();
+    if (btn.dataset.tab === 'compose') renderCompose();
+    if (btn.dataset.tab === 'library') renderLibrary();
+    if (btn.dataset.tab === 'compositions') { showCompList(); renderCompositions(); }
   });
-  tB.addEventListener('scroll',()=>{
-    syncScroll(tB,'b');
-    if(_lkB)return;
-    const mB=tB.scrollHeight-tB.clientHeight, r=mB>0?tB.scrollTop/mB:0;
-    _lkA=true; tA.scrollTop=r*(tA.scrollHeight-tA.clientHeight); syncScroll(tA,'a');
-    setTimeout(()=>_lkA=false,50);
-  });
-}
-
-// Click spunta/croce
-document.addEventListener('click', e=>{
-  const btn=e.target.closest('.mbtn');
-  if(!btn)return;
-  const w=btn.dataset.w, i=parseInt(btn.dataset.i), p=S[w];
-  const next=(( p.marks[i]??0 )+1)%3;
-  p.marks[i]=next;
-  btn.dataset.s=next;
-  btn.textContent=next===1?'✓':next===2?'✕':'·';
-  document.getElementById(`mstat-${w}`).textContent=`✓ ${Object.values(p.marks).filter(v=>v===1).length}`;
-  scheduleSave(w);
-  if(document.getElementById('compose-page').classList.contains('active')) renderCompose();
 });
 
-let _dA,_dB;
-function scheduleSave(w) {
-  if(w==='a'){ clearTimeout(_dA); _dA=setTimeout(()=>{ if(S.a.title&&S.a.text) _saveSong('a'); },1200); }
-  else       { clearTimeout(_dB); _dB=setTimeout(()=>{ if(S.b.title&&S.b.text) _saveSong('b'); },1200); }
+// ══════════════════════════════════════════
+//  EDITOR — LINE NUMBERS & MARKS
+// ══════════════════════════════════════════
+function getLines(which) {
+  return $(which === 'a' ? 'text-a' : 'text-b').value.split('\n');
 }
 
-async function _saveSong(w) {
-  const p=S[w];
-  if(!p.id) p.id=uid();
-  p.ts=now();
-  const row={ id:p.id, title:p.title, text:p.text, marks:{...p.marks}, ts:p.ts };
-  const idx=S.songs.findIndex(s=>s.id===p.id);
-  if(idx>=0) S.songs[idx]=row; else S.songs.push(row);
-  lsSet(K_SONGS,S.songs);
-  dot('syncing');
-  await sbPush('songs',row);
-  dot('ok');
-}
+function renderLineUI(which) {
+  const lines = getLines(which);
+  const marks = which === 'a' ? editorState.marksA : editorState.marksB;
+  const lnInner = $('ln-' + which + '-inner');
+  const mkInner = $('marks-' + which + '-inner');
 
-function setupTextarea(w) {
-  const ta =document.getElementById(`ta-${w}`);
-  const tit=document.getElementById(`title-${w}`);
-  const p  =S[w];
-  ta.addEventListener('input',()=>{
-    p.text=ta.value; p.marks={};
-    buildPanel(w); scheduleSave(w);
-    if(document.getElementById('compose-page').classList.contains('active')) renderCompose();
+  // Ensure marks array length matches lines
+  while (marks.length < lines.length) marks.push(0);
+  if (marks.length > lines.length) marks.length = lines.length;
+
+  const LH = 13 * 1.7; // px per line — must match .editor-textarea font-size * line-height
+  lnInner.innerHTML = lines.map((_,i) =>
+    `<div style="height:${LH}px;line-height:${LH}px;text-align:right;padding-right:6px;">${i+1}</div>`
+  ).join('');
+
+  mkInner.innerHTML = '';
+  lines.forEach((_, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'mark-btn' + (marks[i] === 1 ? ' include' : marks[i] === -1 ? ' exclude' : '');
+    btn.textContent = marks[i] === 1 ? '✓' : marks[i] === -1 ? '✕' : '·';
+    btn.style.height = LH + 'px';
+    btn.title = 'Cicla stato riga ' + (i+1);
+    btn.addEventListener('click', () => cycleMarkBtn(which, i));
+    mkInner.appendChild(btn);
   });
-  tit.addEventListener('input',()=>{ p.title=tit.value; scheduleSave(w); });
-  document.getElementById(`save-${w}`).addEventListener('click', async ()=>{
-    if(!p.title||!p.text){ toast('Inserisci titolo e testo'); return; }
-    await _saveSong(w);
-    renderLibrary();
-    toast(`Canzone ${w.toUpperCase()} salvata ✓`);
+
+  updateStats(which);
+}
+
+function cycleMarkBtn(which, idx) {
+  const marks = which === 'a' ? editorState.marksA : editorState.marksB;
+  marks[idx] = marks[idx] === 0 ? 1 : marks[idx] === 1 ? -1 : 0;
+  renderLineUI(which);
+  debouncedAutoSave();
+}
+
+function updateStats(which) {
+  const text  = $(which === 'a' ? 'text-a' : 'text-b').value;
+  const marks = which === 'a' ? editorState.marksA : editorState.marksB;
+  const lines = text ? text.split('\n') : [];
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const marked = marks.filter(m => m === 1).length;
+  $(`stat-${which}-lines`).textContent = lines.length || 0;
+  $(`stat-${which}-words`).textContent = words;
+  $(`stat-${which}-marks`).textContent = marked;
+}
+
+// ══════════════════════════════════════════
+//  SCROLL SYNC
+// ══════════════════════════════════════════
+let syncingScroll = false;
+
+function syncSideColumns(which, scrollTop) {
+  $('ln-' + which + '-inner').style.transform = `translateY(-${scrollTop}px)`;
+  $('marks-' + which + '-inner').style.transform = `translateY(-${scrollTop}px)`;
+}
+
+function setupScrollSync() {
+  const tA = $('text-a'), tB = $('text-b');
+
+  tA.addEventListener('scroll', () => {
+    syncSideColumns('a', tA.scrollTop);
+    if (syncingScroll) return;
+    syncingScroll = true;
+    tB.scrollTop = tA.scrollTop;
+    syncSideColumns('b', tA.scrollTop);
+    syncingScroll = false;
+  });
+
+  tB.addEventListener('scroll', () => {
+    syncSideColumns('b', tB.scrollTop);
+    if (syncingScroll) return;
+    syncingScroll = true;
+    tA.scrollTop = tB.scrollTop;
+    syncSideColumns('a', tB.scrollTop);
+    syncingScroll = false;
   });
 }
 
-function loadSong(song, w) {
-  const p=S[w];
-  p.id=song.id; p.title=song.title||''; p.text=song.text||''; p.marks={...(song.marks||{})};
-  document.getElementById(`ta-${w}`).value=p.text;
-  document.getElementById(`title-${w}`).value=p.title;
-  buildPanel(w);
-  toast(`Caricato in ${w.toUpperCase()}`);
-  switchTab('editor');
+// ══════════════════════════════════════════
+//  TEXTAREA → update UI
+// ══════════════════════════════════════════
+$('text-a').addEventListener('input', () => { editorState.marksA = []; renderLineUI('a'); debouncedAutoSave(); });
+$('text-b').addEventListener('input', () => { editorState.marksB = []; renderLineUI('b'); debouncedAutoSave(); });
+$('title-a').addEventListener('input', debouncedAutoSave);
+$('title-b').addEventListener('input', debouncedAutoSave);
+
+// ══════════════════════════════════════════
+//  AUTO SAVE (debounce 1.5s)
+// ══════════════════════════════════════════
+let autoSaveTimer = null;
+function debouncedAutoSave() {
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(autoSave, 1500);
 }
 
-// ── SESSIONI ────────────────────────────────────────────────────────────────
+function autoSave() {
+  const tA = $('title-a').value.trim(), txA = $('text-a').value.trim();
+  const tB = $('title-b').value.trim(), txB = $('text-b').value.trim();
+  if (tA && txA) saveSong('a', false);
+  if (tB && txB) saveSong('b', false);
+}
+
+// ══════════════════════════════════════════
+//  SAVE SONG
+// ══════════════════════════════════════════
+function saveSong(which, notify = true) {
+  const titleEl = $(which === 'a' ? 'title-a' : 'title-b');
+  const textEl  = $(which === 'a' ? 'text-a'  : 'text-b');
+  const marks   = which === 'a' ? editorState.marksA : editorState.marksB;
+  const title = titleEl.value.trim();
+  const text  = textEl.value.trim();
+  if (!title || !text) { if (notify) alert('Titolo e testo richiesti'); return null; }
+
+  const existingId = which === 'a' ? editorState.songIdA : editorState.songIdB;
+  const id = existingId || uid();
+  const song = { id, title, text, marks: [...marks], ts: now() };
+  songs[id] = song;
+  if (which === 'a') editorState.songIdA = id;
+  else editorState.songIdB = id;
+  lsSave();
+  setSyncStatus('syncing');
+  pushSong(song).then(() => { setSyncStatus('ok'); setTimeout(() => setSyncStatus(''), 2000); });
+  if (notify) flashBtn(which === 'a' ? 'save-a' : 'save-b');
+  return id;
+}
+
+function flashBtn(id) {
+  const btn = $(id);
+  btn.style.color = 'var(--green)';
+  setTimeout(() => btn.style.color = '', 800);
+}
+
+$('save-a').addEventListener('click', () => saveSong('a', true));
+$('save-b').addEventListener('click', () => saveSong('b', true));
+
+// ══════════════════════════════════════════
+//  SESSIONS
+// ══════════════════════════════════════════
+$('btn-save-session').addEventListener('click', () => {
+  if (sessionId) {
+    doSaveSession(sessionId, sessionName);
+  } else {
+    openModal('Nome sessione', 'Inserisci un nome per questa sessione:', '', name => {
+      if (!name) return;
+      const id = uid();
+      sessionId = id;
+      sessionName = name;
+      doSaveSession(id, name);
+    });
+  }
+});
+
+function doSaveSession(id, name) {
+  // Also save songs
+  const idA = saveSong('a', false) || editorState.songIdA;
+  const idB = saveSong('b', false) || editorState.songIdB;
+
+  const sess = {
+    id, name,
+    song_a: idA, song_b: idB,
+    title_a: $('title-a').value.trim(),
+    title_b: $('title-b').value.trim(),
+    text_a:  $('text-a').value,
+    text_b:  $('text-b').value,
+    marks_a: [...editorState.marksA],
+    marks_b: [...editorState.marksB],
+    ts: now(),
+  };
+  sessions[id] = sess;
+  lsSave();
+  updateSessionLabel();
+  setSyncStatus('syncing');
+  pushSession(sess).then(() => { setSyncStatus('ok'); setTimeout(() => setSyncStatus(''), 2000); });
+  flashBtn('btn-save-session');
+}
+
+$('btn-new-session').addEventListener('click', () => {
+  sessionId = null; sessionName = null;
+  updateSessionLabel();
+  openModal('Nuova sessione', 'Inserisci un nome per la nuova sessione:', '', name => {
+    if (!name) return;
+    const id = uid();
+    sessionId = id;
+    sessionName = name;
+    doSaveSession(id, name);
+    renderSessions();
+  });
+});
+
+function updateSessionLabel() {
+  const el = $('session-label');
+  if (sessionId && sessionName) {
+    el.textContent = sessionName;
+    el.className = 'session-label active';
+  } else {
+    el.textContent = 'nessuna sessione';
+    el.className = 'session-label';
+  }
+}
+
+function loadSession(sess) {
+  sessionId = sess.id;
+  sessionName = sess.name;
+  editorState.songIdA = sess.song_a || null;
+  editorState.songIdB = sess.song_b || null;
+  $('title-a').value = sess.title_a || '';
+  $('title-b').value = sess.title_b || '';
+  $('text-a').value  = sess.text_a || '';
+  $('text-b').value  = sess.text_b || '';
+  editorState.marksA = Array.isArray(sess.marks_a) ? [...sess.marks_a] : [];
+  editorState.marksB = Array.isArray(sess.marks_b) ? [...sess.marks_b] : [];
+  renderLineUI('a');
+  renderLineUI('b');
+  updateSessionLabel();
+  // Switch to editor
+  document.querySelector('[data-tab="editor"]').click();
+}
 
 function renderSessions() {
-  const el=document.getElementById('sessions-list');
-  if(!S.sessions.length){
-    el.innerHTML='<div class="empty"><div class="empty-icon">🗂️</div><div class="empty-text">Nessuna sessione</div></div>';
-    return;
-  }
-  el.innerHTML=[...S.sessions].sort((a,b)=>b.ts-a.ts).map(s=>{
-    const mA=Object.values(s.marks_a||{}).filter(v=>v===1).length;
-    const mB=Object.values(s.marks_b||{}).filter(v=>v===1).length;
-    return `<div class="scard" data-sid="${s.id}">
-      <div class="scard-top"><span class="scard-name">${esc(s.name)}</span><button class="scard-del" data-del-s="${s.id}">🗑️</button></div>
-      <div class="stags"><span class="stag stag-a">A: ${esc(s.title_a||'—')}</span><span class="stag stag-b">B: ${esc(s.title_b||'—')}</span></div>
-      <div class="smeta">${fmt(s.ts)} · ✓ A:${mA} B:${mB}</div>
-    </div>`;
-  }).join('');
-}
-
-async function _saveSession(name) {
-  await _saveSong('a');
-  await _saveSong('b');
-  const id=S.sessionId||uid();
-  S.sessionId=id;
-  const row={
-    id, name,
-    song_a:S.a.id,   song_b:S.b.id,
-    title_a:S.a.title, title_b:S.b.title,
-    text_a:S.a.text,  text_b:S.b.text,
-    marks_a:{...S.a.marks}, marks_b:{...S.b.marks},
-    ts:now()
-  };
-  const idx=S.sessions.findIndex(s=>s.id===id);
-  if(idx>=0) S.sessions[idx]=row; else S.sessions.push(row);
-  lsSet(K_SESSIONS,S.sessions);
-  renderSessions();
-  dot('syncing');
-  await sbPush('sessions',{id,name,song_a:row.song_a,song_b:row.song_b,marks_a:row.marks_a,marks_b:row.marks_b,ts:row.ts});
-  dot('ok');
-  toast('Sessione salvata ✓');
-}
-
-document.getElementById('btn-save-session').addEventListener('click', async ()=>{
-  if(S.sessionId){
-    const cur=S.sessions.find(s=>s.id===S.sessionId);
-    await _saveSession(cur?cur.name:'Sessione');
-  } else {
-    const name=await askName('Nome sessione','Es. Fuoco Lento…');
-    if(!name)return;
-    await _saveSession(name);
-  }
-});
-
-document.getElementById('btn-new-session').addEventListener('click', async ()=>{
-  const name=await askName('Nome sessione','Es. Fuoco Lento…');
-  if(!name)return;
-  S.sessionId=null;
-  await _saveSession(name);
-});
-
-document.getElementById('sessions-list').addEventListener('click', async e=>{
-  const del=e.target.closest('[data-del-s]');
-  if(del){
-    e.stopPropagation();
-    if(!window.confirm('Eliminare questa sessione?'))return;
-    const id=del.dataset.delS;
-    S.sessions=S.sessions.filter(s=>s.id!==id);
-    lsSet(K_SESSIONS,S.sessions);
-    if(S.sessionId===id)S.sessionId=null;
-    renderSessions();
-    sbDel('sessions',id);
-    return;
-  }
-  const card=e.target.closest('.scard');
-  if(!card)return;
-  const s=S.sessions.find(x=>x.id===card.dataset.sid);
-  if(!s)return;
-  S.sessionId=s.id;
-  const sA=S.songs.find(x=>x.id===s.song_a);
-  const sB=S.songs.find(x=>x.id===s.song_b);
-  S.a={id:s.song_a, title:s.title_a||(sA?.title||''), text:s.text_a||(sA?.text||''), marks:{...s.marks_a}};
-  S.b={id:s.song_b, title:s.title_b||(sB?.title||''), text:s.text_b||(sB?.text||''), marks:{...s.marks_b}};
-  document.getElementById('ta-a').value=S.a.text;
-  document.getElementById('title-a').value=S.a.title;
-  document.getElementById('ta-b').value=S.b.text;
-  document.getElementById('title-b').value=S.b.title;
-  buildPanel('a'); buildPanel('b');
-  toast('Sessione caricata');
-  switchTab('editor');
-});
-
-// ── COMPONI ──────────────────────────────────────────────────────────────────
-
-function getMarked() {
-  const lA=S.a.text.split('\n'), lB=S.b.text.split('\n'), items=[];
-  Object.entries(S.a.marks).forEach(([i,v])=>{ if(v===1)items.push({i:+i,w:'a',txt:lA[+i]||''}); });
-  Object.entries(S.b.marks).forEach(([i,v])=>{ if(v===1)items.push({i:+i,w:'b',txt:lB[+i]||''}); });
-  return items.sort((a,b)=>a.i-b.i||(a.w<b.w?-1:1));
-}
-
-function renderCompose() {
-  const el=document.getElementById('compose-lines');
-  const items=getMarked();
-  if(!items.length){
-    el.innerHTML='<div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">Segna righe con ✓ nell\'editor</div></div>';
-    return;
-  }
-  el.innerHTML=items.map(it=>`<div class="cline"><span class="ctag ctag-${it.w}">${it.w.toUpperCase()}</span><span class="ctext">${esc(it.txt)}</span></div>`).join('');
-}
-
-document.getElementById('btn-copy-compose').addEventListener('click', async ()=>{
-  const txt=getMarked().map(it=>`[${it.w.toUpperCase()}] ${it.txt}`).join('\n');
-  if(!txt){toast('Nessuna riga selezionata');return;}
-  try{await navigator.clipboard.writeText(txt);toast('Copiato ✓');}catch{toast('Copia non disponibile');}
-});
-
-document.getElementById('btn-save-compose').addEventListener('click', async ()=>{
-  const items=getMarked();
-  if(!items.length){toast('Nessuna riga selezionata');return;}
-  const name=await askName('Nome composizione','Es. Versione finale…');
-  if(!name)return;
-  const txt=items.map(it=>`[${it.w.toUpperCase()}] ${it.txt}`).join('\n');
-  const comp={id:uid(),title:name,text:txt,ts:now()};
-  S.comps.push(comp);
-  lsSet(K_COMPS,S.comps);
-  toast('Composizione salvata ✓');
-  switchTab('comps');
-});
-
-// ── LIBRERIA ─────────────────────────────────────────────────────────────────
-
-function renderLibrary(filter='') {
-  const el=document.getElementById('lib-list');
-  let songs=filter?S.songs.filter(s=>(s.title+s.text).toLowerCase().includes(filter.toLowerCase())):[...S.songs];
-  songs.sort((a,b)=>(b.ts||0)-(a.ts||0));
-  if(!songs.length){
-    el.innerHTML='<div class="empty"><div class="empty-icon">📚</div><div class="empty-text">Nessuna canzone salvata</div></div>';
-    return;
-  }
-  el.innerHTML=songs.map(s=>{
-    const n=s.text?s.text.split('\n').length:0;
-    const m=Object.values(s.marks||{}).filter(v=>v===1).length;
-    return `<div class="lcard">
-      <div class="lcard-top"><span class="lcard-title">${esc(s.title)}</span><button class="lcard-del" data-del-l="${s.id}">🗑️</button></div>
-      <div class="lcard-meta">${fmt(s.ts)} · ${n} righe · ✓ ${m}</div>
-      <div class="lcard-actions">
-        <button class="btn-load btn-load-a" data-ll-a="${s.id}">→ A</button>
-        <button class="btn-load btn-load-b" data-ll-b="${s.id}">→ B</button>
+  const el = $('sessions-list');
+  const list = Object.values(sessions).sort((a,b) => b.ts - a.ts);
+  if (!list.length) { el.innerHTML = '<div class="empty-state"><div class="icon">🎵</div><p>Nessuna sessione salvata. Crea la tua prima sessione dall\'editor.</p></div>'; return; }
+  el.innerHTML = '';
+  list.forEach(sess => {
+    const card = document.createElement('div');
+    card.className = 'card' + (sess.id === sessionId ? ' active-session' : '');
+    const d = new Date(sess.ts);
+    card.innerHTML = `
+      <div class="card-title">${esc(sess.name)}</div>
+      <div class="card-meta">
+        <span>${d.toLocaleDateString('it-IT')} ${d.toLocaleTimeString('it-IT', {hour:'2-digit',minute:'2-digit'})}</span>
+        ${sess.title_a ? `<span class="badge">A: ${esc(sess.title_a)}</span>` : ''}
+        ${sess.title_b ? `<span class="badge">B: ${esc(sess.title_b)}</span>` : ''}
       </div>
-    </div>`;
-  }).join('');
+      <div class="card-actions">
+        <button class="btn small" data-load="${sess.id}">📂 Carica</button>
+        <button class="btn small danger" data-del-sess="${sess.id}">🗑 Elimina</button>
+      </div>`;
+    el.appendChild(card);
+  });
+  el.querySelectorAll('[data-load]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); loadSession(sessions[btn.dataset.load]); });
+  });
+  el.querySelectorAll('[data-del-sess]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); confirmDelete('Elimina sessione', 'Sicuro di voler eliminare questa sessione?', () => {
+      const id = btn.dataset.delSess;
+      delete sessions[id];
+      lsSave();
+      deleteSession(id);
+      if (sessionId === id) { sessionId = null; sessionName = null; updateSessionLabel(); }
+      renderSessions();
+    }); });
+  });
 }
 
-document.getElementById('lib-search').addEventListener('input',e=>renderLibrary(e.target.value));
+// ══════════════════════════════════════════
+//  COMPOSE
+// ══════════════════════════════════════════
+function renderCompose() {
+  const el = $('compose-list');
+  const linesA = $('text-a').value ? $('text-a').value.split('\n') : [];
+  const linesB = $('text-b').value ? $('text-b').value.split('\n') : [];
+  const marksA = editorState.marksA;
+  const marksB = editorState.marksB;
 
-document.getElementById('lib-list').addEventListener('click', async e=>{
-  const del=e.target.closest('[data-del-l]');
-  if(del){
-    const id=del.dataset.delL;
-    const s=S.songs.find(x=>x.id===id);
-    if(!window.confirm(`Eliminare "${s?.title||'questa canzone'}"?`))return;
-    S.songs=S.songs.filter(x=>x.id!==id);
-    lsSet(K_SONGS,S.songs);
-    renderLibrary(document.getElementById('lib-search').value);
-    sbDel('songs',id);
+  const rows = [];
+  const maxLen = Math.max(linesA.length, linesB.length);
+  for (let i = 0; i < maxLen; i++) {
+    if (marksA[i] === 1) rows.push({ idx: i, which: 'a', text: linesA[i] });
+    if (marksB[i] === 1) rows.push({ idx: i, which: 'b', text: linesB[i] });
+  }
+  rows.sort((a,b) => a.idx - b.idx || (a.which === 'a' ? -1 : 1));
+
+  if (!rows.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">✍️</div><p>Segna alcune righe con ✓ nell\'editor per vederle qui.</p></div>';
     return;
   }
-  const la=e.target.closest('[data-ll-a]');
-  if(la){const s=S.songs.find(x=>x.id===la.dataset.llA);if(s)loadSong(s,'a');return;}
-  const lb=e.target.closest('[data-ll-b]');
-  if(lb){const s=S.songs.find(x=>x.id===lb.dataset.llB);if(s)loadSong(s,'b');return;}
+  el.innerHTML = '';
+  rows.forEach(r => {
+    const row = document.createElement('div');
+    row.className = 'compose-row';
+    row.innerHTML = `<span class="compose-tag ${r.which}">${r.which.toUpperCase()}</span><span class="compose-tag idx">${r.idx+1}</span><span class="compose-text">${esc(r.text)}</span>`;
+    el.appendChild(row);
+  });
+}
+
+function getComposedText() {
+  const linesA = $('text-a').value ? $('text-a').value.split('\n') : [];
+  const linesB = $('text-b').value ? $('text-b').value.split('\n') : [];
+  const marksA = editorState.marksA;
+  const marksB = editorState.marksB;
+  const rows = [];
+  const maxLen = Math.max(linesA.length, linesB.length);
+  for (let i = 0; i < maxLen; i++) {
+    if (marksA[i] === 1) rows.push({ idx: i, which: 'a', text: linesA[i] });
+    if (marksB[i] === 1) rows.push({ idx: i, which: 'b', text: linesB[i] });
+  }
+  rows.sort((a,b) => a.idx - b.idx || (a.which === 'a' ? -1 : 1));
+  return rows.map(r => r.text).join('\n');
+}
+
+$('btn-copy-compose').addEventListener('click', () => {
+  const text = getComposedText();
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => flashBtn('btn-copy-compose'));
 });
 
-// ── COMPOSIZIONI ─────────────────────────────────────────────────────────────
-
-function showCompsList() {
-  document.getElementById('comps-list-view').style.display='flex';
-  document.getElementById('comps-editor-view').style.display='none';
-  S.compId=null;
-  renderCompsList();
-}
-
-function showCompsEditor(comp) {
-  S.compId=comp?comp.id:null;
-  document.getElementById('comps-title').value=comp?comp.title:'';
-  document.getElementById('comps-ta').value=comp?comp.text:'';
-  document.getElementById('comps-list-view').style.display='none';
-  document.getElementById('comps-editor-view').style.display='flex';
-}
-
-function renderCompsList() {
-  const el=document.getElementById('comps-list-view');
-  if(!S.comps.length){
-    el.innerHTML='<div class="empty"><div class="empty-icon">📝</div><div class="empty-text">Nessuna composizione.<br>Vai in Componi e premi Salva.</div></div>';
-    return;
-  }
-  el.innerHTML=[...S.comps].sort((a,b)=>(b.ts||0)-(a.ts||0)).map(c=>{
-    const prev=(c.text||'').split('\n').slice(0,2).join(' · ');
-    return `<div class="ccard" data-cid="${c.id}">
-      <div class="ccard-top"><span class="ccard-title">${esc(c.title)}</span><button class="ccard-del" data-del-c="${c.id}">🗑️</button></div>
-      <div class="ccard-meta">${fmt(c.ts)}</div>
-      <div class="ccard-preview">${esc(prev)}</div>
-    </div>`;
-  }).join('');
-}
-
-document.getElementById('comps-list-view').addEventListener('click', async e=>{
-  const del=e.target.closest('[data-del-c]');
-  if(del){
-    e.stopPropagation();
-    if(!window.confirm('Eliminare questa composizione?'))return;
-    S.comps=S.comps.filter(c=>c.id!==del.dataset.delC);
-    lsSet(K_COMPS,S.comps);
-    renderCompsList();
-    return;
-  }
-  const card=e.target.closest('.ccard');
-  if(card){const c=S.comps.find(x=>x.id===card.dataset.cid);if(c)showCompsEditor(c);}
+$('btn-save-composition').addEventListener('click', () => {
+  const text = getComposedText();
+  if (!text) { alert('Nessuna riga selezionata'); return; }
+  openModal('Salva composizione', 'Inserisci un titolo:', '', title => {
+    if (!title) return;
+    const comp = { id: uid(), title, text, ts: now() };
+    compositions[comp.id] = comp;
+    lsSave();
+    pushComposition(comp);
+    alert('Composizione salvata!');
+  });
 });
 
-document.getElementById('comps-back').addEventListener('click', showCompsList);
+// ══════════════════════════════════════════
+//  LIBRARY
+// ══════════════════════════════════════════
+let libraryQuery = '';
+$('library-search').addEventListener('input', e => { libraryQuery = e.target.value.toLowerCase(); renderLibrary(); });
 
-document.getElementById('comps-save').addEventListener('click', ()=>{
-  const title=document.getElementById('comps-title').value.trim()||'(senza titolo)';
-  const text =document.getElementById('comps-ta').value;
-  if(S.compId){
-    const c=S.comps.find(x=>x.id===S.compId);
-    if(c){c.title=title;c.text=text;c.ts=now();}
+function renderLibrary() {
+  const el = $('library-list');
+  let list = Object.values(songs).sort((a,b) => b.ts - a.ts);
+  if (libraryQuery) list = list.filter(s => s.title.toLowerCase().includes(libraryQuery) || s.text.toLowerCase().includes(libraryQuery));
+  if (!list.length) { el.innerHTML = '<div class="empty-state"><div class="icon">📚</div><p>Nessuna canzone in libreria. Salva una canzone dall\'editor.</p></div>'; return; }
+  el.innerHTML = '';
+  list.forEach(song => {
+    const marks = Array.isArray(song.marks) ? song.marks : [];
+    const lines = song.text ? song.text.split('\n').length : 0;
+    const marked = marks.filter(m => m === 1).length;
+    const d = new Date(song.ts);
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-title">${esc(song.title)}</div>
+      <div class="card-meta">
+        <span>${d.toLocaleDateString('it-IT')}</span>
+        <span>${lines} righe</span>
+        ${marked ? `<span class="badge">✓ ${marked}</span>` : ''}
+      </div>
+      <div class="card-actions">
+        <button class="btn small" data-load-a="${song.id}">→ A</button>
+        <button class="btn small" data-load-b="${song.id}">→ B</button>
+        <button class="btn small danger" data-del-song="${song.id}">🗑</button>
+      </div>`;
+    el.appendChild(card);
+  });
+  el.querySelectorAll('[data-load-a]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); loadSongIntoPanel(btn.dataset.loadA, 'a'); });
+  });
+  el.querySelectorAll('[data-load-b]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); loadSongIntoPanel(btn.dataset.loadB, 'b'); });
+  });
+  el.querySelectorAll('[data-del-song]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); confirmDelete('Elimina canzone', 'Sicuro di voler eliminare questa canzone?', () => {
+      delete songs[btn.dataset.delSong];
+      lsSave();
+      deleteSong(btn.dataset.delSong);
+      renderLibrary();
+    }); });
+  });
+}
+
+function loadSongIntoPanel(songId, which) {
+  const song = songs[songId];
+  if (!song) return;
+  if (which === 'a') {
+    $('title-a').value = song.title;
+    $('text-a').value  = song.text;
+    editorState.songIdA = song.id;
+    editorState.marksA  = Array.isArray(song.marks) ? [...song.marks] : [];
+    renderLineUI('a');
   } else {
-    const c={id:uid(),title,text,ts:now()};
-    S.comps.push(c); S.compId=c.id;
+    $('title-b').value = song.title;
+    $('text-b').value  = song.text;
+    editorState.songIdB = song.id;
+    editorState.marksB  = Array.isArray(song.marks) ? [...song.marks] : [];
+    renderLineUI('b');
   }
-  lsSet(K_COMPS,S.comps);
-  toast('Salvata ✓');
-});
-
-document.getElementById('comps-copy').addEventListener('click', async ()=>{
-  const txt=document.getElementById('comps-ta').value;
-  if(!txt){toast('Nessun testo');return;}
-  try{await navigator.clipboard.writeText(txt);toast('Copiato ✓');}catch{toast('Copia non disponibile');}
-});
-
-// ── NAV ──────────────────────────────────────────────────────────────────────
-
-function switchTab(name) {
-  document.querySelectorAll('.ntab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
-  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===`${name}-page`));
-  if(name==='compose')  renderCompose();
-  if(name==='sessions') renderSessions();
-  if(name==='library')  renderLibrary(document.getElementById('lib-search').value);
-  if(name==='comps')    showCompsList();
+  document.querySelector('[data-tab="editor"]').click();
 }
 
-document.getElementById('nav').addEventListener('click',e=>{
-  const t=e.target.closest('.ntab');
-  if(t) switchTab(t.dataset.tab);
+// ══════════════════════════════════════════
+//  COMPOSITIONS
+// ══════════════════════════════════════════
+let editingCompId = null;
+
+function showCompList() {
+  $('compositions-list').style.display = '';
+  $('comp-list-header').style.display = '';
+  $('comp-editor').style.display = 'none';
+  editingCompId = null;
+}
+
+function showCompEditor(compId) {
+  editingCompId = compId;
+  const comp = compositions[compId];
+  $('comp-title').value    = comp.title;
+  $('comp-textarea').value = comp.text;
+  $('compositions-list').style.display = 'none';
+  $('comp-list-header').style.display = 'none';
+  $('comp-editor').style.display = 'flex';
+}
+
+function renderCompositions() {
+  const el = $('compositions-list');
+  const list = Object.values(compositions).sort((a,b) => b.ts - a.ts);
+  if (!list.length) { el.innerHTML = '<div class="empty-state"><div class="icon">📝</div><p>Nessuna composizione. Crea una composizione dal tab Componi.</p></div>'; return; }
+  el.innerHTML = '';
+  list.forEach(comp => {
+    const d = new Date(comp.ts);
+    const lines = comp.text ? comp.text.split('\n').length : 0;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-title">${esc(comp.title)}</div>
+      <div class="card-meta">
+        <span>${d.toLocaleDateString('it-IT')} ${d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}</span>
+        <span>${lines} righe</span>
+      </div>
+      <div class="card-actions">
+        <button class="btn small" data-open-comp="${comp.id}">✏️ Apri</button>
+        <button class="btn small" data-copy-comp="${comp.id}">📋 Copia</button>
+        <button class="btn small danger" data-del-comp="${comp.id}">🗑</button>
+      </div>`;
+    el.appendChild(card);
+  });
+  el.querySelectorAll('[data-open-comp]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); showCompEditor(btn.dataset.openComp); });
+  });
+  el.querySelectorAll('[data-copy-comp]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); navigator.clipboard.writeText(compositions[btn.dataset.copyComp]?.text || ''); });
+  });
+  el.querySelectorAll('[data-del-comp]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); confirmDelete('Elimina composizione', 'Sicuro?', () => {
+      delete compositions[btn.dataset.delComp];
+      lsSave();
+      deleteComposition(btn.dataset.delComp);
+      renderCompositions();
+    }); });
+  });
+}
+
+$('btn-comp-back').addEventListener('click', () => { showCompList(); renderCompositions(); });
+$('btn-comp-save').addEventListener('click', () => {
+  if (!editingCompId) return;
+  const comp = compositions[editingCompId];
+  comp.title = $('comp-title').value.trim() || comp.title;
+  comp.text  = $('comp-textarea').value;
+  comp.ts    = now();
+  lsSave();
+  pushComposition(comp);
+  flashBtn('btn-comp-save');
+});
+$('btn-comp-copy').addEventListener('click', () => {
+  navigator.clipboard.writeText($('comp-textarea').value);
+  flashBtn('btn-comp-copy');
+});
+$('btn-comp-delete').addEventListener('click', () => {
+  if (!editingCompId) return;
+  confirmDelete('Elimina composizione', 'Sicuro di voler eliminare questa composizione?', () => {
+    delete compositions[editingCompId];
+    lsSave();
+    deleteComposition(editingCompId);
+    showCompList();
+    renderCompositions();
+  });
 });
 
-// ── INIT ─────────────────────────────────────────────────────────────────────
-(async ()=>{
-  setupTextarea('a');
-  setupTextarea('b');
+// ══════════════════════════════════════════
+//  MODAL helpers
+// ══════════════════════════════════════════
+let modalCallback = null;
+function openModal(title, desc, placeholder, cb) {
+  $('modal-title').textContent = title;
+  $('modal-desc').textContent  = desc;
+  $('modal-input').value = '';
+  $('modal-input').placeholder = placeholder;
+  modalCallback = cb;
+  $('modal-overlay').classList.add('open');
+  setTimeout(() => $('modal-input').focus(), 50);
+}
+$('modal-cancel').addEventListener('click', () => $('modal-overlay').classList.remove('open'));
+$('modal-confirm').addEventListener('click', () => {
+  const val = $('modal-input').value.trim();
+  $('modal-overlay').classList.remove('open');
+  if (modalCallback) modalCallback(val);
+});
+$('modal-input').addEventListener('keydown', e => { if (e.key === 'Enter') $('modal-confirm').click(); });
+
+let confirmCallback = null;
+function confirmDelete(title, desc, cb) {
+  $('confirm-title').textContent = title;
+  $('confirm-desc').textContent  = desc;
+  confirmCallback = cb;
+  $('confirm-overlay').classList.add('open');
+}
+$('confirm-cancel').addEventListener('click', () => $('confirm-overlay').classList.remove('open'));
+$('confirm-ok').addEventListener('click', () => {
+  $('confirm-overlay').classList.remove('open');
+  if (confirmCallback) confirmCallback();
+});
+
+// ══════════════════════════════════════════
+//  ESCAPE HTML
+// ══════════════════════════════════════════
+function esc(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ══════════════════════════════════════════
+//  THEME TOGGLE
+// ══════════════════════════════════════════
+(function() {
+  const btn = $('btn-theme');
+  const saved = localStorage.getItem('lc_theme') || 'dark';
+  if (saved === 'light') { document.documentElement.setAttribute('data-theme','light'); btn.textContent = '🌙 Scuro'; }
+  btn.addEventListener('click', () => {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    if (isLight) {
+      document.documentElement.removeAttribute('data-theme');
+      btn.textContent = '☀️ Chiaro';
+      localStorage.setItem('lc_theme','dark');
+    } else {
+      document.documentElement.setAttribute('data-theme','light');
+      btn.textContent = '🌙 Scuro';
+      localStorage.setItem('lc_theme','light');
+    }
+  });
+})();
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+async function init() {
+  lsLoad();
+  renderLineUI('a');
+  renderLineUI('b');
   setupScrollSync();
-  await syncAll();
   renderSessions();
   renderLibrary();
-})();
+  renderCompositions();
+  await syncPull();
+  renderSessions();
+  renderLibrary();
+  renderCompositions();
+}
+
+init();
 </script>
 </body>
 </html>
