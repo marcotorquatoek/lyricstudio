@@ -2,8 +2,8 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lyric Composer v1.1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Lyric Composer v1.2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -237,6 +237,19 @@ header .spacer { flex: 1; }
   font-weight: 600;
   outline: none;
   min-width: 0;
+}
+/* Prevent iOS zoom on focus — font-size must be >= 16px on all inputs */
+input, textarea, select {
+  font-size: 16px !important;
+}
+@media (min-width: 681px) {
+  input, textarea, select { font-size: 13px !important; }
+  .editor-textarea { font-size: 13px !important; }
+  .title-input { font-size: 13px !important; }
+  .search-input { font-size: 13px !important; }
+  .modal-input { font-size: 14px !important; }
+  .comp-title-input { font-size: 15px !important; }
+  .comp-textarea { font-size: 13px !important; }
 }
 .title-input::placeholder { color: var(--text3); font-weight: 400; }
 
@@ -589,7 +602,7 @@ header .spacer { flex: 1; }
   <!-- HEADER -->
   <header>
     <div class="logo">Lyric<span>Composer</span></div>
-    <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);font-weight:400;letter-spacing:0.5px;">v1.1</span>
+    <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);font-weight:400;letter-spacing:0.5px;">v1.2</span>
     <div class="session-label" id="session-label">nessuna sessione</div>
     <div class="spacer"></div>
     <div class="sync-dot" id="sync-dot" title="Sync status"></div>
