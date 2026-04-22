@@ -922,8 +922,8 @@ function setupScrollSync() {
 // ══════════════════════════════════════════
 //  TEXTAREA → update UI
 // ══════════════════════════════════════════
-$('text-a').addEventListener('input', () => { editorState.marksA = []; renderLineUI('a'); debouncedAutoSave(); });
-$('text-b').addEventListener('input', () => { editorState.marksB = []; renderLineUI('b'); debouncedAutoSave(); });
+$('text-a').addEventListener('input', () => { renderLineUI('a'); debouncedAutoSave(); });
+$('text-b').addEventListener('input', () => { renderLineUI('b'); debouncedAutoSave(); });
 $('title-a').addEventListener('input', debouncedAutoSave);
 $('title-b').addEventListener('input', debouncedAutoSave);
 
